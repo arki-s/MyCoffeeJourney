@@ -12,25 +12,59 @@ export default function App() {
   const db = SQLite.openDatabase('MyCoffeeJourney.db');
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<any[]>([]);
+  const [items, setItems] = useState<SQLite.SQLResultSet | null>(null);
+
+  console.log(FileSystem.documentDirectory + 'SQLite/');
 
   useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, userEmail TEXT)');
-    })
 
-    db.transaction(tx => {
-      tx.executeSql('SELECT * FROM users', null,
-        (txObj, resultSet) => setUsers(resultSet.rows._array),
-        (txObj, error) => console.log(error)
-      );
-    });
-
-    db.transaction(tx => {
-      tx.executeSql('INSERT INTO users (name, userEmail) VALUES (?, ?)', ["test", "test@test.com"]);
-    })
 
     setIsLoading(false);
-  }, [db])
+  }, [])
+
+  db.transaction((tx) => {
+    tx.executeSql(
+      'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, userEmail TEXT)',
+      null,
+      () => {
+        console.log("CREATE TABLE Success.");
+      },
+      () => {
+        console.log("CREATE TABLE Failed.");
+        return true;
+      });
+  })
+
+  db.transaction(tx => {
+    tx.executeSql('INSERT INTO users (name, userEmail) VALUES (?, ?)', ["test", "test@test.com"]);
+  })
+
+  db.transaction(tx => {
+    tx.executeSql('SELECT * FROM users;',
+      null,
+      (_, resultSet) => {
+        setItems(resultSet);
+        console.log(items);
+      },
+      () => {
+        console.log('fail');
+        return false;
+      }
+    );
+  })
+
+  db.transaction((tx) => {
+    tx.executeSql(
+      'DROP TABLE users',
+      null,
+      () => {
+        console.log("DELETE Success.");
+      },
+      () => {
+        console.log("DELETE Failed.");
+        return true;
+      });
+  })
 
 
   const [fontsLoaded] = useFonts({
