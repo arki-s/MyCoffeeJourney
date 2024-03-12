@@ -1,71 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useState, useEffect, Suspense } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useFonts } from 'expo-font';
-
-import * as FileSystem from 'expo-file-system';
 import * as SQLite from 'expo-sqlite';
-import { Asset } from 'expo-asset';
+import { SQLiteProvider } from 'expo-sqlite/next';
+import Home from './Screens/Home';
+import Colors from './App/Styles/Colors';
 
+const Tab = createBottomTabNavigator();
+const db = SQLite.openDatabase('MyCoffeeJourney.db');
+
+function MyTabs() {
+  return (
+    <Tab.Navigator>
+      <Tab.Screen name="Home" component={Home} />
+    </Tab.Navigator>
+  );
+}
 
 export default function App() {
-  const db = SQLite.openDatabase('MyCoffeeJourney.db');
+
   const [isLoading, setIsLoading] = useState(true);
-  const [users, setUsers] = useState<any[]>([]);
   const [items, setItems] = useState<SQLite.SQLResultSet | null>(null);
 
-  console.log(FileSystem.documentDirectory + 'SQLite/');
+  // console.log(FileSystem.documentDirectory + 'SQLite/');
 
   useEffect(() => {
-
+    db.transactionAsync(async (tx) => {
+      await tx.executeSqlAsync(
+        `CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, userEmail TEXT)
+         CREATE TABLE IF NOT EXISTS coffee ()
+         CREATE TABLE IF NOT EXISTS cofeeBrand ()
+         CREATE TABLE IF NOT EXISTS coffeeBean ()
+         CREATE TABLE IF NOT EXISTS record ()
+         CREATE TABLE IF NOT EXISTS review ();`,
+      );
+    })
 
     setIsLoading(false);
-  }, [])
 
-  db.transaction((tx) => {
-    tx.executeSql(
-      'CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, userEmail TEXT)',
-      null,
-      () => {
-        console.log("CREATE TABLE Success.");
-      },
-      () => {
-        console.log("CREATE TABLE Failed.");
-        return true;
-      });
-  })
-
-  db.transaction(tx => {
-    tx.executeSql('INSERT INTO users (name, userEmail) VALUES (?, ?)', ["test", "test@test.com"]);
-  })
-
-  db.transaction(tx => {
-    tx.executeSql('SELECT * FROM users;',
-      null,
-      (_, resultSet) => {
-        setItems(resultSet);
-        console.log(items);
-      },
-      () => {
-        console.log('fail');
-        return false;
-      }
-    );
-  })
-
-  db.transaction((tx) => {
-    tx.executeSql(
-      'DROP TABLE users',
-      null,
-      () => {
-        console.log("DELETE Success.");
-      },
-      () => {
-        console.log("DELETE Failed.");
-        return true;
-      });
-  })
-
+  }, [db]);
 
   const [fontsLoaded] = useFonts({
     'Ojuju-B': require('./assets/fonts/Ojuju-Bold.ttf'),
@@ -81,22 +56,19 @@ export default function App() {
     )
   }
 
-  // async function openDatabase(pathToDatabaseFile: string): Promise<SQLite.WebSQLDatabase> {
-  //   if (!(await FileSystem.getInfoAsync(FileSystem.documentDirectory + 'SQLite')).exists) {
-  //     await FileSystem.makeDirectoryAsync(FileSystem.documentDirectory + 'SQLite');
-  //   }
-  //   await FileSystem.downloadAsync(
-  //     Asset.fromModule(require('./')).uri,
-  //     FileSystem.documentDirectory + 'SQLite/MyCoffeeJourney.db'
-  //   );
-  //   return SQLite.openDatabase('MyCoffeeJourney.db');
-  // }
-
   return (
-    <View style={styles.container}>
-      <Text style={{ fontFamily: 'Ojuju-B', fontSize: 18 }}>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Suspense fallback={
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Text>Loading...</Text>
+        <ActivityIndicator size={"large"} color={Colors.PRIMARY} />
+      </View>
+    }>
+      <SQLiteProvider databaseName='MyCoffeeJourney.db' useSuspense>
+        <NavigationContainer>
+          <MyTabs />
+        </NavigationContainer>
+      </SQLiteProvider>
+    </Suspense>
   );
 }
 
