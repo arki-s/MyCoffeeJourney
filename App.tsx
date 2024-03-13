@@ -29,13 +29,57 @@ export default function App() {
   useEffect(() => {
     db.transactionAsync(async (tx) => {
       await tx.executeSqlAsync(
-        `CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, userEmail TEXT)
-         CREATE TABLE IF NOT EXISTS coffee ()
-         CREATE TABLE IF NOT EXISTS cofeeBrand ()
-         CREATE TABLE IF NOT EXISTS coffeeBean ()
-         CREATE TABLE IF NOT EXISTS record ()
-         CREATE TABLE IF NOT EXISTS review ();`,
+        `CREATE TABLE IF NOT EXISTS users (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          userEmail TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS coffeeBean (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            );
+          CREATE TABLE IF NOT EXISTS coffeeBrand (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            );
+          CREATE TABLE IF NOT EXISTS coffee (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT NOT NULL,
+          photo BLOB,
+          favorite INTEGER DEFAULT 0,
+          drinkCount INTEGER DEFAULT 0,
+          comment TEXT,
+          roast INTEGER DEFAULT 3,
+          body INTEGER DEFAULT 3,
+          sweetness INTEGER DEFAULT 3,
+          fruity INTEGER DEFAULT 3,
+          bitter INTEGER DEFAULT 3,
+          aroma INTEGER DEFAULT 3,
+          FOREIGN KEY (coffeeBrand_id) REFERENCES coffeeBrand (id))
+         CREATE TABLE IF NOT EXISTS inclusion (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          FOREIGN KEY (coffee_id) REFERENCES coffee (id),
+          FOREIGN KEY (coffeeBena_id) REFERENCES coffeeBean (id)
+         );
+         CREATE TABLE IF NOT EXISTS record (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          startDate INTEGER NOT NULL,
+          endDate INTEGER,
+          gram INTEGER DEFAULT 0,
+          cost INTEGER DEFAULT 0,
+          grindSize INTEGER DEFAULT 3,
+          FOREIGN KEY (coffee_id) REFERENCES coffee (id),
+         );
+         CREATE TABLE IF NOT EXISTS review (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          rating INTEGER DEFAULT 3,
+          comment TEXT,
+          date INTEGER NOT NULL,
+          FOREIGN KEY (record_id) REFERENCES record (id)
+         );`,
       );
+    }).catch((error) => {
+      console.log("SQL error!");
+      console.log(error.message);
     })
 
     setIsLoading(false);
