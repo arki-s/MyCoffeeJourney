@@ -55,6 +55,8 @@ export default function Home() {
 
   return (
     <View style={styles.container}>
+      <Text>現在飲んでいるコーヒー豆の表示</Text>
+      <Text>スライドでカレンダー切り替え</Text>
       <TouchableOpacity onPress={insertUser} style={{ padding: 15, backgroundColor: "yellow" }}>
         <Text>CREATE TEST USER!</Text>
       </TouchableOpacity>

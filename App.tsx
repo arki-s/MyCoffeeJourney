@@ -7,6 +7,10 @@ import * as SQLite from 'expo-sqlite';
 import { SQLiteProvider } from 'expo-sqlite/next';
 import Home from './Screens/Home';
 import Colors from './App/Styles/Colors';
+import CoffeeIndex from './Screens/CoffeeIndex';
+import ReviewIndex from './Screens/ReviewIndex';
+import Analytics from './Screens/Analytics';
+import RecordIndex from './Screens/RecordIndex';
 
 const Tab = createBottomTabNavigator();
 const db = SQLite.openDatabase('MyCoffeeJourney.db');
@@ -14,7 +18,11 @@ const db = SQLite.openDatabase('MyCoffeeJourney.db');
 function MyTabs() {
   return (
     <Tab.Navigator>
-      <Tab.Screen name="Home" component={Home} />
+      <Tab.Screen name="ホーム" component={Home} />
+      <Tab.Screen name="My図鑑" component={CoffeeIndex} />
+      <Tab.Screen name="履歴" component={RecordIndex} />
+      <Tab.Screen name="感想" component={ReviewIndex} />
+      <Tab.Screen name="分析" component={Analytics} />
     </Tab.Navigator>
   );
 }
