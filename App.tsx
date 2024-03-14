@@ -5,12 +5,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useFonts } from 'expo-font';
 import * as SQLite from 'expo-sqlite';
 import { SQLiteProvider } from 'expo-sqlite/next';
-import Home from './Screens/Home';
+import Home from './App/Screens/Home';
 import Colors from './App/Styles/Colors';
-import CoffeeIndex from './Screens/CoffeeIndex';
-import ReviewIndex from './Screens/ReviewIndex';
-import Analytics from './Screens/Analytics';
-import RecordIndex from './Screens/RecordIndex';
+import CoffeeIndex from './App/Screens/CoffeeIndex';
+import ReviewIndex from './App/Screens/ReviewIndex';
+import Analytics from './App/Screens/Analytics';
+import RecordIndex from './App/Screens/RecordIndex';
+import DBTest from './App/Screens/DBTest';
 
 const Tab = createBottomTabNavigator();
 const db = SQLite.openDatabase('MyCoffeeJourney.db');
@@ -23,6 +24,7 @@ function MyTabs() {
       <Tab.Screen name="履歴" component={RecordIndex} />
       <Tab.Screen name="感想" component={ReviewIndex} />
       <Tab.Screen name="分析" component={Analytics} />
+      <Tab.Screen name="テスト用" component={DBTest} />
     </Tab.Navigator>
   );
 }
@@ -37,10 +39,7 @@ export default function App() {
   useEffect(() => {
     db.transactionAsync(async (tx) => {
       await tx.executeSqlAsync(
-        `CREATE TABLE IF NOT EXISTS users (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT NOT NULL,
-          userEmail TEXT NOT NULL);
+        `
           CREATE TABLE IF NOT EXISTS coffeeBean (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT NOT NULL,
