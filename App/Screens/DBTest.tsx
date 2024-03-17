@@ -8,21 +8,23 @@ export default function DBTest() {
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
   const [beans, setBeans] = useState<CoffeeBean[]>([]);
+
   const db = useSQLiteContext();
 
   useEffect(() => {
     db.withExclusiveTransactionAsync(async () => {
       await getData();
     })
-  }, [])
+  }, [db])
 
   async function getData() {
     await db.getAllAsync<Coffee>(`
-    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, coffeeBean.name AS beans
+    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
     FROM coffee
-    JOIN coffeeBrand ON coffeeBrand.id = coffee.coffeeBrand_id
+    JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
     JOIN inclusion ON inclusion.coffee_id = coffee.id
-    JOIN coffeeBean ON coffeeBean.id = inclusion.coffeeBean_id
+    JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+    GROUP BY coffee.name
     ;`).then((rsp) => {
       console.log("rsp", rsp);
       // setCoffees(rsp);
@@ -56,8 +58,8 @@ export default function DBTest() {
     db.withTransactionAsync(async () => {
       await db.runAsync(
         `
-        INSERT INTO coffeeBrand (name) VALUES ("小川珈琲");
-        `
+          INSERT INTO coffeeBrand (name) VALUES ("小川珈琲");
+          `
       ).catch((error) => {
         console.log("creating 1 error!");
         console.log(error.message);
@@ -66,7 +68,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBrand (name) VALUES ("タリーズコーヒー");
+        INSERT INTO coffeeBrand (name) VALUES ("TULLY'S COFFEE");
         `
       ).catch((error) => {
         console.log("creating 2 error!");
@@ -86,7 +88,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBrand (name) VALUES ("カルディ");
+        INSERT INTO coffeeBrand (name) VALUES ("KALDI");
         `
       ).catch((error) => {
         console.log("creating 4 error!");
@@ -106,7 +108,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBean (name) VALUES ("コロンビア");
+        INSERT INTO coffeeBean (name) VALUES ("Columbia");
         `
       ).catch((error) => {
         console.log("creating 6 error!");
@@ -116,7 +118,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBean (name) VALUES ("ブラジル");
+        INSERT INTO coffeeBean (name) VALUES ("Brazil");
         `
       ).catch((error) => {
         console.log("creating 7 error!");
@@ -126,7 +128,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBean (name) VALUES ("インドネシア");
+        INSERT INTO coffeeBean (name) VALUES ("Indonesia");
         `
       ).catch((error) => {
         console.log("creating 8 error!");
@@ -136,7 +138,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBean (name) VALUES ("エチオピア");
+        INSERT INTO coffeeBean (name) VALUES ("Ethiopia");
         `
       ).catch((error) => {
         console.log("creating 9 error!");
@@ -146,7 +148,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBean (name) VALUES ("グアテマラ");
+        INSERT INTO coffeeBean (name) VALUES ("Guatemala");
         `
       ).catch((error) => {
         console.log("creating 10 error!");
@@ -156,7 +158,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBean (name) VALUES ("ペルー");
+        INSERT INTO coffeeBean (name) VALUES ("Peru");
         `
       ).catch((error) => {
         console.log("creating 11 error!");
@@ -166,7 +168,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        INSERT INTO coffeeBean (name) VALUES ("ベトナム");
+        INSERT INTO coffeeBean (name) VALUES ("Vietnam");
         `
       ).catch((error) => {
         console.log("creating 12 error!");
@@ -183,7 +185,7 @@ export default function DBTest() {
   async function insertCoffee() {
     db.withTransactionAsync(async () => {
       await db.runAsync(
-        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, coffeeBrand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
         ["マイルドカルディ", 2, 3, 3, 3, 3, 2, 3]
       ).catch((error) => {
         console.log("creating coffee1 error!");
@@ -192,7 +194,7 @@ export default function DBTest() {
       });
 
       await db.runAsync(
-        `INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (?, ?);`,
+        `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
         [1, 1]
       ).catch((error) => {
         console.log("creating inclusion1-1 error!");
@@ -201,7 +203,7 @@ export default function DBTest() {
       });
 
       await db.runAsync(
-        `INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (?, ?);`,
+        `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
         [1, 2]
       ).catch((error) => {
         console.log("creating inclusion1-2 error!");
@@ -210,8 +212,8 @@ export default function DBTest() {
       });
 
       await db.runAsync(
-        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, coffeeBrand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
-        ["マンデリンフレンチ", 4, 4, 1, 1, 4, 4, 3]
+        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+        ["マンデリンフレンチ", 4, 4, 1, 1, 4, 4, 4]
       ).catch((error) => {
         console.log("creating coffee2 error!");
         console.log(error.message);
@@ -219,7 +221,7 @@ export default function DBTest() {
       });
 
       await db.runAsync(
-        `INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (?, ?);`,
+        `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
         [2, 3]
       ).catch((error) => {
         console.log("creating inclusion2-1 error!");
@@ -234,6 +236,7 @@ export default function DBTest() {
   }
 
   async function dropTables() {
+
     db.withTransactionAsync(async () => {
       await db.runAsync(
         `
@@ -267,7 +270,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        DROP TABLE record;
+        DROP TABLE inclusion;
         `,
       ).catch((error) => {
         console.log("drop table4 error!");
@@ -277,7 +280,7 @@ export default function DBTest() {
 
       await db.runAsync(
         `
-        DROP TABLE review;
+        DROP TABLE record;
         `,
       ).catch((error) => {
         console.log("drop table5 error!");
@@ -285,18 +288,40 @@ export default function DBTest() {
         return;
       });
 
+      await db.runAsync(
+        `
+        DROP TABLE review;
+        `,
+      ).catch((error) => {
+        console.log("drop table6 error!");
+        console.log(error.message);
+        return;
+      });
+
+
+
       console.log("successfully dropped all table!")
 
       await getData();
     })
   }
+
+  const coffee = coffees.map((c) => {
+    return (
+      <View>
+        <Text>{c.name}</Text>
+      </View>
+    )
+  })
+
   return (
     <View>
+      {coffee}
       <TouchableOpacity onPress={insertCoffeedataBasic} style={{ padding: 15, backgroundColor: "yellow" }}>
         <Text>CREATE COFFEE BRAND AND BEAN!</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={insertCoffee} style={{ padding: 15, backgroundColor: "red" }}>
-        <Text>INSERT 2 SAMPLE COFFEE!</Text>
+        <Text>INSERT 2 SAMPLsE COFFEE!</Text>
       </TouchableOpacity>
       <TouchableOpacity onPress={dropTables} style={{ padding: 15, backgroundColor: "gray" }}>
         <Text>DROP ALL TABLE!</Text>

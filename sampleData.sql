@@ -1,3 +1,5 @@
+assets/sqlite3 mySQLiteDB.db
+
 CREATE TABLE IF NOT EXISTS coffeeBean (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 name TEXT NOT NULL
@@ -9,7 +11,7 @@ name TEXT NOT NULL);
 
 CREATE TABLE IF NOT EXISTS coffee (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
-coffeeBrand_id INTEGER,
+brand_id INTEGER,
 name TEXT NOT NULL,
 photo BLOB,
 favorite INTEGER DEFAULT 0,
@@ -21,14 +23,14 @@ sweetness INTEGER DEFAULT 3,
 fruity INTEGER DEFAULT 3,
 bitter INTEGER DEFAULT 3,
 aroma INTEGER DEFAULT 3,
-FOREIGN KEY (coffeeBrand_id) REFERENCES coffeeBrand (id));
+FOREIGN KEY (brand_id) REFERENCES coffeeBrand (id));
 
 CREATE TABLE IF NOT EXISTS inclusion (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 coffee_id INTEGER,
-coffeeBean_id INTEGER,
+bean_id INTEGER,
 FOREIGN KEY (coffee_id) REFERENCES coffee (id),
-FOREIGN KEY (coffeeBean_id) REFERENCES coffeeBean (id));
+FOREIGN KEY (bean_id) REFERENCES coffeeBean (id));
 
 CREATE TABLE IF NOT EXISTS record (
 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -65,8 +67,16 @@ INSERT INTO coffeeBean (name) VALUES ("ベトナム");
 
 
 INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, brand_id) VALUES ("マイルドカルディ" ,2, 3, 3, 3, 3, 2, 4);
-INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (1, 1);
-INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (1, 2);
+INSERT INTO inclusion (coffee_id, bean_id) VALUES (1, 1);
+INSERT INTO inclusion (coffee_id, bean_id) VALUES (1, 2);
 
 INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, brand_id) VALUES ("マンデリンフレンチ" ,4, 4, 1, 1, 4, 4, 4);
-INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (2, 3);
+INSERT INTO inclusion (coffee_id, bean_id) VALUES (2, 3);
+
+SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
+FROM coffee
+JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+JOIN inclusion ON inclusion.coffee_id = coffee.id
+JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+GROUP BY coffee.name
+;

@@ -12,9 +12,29 @@ import ReviewIndex from './App/Screens/ReviewIndex';
 import Analytics from './App/Screens/Analytics';
 import RecordIndex from './App/Screens/RecordIndex';
 import DBTest from './App/Screens/DBTest';
+import { Asset } from 'expo-asset';
+import * as FileSystem from "expo-file-system";
 
 const Tab = createBottomTabNavigator();
+
+// ASSET内のDBファイルを使わずに直接ファイル作成から始める場合は以下
 const db = SQLite.openDatabase('MyCoffeeJourney.db');
+
+// const loadDatabase = async () => {
+//   const dbName = "mySQLiteDB.db";
+//   const dbAsset = require("./assets/mySQLiteDB.db");
+//   const dbUri = Asset.fromModule(dbAsset).uri;
+//   const dbFilePath = `${FileSystem.documentDirectory}SQLite/${dbName}`;
+
+//   const fileInfo = await FileSystem.getInfoAsync(dbFilePath);
+//   if (!fileInfo.exists) {
+//     await FileSystem.makeDirectoryAsync(
+//       `${FileSystem.documentDirectory}SQLite`,
+//       { intermediates: true }
+//     );
+//     await FileSystem.downloadAsync(dbUri, dbFilePath);
+//   }
+// };
 
 function MyTabs() {
   return (
@@ -32,11 +52,18 @@ function MyTabs() {
 export default function App() {
 
   const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState<SQLite.SQLResultSet | null>(null);
-
   // console.log(FileSystem.documentDirectory + 'SQLite/');
 
   useEffect(() => {
+
+    // loadDatabase()
+    //   .then(() => {
+    //     console.log("successfully loaded DB!");
+    //     setIsLoading(false);
+    //   })
+    //   .catch((error) => console.error(error.message));
+
+    // ASSET内のDBファイルを使わずに直接DB設定する場合は以下を利用
     db.transactionAsync(async (tx) => {
       await tx.executeSqlAsync(
         `
@@ -69,7 +96,7 @@ export default function App() {
         `
         CREATE TABLE IF NOT EXISTS coffee (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          coffeeBrand_id INTEGER,
+          brand_id INTEGER,
           name TEXT NOT NULL,
           photo BLOB,
           favorite INTEGER DEFAULT 0,
@@ -81,7 +108,7 @@ export default function App() {
           fruity INTEGER DEFAULT 3,
           bitter INTEGER DEFAULT 3,
           aroma INTEGER DEFAULT 3,
-          FOREIGN KEY (coffeeBrand_id) REFERENCES coffeeBrand (id));
+          FOREIGN KEY (brand_id) REFERENCES coffeeBrand (id));
         `
       )
     }).catch((error) => {
@@ -95,9 +122,9 @@ export default function App() {
         CREATE TABLE IF NOT EXISTS inclusion (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           coffee_id INTEGER,
-          coffeeBean_id INTEGER,
+          bean_id INTEGER,
           FOREIGN KEY (coffee_id) REFERENCES coffee (id),
-          FOREIGN KEY (coffeeBean_id) REFERENCES coffeeBean (id));
+          FOREIGN KEY (bean_id) REFERENCES coffeeBean (id));
         `
       )
     }).catch((error) => {
@@ -143,6 +170,8 @@ export default function App() {
 
     setIsLoading(false);
 
+    // }, []);
+    // ASSET内のDBファイル使わず直接書き込みの場合は以下
   }, [db]);
 
   const [fontsLoaded] = useFonts({
