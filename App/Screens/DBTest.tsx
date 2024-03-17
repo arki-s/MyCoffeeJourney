@@ -17,81 +17,289 @@ export default function DBTest() {
   }, [])
 
   async function getData() {
-    const coffeeResult = await db.getAllAsync<Coffee>(`
-    SELECT * FROM coffee;`);
-    setCoffees(coffeeResult);
-    console.log(coffeeResult);
+    await db.getAllAsync<Coffee>(`
+    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, coffeeBean.name AS beans
+    FROM coffee
+    JOIN coffeeBrand ON coffeeBrand.id = coffee.coffeeBrand_id
+    JOIN inclusion ON inclusion.coffee_id = coffee.id
+    JOIN coffeeBean ON coffeeBean.id = inclusion.coffeeBean_id
+    ;`).then((rsp) => {
+      console.log("rsp", rsp);
+      // setCoffees(rsp);
+    }).catch((error) => {
+      console.log("reading coffee error!");
+      console.log(error.message);
+    });
 
-    const brandResult = await db.getAllAsync<CoffeeBrand>(`
-    SELECT * FROM coffeeBrand;`);
-    setBrands(brandResult);
-    console.log(brandResult);
+    await db.getAllAsync<CoffeeBrand>(`
+    SELECT * FROM coffeeBrand;`).then((rsp) => {
+      console.log("rsp", rsp);
+      setBrands(rsp);
+    }).catch((error) => {
+      console.log("reading coffee brand error!");
+      console.log(error.message);
+    });
 
-    const beanResult = await db.getAllAsync<CoffeeBean>(`
-    SELECT * FROM coffeeBean;`);
-    setBeans(beanResult);
-    console.log(beanResult);
+
+    await db.getAllAsync<CoffeeBean>(`
+    SELECT * FROM coffeeBean;`).then((rsp) => {
+      console.log("rsp", rsp);
+      setBeans(rsp);
+    }).catch((error) => {
+      console.log("reading coffee bean error!");
+      console.log(error.message);
+    });
+
   }
 
-  async function insertCoffee3data() {
+  async function insertCoffeedataBasic() {
     db.withTransactionAsync(async () => {
       await db.runAsync(
-        `INSERT INTO coffee (name, userEmail) VALUES (?, ?);`,
-        ["test", "test@test.com"]
+        `
+        INSERT INTO coffeeBrand (name) VALUES ("小川珈琲");
+        `
       ).catch((error) => {
-        console.log("creating user error!");
+        console.log("creating 1 error!");
         console.log(error.message);
         return;
       });
 
-      console.log("successfully created test user!")
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBrand (name) VALUES ("タリーズコーヒー");
+        `
+      ).catch((error) => {
+        console.log("creating 2 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBrand (name) VALUES ("AGF");
+        `
+      ).catch((error) => {
+        console.log("creating 3 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBrand (name) VALUES ("カルディ");
+        `
+      ).catch((error) => {
+        console.log("creating 4 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBrand (name) VALUES ("無印良品");
+        `
+      ).catch((error) => {
+        console.log("creating 5 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBean (name) VALUES ("コロンビア");
+        `
+      ).catch((error) => {
+        console.log("creating 6 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBean (name) VALUES ("ブラジル");
+        `
+      ).catch((error) => {
+        console.log("creating 7 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBean (name) VALUES ("インドネシア");
+        `
+      ).catch((error) => {
+        console.log("creating 8 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBean (name) VALUES ("エチオピア");
+        `
+      ).catch((error) => {
+        console.log("creating 9 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBean (name) VALUES ("グアテマラ");
+        `
+      ).catch((error) => {
+        console.log("creating 10 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBean (name) VALUES ("ペルー");
+        `
+      ).catch((error) => {
+        console.log("creating 11 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        INSERT INTO coffeeBean (name) VALUES ("ベトナム");
+        `
+      ).catch((error) => {
+        console.log("creating 12 error!");
+        console.log(error.message);
+        return;
+      });
+
+      console.log("successfully created coffee brand & bean!")
 
       await getData();
     })
   }
 
-  async function deleteUser() {
+  async function insertCoffee() {
     db.withTransactionAsync(async () => {
       await db.runAsync(
-        `DELETE FROM users WHERE name = ?;`,
-        ["test"]
+        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, coffeeBrand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+        ["マイルドカルディ", 2, 3, 3, 3, 3, 2, 3]
       ).catch((error) => {
-        console.log("deleting user error!");
+        console.log("creating coffee1 error!");
         console.log(error.message);
         return;
       });
 
-      console.log("successfully deleted test user!")
+      await db.runAsync(
+        `INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (?, ?);`,
+        [1, 1]
+      ).catch((error) => {
+        console.log("creating inclusion1-1 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (?, ?);`,
+        [1, 2]
+      ).catch((error) => {
+        console.log("creating inclusion1-2 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, coffeeBrand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+        ["マンデリンフレンチ", 4, 4, 1, 1, 4, 4, 3]
+      ).catch((error) => {
+        console.log("creating coffee2 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `INSERT INTO inclusion (coffee_id, coffeeBean_id) VALUES (?, ?);`,
+        [2, 3]
+      ).catch((error) => {
+        console.log("creating inclusion2-1 error!");
+        console.log(error.message);
+        return;
+      });
+
+      console.log("successfully created 2 sample coffee")
 
       await getData();
     })
   }
 
-  async function dropUser() {
+  async function dropTables() {
     db.withTransactionAsync(async () => {
       await db.runAsync(
-        `DROP TABLE users;`,
+        `
+        DROP TABLE coffee;
+        `,
       ).catch((error) => {
-        console.log("drop table error!");
+        console.log("drop table1 error!");
         console.log(error.message);
         return;
       });
 
-      console.log("successfully dropped user table!")
+      await db.runAsync(
+        `
+        DROP TABLE coffeeBrand;
+        `,
+      ).catch((error) => {
+        console.log("drop table2 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE coffeeBean;
+        `,
+      ).catch((error) => {
+        console.log("drop table3 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE record;
+        `,
+      ).catch((error) => {
+        console.log("drop table4 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE review;
+        `,
+      ).catch((error) => {
+        console.log("drop table5 error!");
+        console.log(error.message);
+        return;
+      });
+
+      console.log("successfully dropped all table!")
 
       await getData();
     })
   }
   return (
     <View>
-      <TouchableOpacity onPress={insertUser} style={{ padding: 15, backgroundColor: "yellow" }}>
-        <Text>CREATE TEST USER!</Text>
+      <TouchableOpacity onPress={insertCoffeedataBasic} style={{ padding: 15, backgroundColor: "yellow" }}>
+        <Text>CREATE COFFEE BRAND AND BEAN!</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={deleteUser} style={{ padding: 15, backgroundColor: "red" }}>
-        <Text>DELETE ALL USER!</Text>
+      <TouchableOpacity onPress={insertCoffee} style={{ padding: 15, backgroundColor: "red" }}>
+        <Text>INSERT 2 SAMPLE COFFEE!</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={dropUser} style={{ padding: 15, backgroundColor: "gray" }}>
-        <Text>DROP USER TABLE!</Text>
+      <TouchableOpacity onPress={dropTables} style={{ padding: 15, backgroundColor: "gray" }}>
+        <Text>DROP ALL TABLE!</Text>
       </TouchableOpacity>
     </View>
   )

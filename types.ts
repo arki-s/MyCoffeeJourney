@@ -17,8 +17,10 @@ export type Coffee = {
   fruity: number;
   bitter: number;
   aroma: number;
-  brandId: number;
-  CoffeeBeanId: number;
+  brand: string;
+  beans: CoffeeBean[];
+  // brands: CoffeeBrand;
+  // CoffeeBeans: CoffeeBean[];
 }
 
 export type CoffeeBrand = {
