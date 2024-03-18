@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { Coffee, CoffeeBean, CoffeeBrand, User } from '../../types';
 import { useSQLiteContext } from 'expo-sqlite/next';
+import { globalStyles } from '../Styles/globalStyles';
 
 export default function DBTest() {
   const [users, setUsers] = useState<User[]>([]);
@@ -315,7 +316,7 @@ export default function DBTest() {
   })
 
   return (
-    <View>
+    <View style={globalStyles.container}>
       {coffee}
       <TouchableOpacity onPress={insertCoffeedataBasic} style={{ padding: 15, backgroundColor: "yellow" }}>
         <Text>CREATE COFFEE BRAND AND BEAN!</Text>
