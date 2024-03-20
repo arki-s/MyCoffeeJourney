@@ -27,7 +27,7 @@ export type Coffee = {
   bitter: number;
   aroma: number;
   brand: string;
-  beans: CoffeeBean[];
+  beans: string;
   // brands: CoffeeBrand;
   // CoffeeBeans: CoffeeBean[];
 }

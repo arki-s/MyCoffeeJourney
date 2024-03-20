@@ -15,6 +15,7 @@ import DBTest from './Screens/DBTest';
 import { Asset } from 'expo-asset';
 import * as FileSystem from "expo-file-system";
 import Footer from './Screens/Footer';
+import Settings from './Screens/Settings';
 
 const Tab = createBottomTabNavigator();
 
@@ -45,6 +46,7 @@ function MyTabs() {
       <Tab.Screen name="History" component={RecordIndex} />
       <Tab.Screen name="Review" component={ReviewIndex} />
       <Tab.Screen name="Analytics" component={Analytics} />
+      <Tab.Screen name="Settings" component={Settings} />
       <Tab.Screen name="Test" component={DBTest} />
     </Tab.Navigator>
   );

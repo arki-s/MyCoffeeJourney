@@ -23,6 +23,10 @@ export default function Footer({ navigation }: BottomTabBarProps) {
     navigation.navigate('Analytics');
   }
 
+  function HandleSettingsPress() {
+    navigation.navigate('Settings');
+  }
+
   function HandleTestPress() {
     navigation.navigate('Test');
   }
@@ -59,11 +63,18 @@ export default function Footer({ navigation }: BottomTabBarProps) {
       </View>
 
       <View style={footerStyles.iconContainer}>
+        <TouchableOpacity onPress={HandleSettingsPress}>
+          <Image source={require('../assets/setting.png')} style={footerStyles.iconImg} />
+          <Text style={footerStyles.title}>設定</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* <View style={footerStyles.iconContainer}>
         <TouchableOpacity onPress={HandleTestPress}>
           <Image source={require('../assets/analisys.png')} style={footerStyles.iconImg} />
           <Text style={footerStyles.title}>テスト用</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
     </View>
   )
