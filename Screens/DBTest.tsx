@@ -1,6 +1,6 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { Coffee, CoffeeBean, CoffeeBrand, User } from '../../types';
+import { Coffee, CoffeeBean, CoffeeBrand, User } from '../types';
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { globalStyles } from '../Styles/globalStyles';
 

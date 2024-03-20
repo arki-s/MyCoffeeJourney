@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
-import { User } from '../../types';
+import { User } from '../types';
 import { globalStyles } from '../Styles/globalStyles';
 
 

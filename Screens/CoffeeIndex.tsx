@@ -1,7 +1,7 @@
 import { View, Text } from 'react-native'
 import React, { useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
-import { Coffee } from '../../types';
+import { Coffee } from '../types';
 import { globalStyles } from '../Styles/globalStyles';
 
 export default function CoffeeIndex() {
