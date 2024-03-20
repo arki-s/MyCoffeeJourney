@@ -1,3 +1,12 @@
+export type RootStackParamList = {
+  Home: undefined;
+  MyZukan: undefined;
+  History: undefined;
+  Analytics: undefined;
+  Test: undefined;
+}
+
+
 export type User = {
   id:number;
   name:string;

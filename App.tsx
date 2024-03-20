@@ -179,6 +179,7 @@ export default function App() {
     'Ojuju-B': require('./assets/fonts/Ojuju-Bold.ttf'),
     'Ojuju-M': require('./assets/fonts/Ojuju-Medium.ttf'),
     'Ojuju-L': require('./assets/fonts/Ojuju-Light.ttf'),
+    'yusei': require('./assets/fonts/YuseiMagic-Regular.ttf'),
   });
 
   if (isLoading) {

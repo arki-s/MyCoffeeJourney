@@ -7,13 +7,14 @@ export const footerStyles = StyleSheet.create({
     display:'flex',
     flexDirection:'row',
     justifyContent:'space-between',
-    backgroundColor:Colors.PRIMARY_LIGHT,
+    backgroundColor:Colors.PRIMARY,
     paddingTop:10,
   },
   title:{
     marginTop:3,
     color:Colors.SECONDARY_LIGHT,
     fontSize:10,
+    fontFamily:'yusei',
   },
   iconImg:{
     height:25,
