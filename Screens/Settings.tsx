@@ -8,6 +8,8 @@ import { useSQLiteContext } from 'expo-sqlite/next';
 export default function Settings() {
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
   const [beans, setBeans] = useState<CoffeeBean[]>([]);
+  const [brand, setBrand] = useState<string | null>(null);
+  const [bean, setBean] = useState<string | null>(null);
 
   const db = useSQLiteContext();
 
@@ -36,6 +38,40 @@ export default function Settings() {
       console.log(error.message);
     });
   }
+
+  async function createBrand() {
+    if (!brand) return null;
+
+    db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `INSERT INTO coffeeBrand (name) VALUES (?);`, [brand]
+      ).catch((error) => {
+        console.log("creating brand error!");
+        console.log(error.message);
+        return;
+      });
+
+      await getData();
+
+    })
+  };
+
+  async function createBean() {
+    if (!bean) return null;
+
+    db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `INSERT INTO coffeeBean (name) VALUES (?);`, [bean]
+      ).catch((error) => {
+        console.log("creating bean error!");
+        console.log(error.message);
+        return;
+      });
+
+      await getData();
+
+    })
+  };
 
   const brandList = brands.map((br) => {
     return (
