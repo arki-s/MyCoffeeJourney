@@ -59,12 +59,12 @@ export default function Settings() {
     })
   };
 
-  async function editBrand() {
-    if (!brand || !brandId) return null;
+  async function editBrand(id: number) {
+    // if (!brand || !brandId) return null;
 
     db.withTransactionAsync(async () => {
       await db.runAsync(
-        `UPDATE coffeeBrand SET name= ? WHERE id = ?;`, [brand, brandId]
+        `UPDATE coffeeBrand SET name= ? WHERE id = ?;`, [brand, id]
       ).catch((error) => {
         console.log("editing brand error!");
         console.log(error.message);
@@ -119,12 +119,12 @@ export default function Settings() {
     })
   };
 
-  async function editBean() {
-    if (!bean || !beanId) return null;
+  async function editBean(id: number) {
+    // if (!bean || !beanId) return null;
 
     db.withTransactionAsync(async () => {
       await db.runAsync(
-        `UPDATE coffeeBean SET name= ? WHERE id = ?;`, [bean, beanId]
+        `UPDATE coffeeBean SET name= ? WHERE id = ?;`, [bean, id]
       ).catch((error) => {
         console.log("editing bean error!");
         console.log(error.message);
@@ -164,7 +164,7 @@ export default function Settings() {
       <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }} key={br.id}>
         <Text>{br.name}</Text>
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 15 }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => editBrand(br.id)}>
             <Text>編集</Text>
           </TouchableOpacity>
 
@@ -182,7 +182,7 @@ export default function Settings() {
       <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }} key={be.id}>
         <Text>{be.name}</Text>
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 15 }}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => editBean(be.id)}>
             <Text>編集</Text>
           </TouchableOpacity>
 
