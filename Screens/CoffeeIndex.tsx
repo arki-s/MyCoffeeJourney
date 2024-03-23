@@ -1,7 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
-import { Coffee } from '../types';
+import { Coffee, CoffeeBean, CoffeeBrand } from '../types';
 import { globalStyles } from '../Styles/globalStyles';
 import Header from './Header';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,6 +11,8 @@ import { coffeeIndexStyles } from '../Styles/coffeeIndexStyles';
 
 export default function CoffeeIndex() {
   const [coffees, setCoffees] = useState<Coffee[]>([]);
+  const [brands, setBrands] = useState<CoffeeBrand[]>([]);
+  const [beans, setBeans] = useState<CoffeeBean[]>([]);
 
   const db = useSQLiteContext();
 
@@ -33,6 +35,24 @@ export default function CoffeeIndex() {
       setCoffees(rsp);
     }).catch((error) => {
       console.log("reading coffee error!");
+      console.log(error.message);
+    });
+
+    await db.getAllAsync<CoffeeBrand>(`
+    SELECT * FROM coffeeBrand;`).then((rsp) => {
+      // console.log("rsp", rsp);
+      setBrands(rsp);
+    }).catch((error) => {
+      console.log("reading coffee brand error!");
+      console.log(error.message);
+    });
+
+    await db.getAllAsync<CoffeeBean>(`
+    SELECT * FROM coffeeBean;`).then((rsp) => {
+      // console.log("rsp", rsp);
+      setBeans(rsp);
+    }).catch((error) => {
+      console.log("reading coffee bean error!");
       console.log(error.message);
     });
   }
