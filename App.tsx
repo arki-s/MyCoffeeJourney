@@ -3,6 +3,7 @@ import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useFonts } from 'expo-font';
+import * as Font from 'expo-font';
 import * as SQLite from 'expo-sqlite';
 import { SQLiteProvider } from 'expo-sqlite/next';
 import Home from './Screens/Home';
@@ -55,6 +56,7 @@ function MyTabs() {
 export default function App() {
 
   const [isLoading, setIsLoading] = useState(true);
+  const [fontsLoaded, setFontsLoaded] = useState(false);
   // console.log(FileSystem.documentDirectory + 'SQLite/');
 
   useEffect(() => {
@@ -177,17 +179,25 @@ export default function App() {
     // ASSET内のDBファイル使わず直接書き込みの場合は以下
   }, [db]);
 
-  const [fontsLoaded] = useFonts({
-    'Ojuju-B': require('./assets/fonts/Ojuju-Bold.ttf'),
-    'Ojuju-M': require('./assets/fonts/Ojuju-Medium.ttf'),
-    'Ojuju-L': require('./assets/fonts/Ojuju-Light.ttf'),
-    'yusei': require('./assets/fonts/YuseiMagic-Regular.ttf'),
-  });
+  useEffect(() => {
+    loadFonts();
+  }, []);
 
-  if (isLoading) {
+  async function loadFonts() {
+    await Font.loadAsync({
+      'Ojuju-B': require('./assets/fonts/Ojuju-Bold.ttf'),
+      'Ojuju-M': require('./assets/fonts/Ojuju-Medium.ttf'),
+      'Ojuju-L': require('./assets/fonts/Ojuju-Light.ttf'),
+      'yusei': require('./assets/fonts/YuseiMagic-Regular.ttf'),
+    })
+
+    setFontsLoaded(true);
+  }
+
+  if (isLoading || fontsLoaded == false) {
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text style={{ fontFamily: 'Ojuju-B', fontSize: 18 }}>Now Loading...</Text>
+        <Text style={{ fontSize: 18 }}>Now Loading...</Text>
       </View>
     )
   }
@@ -207,12 +217,3 @@ export default function App() {
     </Suspense>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});

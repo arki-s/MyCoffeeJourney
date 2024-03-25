@@ -8,11 +8,14 @@ import { Ionicons } from '@expo/vector-icons';
 import Colors from '../Styles/Colors';
 import { FontAwesome } from '@expo/vector-icons';
 import { coffeeIndexStyles } from '../Styles/coffeeIndexStyles';
+import * as SQLite from 'expo-sqlite/next';
+
 
 export default function CoffeeIndex() {
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
   const [beans, setBeans] = useState<CoffeeBean[]>([]);
+  const [newCoffee, setNewCoffee] = useState<Coffee | null>(null);
 
   const db = useSQLiteContext();
 
@@ -67,6 +70,44 @@ export default function CoffeeIndex() {
     )
   })
 
+  async function addTestCoffee() {
+    db.withTransactionAsync(async () => {
+      const result = await db.runAsync(
+        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
+        ["モカブレンド", 3, 3, 1, 4, 4, 4, 1]
+      ).catch((error) => {
+        console.log("create test coffee error!")
+        console.log(error.message);
+        return;
+      });
+
+      console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
+
+      await db.runAsync(
+        `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
+        [(result as SQLite.SQLiteRunResult).lastInsertRowId, 1]
+      ).catch((error) => {
+        console.log("create test coffee inclusion error!")
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
+        [(result as SQLite.SQLiteRunResult).lastInsertRowId, 2]
+      ).catch((error) => {
+        console.log("create test coffee inclusion error!")
+        console.log(error.message);
+        return;
+      });
+
+    })
+
+    console.log("successfully created test coffee!")
+
+    await getData();
+  }
+
   return (
     <View style={globalStyles.container}>
       <Header title={'My図鑑'} />
@@ -74,7 +115,7 @@ export default function CoffeeIndex() {
       {/* <FontAwesome name="search" size={30} color={Colors.PRIMARY} /> */}
       <Text>今までに飲んだコーヒーのリスト</Text>
       {list}
-      <TouchableOpacity style={coffeeIndexStyles.addBtn}>
+      <TouchableOpacity style={coffeeIndexStyles.addBtn} onPress={addTestCoffee}>
         <Ionicons name="add-circle" size={50} color={Colors.PRIMARY} />
       </TouchableOpacity>
       <Text>メモ：豆とブランドが空の場合はまず設定画面で追加を案内されるようにしたい</Text>
