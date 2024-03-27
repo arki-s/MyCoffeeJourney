@@ -1,10 +1,12 @@
-import { View, Text, TouchableOpacity, TextInput, Touchable } from 'react-native'
+import { View, Text, TouchableOpacity, TextInput, Touchable, ImageBackground, Modal, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import Header from './Header'
 import { CoffeeBean, CoffeeBrand } from '../types';
 import { useSQLiteContext } from 'expo-sqlite/next';
 import Colors from '../Styles/Colors';
+import { settingsStyles } from '../Styles/settingsStyles';
+import { AntDesign } from '@expo/vector-icons';
 
 export default function Settings() {
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
@@ -13,6 +15,7 @@ export default function Settings() {
   const [brandId, setBrandId] = useState<number | null>(null);
   const [bean, setBean] = useState<string>("");
   const [beanId, setBeanId] = useState<number | null>(null);
+  const [brandManage, setBrandManage] = useState<"brand" | "bean" | null>(null);
 
   const db = useSQLiteContext();
 
@@ -195,10 +198,67 @@ export default function Settings() {
     )
   });
 
+  const brandModal = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={settingsStyles.modalWindow}>
+          <TouchableOpacity onPress={() => setBrandManage(null)}>
+            <AntDesign name="closesquare" size={24} color={Colors.SECONDARY} />
+          </TouchableOpacity>
+          <Text>コーヒーブランドの管理</Text>
+          <TextInput placeholder='新しく追加したいブランド名を入力' />
+          <TouchableOpacity>
+            <Text>追加</Text>
+          </TouchableOpacity>
+          <ScrollView>
+            {brandList}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  )
+
+  const beanModal = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={settingsStyles.modalWindow}>
+          <TouchableOpacity onPress={() => setBrandManage(null)}>
+            <AntDesign name="closesquare" size={24} color={Colors.SECONDARY} />
+          </TouchableOpacity>
+          <Text>コーヒー豆の管理</Text>
+          <TextInput placeholder='新しく追加したいコーヒー豆の産地を入力' />
+          <TouchableOpacity>
+            <Text>追加</Text>
+          </TouchableOpacity>
+          <ScrollView>
+            {beanList}
+          </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  )
+
 
   return (
     <View style={globalStyles.container}>
       <Header title={'設定'} />
+      <View style={settingsStyles.contentsContainer}>
+        <TouchableOpacity style={settingsStyles.manageBtn} onPress={() => setBrandManage("brand")}>
+          <Text style={settingsStyles.btnText}>コーヒーブランドの管理</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={settingsStyles.manageBtn} onPress={() => setBrandManage("bean")}>
+          <Text style={settingsStyles.btnText}>コーヒー豆の管理</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={settingsStyles.manageBtn}>
+          <Text style={settingsStyles.btnText}>!! 全データの削除 !!</Text>
+        </TouchableOpacity>
+        {brandManage == "brand" && brandModal}
+        {brandManage == "bean" && beanModal}
+      </View>
+
+
       <TextInput placeholder='new brand name' value={brand} onChangeText={setBrand} style={{ padding: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.PRIMARY }} />
       <TouchableOpacity style={{ backgroundColor: "red", padding: 20 }} onPress={createBrand}>
         <Text>Add New Coffee Brand</Text>
