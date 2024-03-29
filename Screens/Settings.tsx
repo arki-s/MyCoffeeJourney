@@ -7,6 +7,8 @@ import { useSQLiteContext } from 'expo-sqlite/next';
 import Colors from '../Styles/Colors';
 import { settingsStyles } from '../Styles/settingsStyles';
 import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+
 
 export default function Settings() {
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
@@ -164,15 +166,15 @@ export default function Settings() {
 
   const brandList = brands.map((br) => {
     return (
-      <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }} key={br.id}>
-        <Text>{br.name}</Text>
+      <View style={settingsStyles.brandBeansList} key={br.id}>
+        <Text style={settingsStyles.listText}>{br.name}</Text>
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 15 }}>
           <TouchableOpacity onPress={() => editBrand(br.id)}>
-            <Text>編集</Text>
+            <FontAwesome name="pencil" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => deleteBrand(br.id)}>
-            <Text>削除</Text>
+            <FontAwesome name="trash" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
 
         </View>
@@ -182,15 +184,15 @@ export default function Settings() {
 
   const beanList = beans.map((be) => {
     return (
-      <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }} key={be.id}>
-        <Text>{be.name}</Text>
+      <View style={settingsStyles.brandBeansList} key={be.id}>
+        <Text style={settingsStyles.listText}>{be.name}</Text>
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 15 }}>
           <TouchableOpacity onPress={() => editBean(be.id)}>
-            <Text>編集</Text>
+            <FontAwesome name="pencil" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => deleteBean(be.id)}>
-            <Text>削除</Text>
+            <FontAwesome name="trash" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
 
         </View>
@@ -203,14 +205,17 @@ export default function Settings() {
       <View style={globalStyles.modalBackdrop}>
         <View style={settingsStyles.modalWindow}>
           <TouchableOpacity onPress={() => setBrandManage(null)}>
-            <AntDesign name="closesquare" size={24} color={Colors.SECONDARY} />
+            <AntDesign name="closesquare" size={24} color={Colors.SECONDARY} style={settingsStyles.closeBtn} />
           </TouchableOpacity>
-          <Text>コーヒーブランドの管理</Text>
-          <TextInput placeholder='新しく追加したいブランド名を入力' />
-          <TouchableOpacity>
-            <Text>追加</Text>
-          </TouchableOpacity>
-          <ScrollView>
+          <Text style={globalStyles.titleText}>コーヒーブランドの管理</Text>
+          <View style={settingsStyles.newAddContainer}>
+            <TextInput placeholder='新しく追加したいブランド名を入力' style={settingsStyles.newAddInput} maxLength={11} />
+            <TouchableOpacity style={globalStyles.smallBtn}>
+              <Text style={globalStyles.smallBtnText}>追加</Text>
+            </TouchableOpacity>
+
+          </View>
+          <ScrollView showsVerticalScrollIndicator={false}>
             {brandList}
           </ScrollView>
         </View>
@@ -223,16 +228,34 @@ export default function Settings() {
       <View style={globalStyles.modalBackdrop}>
         <View style={settingsStyles.modalWindow}>
           <TouchableOpacity onPress={() => setBrandManage(null)}>
-            <AntDesign name="closesquare" size={24} color={Colors.SECONDARY} />
+            <AntDesign name="closesquare" size={24} color={Colors.SECONDARY} style={settingsStyles.closeBtn} />
           </TouchableOpacity>
-          <Text>コーヒー豆の管理</Text>
-          <TextInput placeholder='新しく追加したいコーヒー豆の産地を入力' />
-          <TouchableOpacity>
-            <Text>追加</Text>
-          </TouchableOpacity>
-          <ScrollView>
+          <Text style={globalStyles.titleText}>コーヒー豆の管理</Text>
+          <View style={settingsStyles.newAddContainer}>
+            <TextInput placeholder='新しく追加したいコーヒー豆の産地を入力' style={settingsStyles.newAddInput} maxLength={11} />
+            <TouchableOpacity style={globalStyles.smallBtn}>
+              <Text style={globalStyles.smallBtnText}>追加</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView showsVerticalScrollIndicator={false}>
             {beanList}
           </ScrollView>
+        </View>
+      </View>
+    </Modal>
+  )
+
+  const editModal = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>編集</Text>
+          <TouchableOpacity style={globalStyles.smallBtn}>
+            <Text style={globalStyles.smallBtnText}>編集を保存</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={globalStyles.smallCancelBtn}>
+            <Text style={globalStyles.smallCancelBtnText}>キャンセル</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </Modal>
