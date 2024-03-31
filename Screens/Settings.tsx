@@ -18,6 +18,8 @@ export default function Settings() {
   const [bean, setBean] = useState<string>("");
   const [beanId, setBeanId] = useState<number | null>(null);
   const [brandManage, setBrandManage] = useState<"brand" | "bean" | null>(null);
+  const [editing, setEditing] = useState<"brand" | "bean" | null>(null);
+  const [editName, setEditName] = useState("");
 
   const db = useSQLiteContext();
 
@@ -64,26 +66,29 @@ export default function Settings() {
     })
   };
 
-  async function editBrand(id: number) {
-    // if (!brand || !brandId) return null;
+  async function editBrand() {
+    // if (!editName || !brandId) return null;
 
     db.withTransactionAsync(async () => {
       await db.runAsync(
-        `UPDATE coffeeBrand SET name= ? WHERE id = ?;`, [brand, id]
+        `UPDATE coffeeBrand SET name= ? WHERE id = ?;`, [editName, brandId]
       ).catch((error) => {
         console.log("editing brand error!");
         console.log(error.message);
         setBrandId(null);
-        setBrandId(null);
-        setBrand("");
+        setEditing(null);
+        setEditName("");
         return;
       });
 
       setBrandId(null);
-      setBrand("");
+      setEditing(null);
+      setEditName("");
       await getData();
 
     })
+
+
   };
 
   async function deleteBrand(id: number) {
@@ -124,22 +129,24 @@ export default function Settings() {
     })
   };
 
-  async function editBean(id: number) {
-    // if (!bean || !beanId) return null;
+  async function editBean() {
+    // if (!beanId || !editName) return null;
 
     db.withTransactionAsync(async () => {
       await db.runAsync(
-        `UPDATE coffeeBean SET name= ? WHERE id = ?;`, [bean, id]
+        `UPDATE coffeeBean SET name= ? WHERE id = ?;`, [editName, beanId]
       ).catch((error) => {
         console.log("editing bean error!");
         console.log(error.message);
         setBeanId(null);
-        setBean("");
+        setEditing(null);
+        setEditName("");
         return;
       });
 
       setBeanId(null);
-      setBean("");
+      setEditing(null);
+      setEditName("");
       await getData();
 
     })
@@ -164,12 +171,31 @@ export default function Settings() {
     })
   };
 
+  const editModal = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>編集</Text>
+          <TextInput placeholder='編集内容を入力' value={editName} onChangeText={setEditName} style={settingsStyles.newAddInput} maxLength={11} />
+          <View style={settingsStyles.newAddContainer}>
+            <TouchableOpacity style={globalStyles.smallBtn} onPress={() => { editing === "brand" ? editBrand() : editing === "bean" ? editBean() : null; }}>
+              <Text style={globalStyles.smallBtnText}>編集を保存</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={globalStyles.smallCancelBtn} onPress={() => { setEditing(null), setEditName(""), setBrandId(null); setBeanId(null); }}>
+              <Text style={globalStyles.smallCancelBtnText}>キャンセル</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  )
+
   const brandList = brands.map((br) => {
     return (
       <View style={settingsStyles.brandBeansList} key={br.id}>
         <Text style={settingsStyles.listText}>{br.name}</Text>
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 15 }}>
-          <TouchableOpacity onPress={() => editBrand(br.id)}>
+          <TouchableOpacity onPress={() => { setEditing("brand"); setBrandId(br.id); setEditName(br.name); }}>
             <FontAwesome name="pencil" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
 
@@ -187,7 +213,7 @@ export default function Settings() {
       <View style={settingsStyles.brandBeansList} key={be.id}>
         <Text style={settingsStyles.listText}>{be.name}</Text>
         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', gap: 15 }}>
-          <TouchableOpacity onPress={() => editBean(be.id)}>
+          <TouchableOpacity onPress={() => { setEditing("bean"); setBeanId(be.id); setEditName(be.name); }}>
             <FontAwesome name="pencil" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
 
@@ -209,8 +235,8 @@ export default function Settings() {
           </TouchableOpacity>
           <Text style={globalStyles.titleText}>コーヒーブランドの管理</Text>
           <View style={settingsStyles.newAddContainer}>
-            <TextInput placeholder='新しく追加したいブランド名を入力' style={settingsStyles.newAddInput} maxLength={11} />
-            <TouchableOpacity style={globalStyles.smallBtn}>
+            <TextInput placeholder='新しく追加したいブランド名を入力' style={settingsStyles.newAddInput} maxLength={11} value={brand} onChangeText={setBrand} />
+            <TouchableOpacity style={globalStyles.smallBtn} onPress={createBrand}>
               <Text style={globalStyles.smallBtnText}>追加</Text>
             </TouchableOpacity>
 
@@ -219,6 +245,7 @@ export default function Settings() {
             {brandList}
           </ScrollView>
         </View>
+        {editing && editModal}
       </View>
     </Modal>
   )
@@ -232,8 +259,8 @@ export default function Settings() {
           </TouchableOpacity>
           <Text style={globalStyles.titleText}>コーヒー豆の管理</Text>
           <View style={settingsStyles.newAddContainer}>
-            <TextInput placeholder='新しく追加したいコーヒー豆の産地を入力' style={settingsStyles.newAddInput} maxLength={11} />
-            <TouchableOpacity style={globalStyles.smallBtn}>
+            <TextInput placeholder='新しく追加したいコーヒー豆の産地を入力' style={settingsStyles.newAddInput} maxLength={11} value={bean} onChangeText={setBean} />
+            <TouchableOpacity style={globalStyles.smallBtn} onPress={createBean}>
               <Text style={globalStyles.smallBtnText}>追加</Text>
             </TouchableOpacity>
           </View>
@@ -244,23 +271,6 @@ export default function Settings() {
       </View>
     </Modal>
   )
-
-  const editModal = (
-    <Modal animationType='slide' transparent={true}>
-      <View style={globalStyles.modalBackdrop}>
-        <View style={globalStyles.modalBasic}>
-          <Text style={globalStyles.titleText}>編集</Text>
-          <TouchableOpacity style={globalStyles.smallBtn}>
-            <Text style={globalStyles.smallBtnText}>編集を保存</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={globalStyles.smallCancelBtn}>
-            <Text style={globalStyles.smallCancelBtnText}>キャンセル</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-    </Modal>
-  )
-
 
   return (
     <View style={globalStyles.container}>

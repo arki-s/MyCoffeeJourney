@@ -80,11 +80,7 @@ export const settingsStyles = StyleSheet.create({
     paddingHorizontal:7,
     paddingVertical:5,
     marginBottom:5,
+    backgroundColor:Colors.WHITE,
   },
-
-
-
-
-
 
 })
