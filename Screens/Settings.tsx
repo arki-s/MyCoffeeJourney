@@ -32,7 +32,7 @@ export default function Settings() {
   async function getData() {
     await db.getAllAsync<CoffeeBrand>(`
     SELECT * FROM coffeeBrand;`).then((rsp) => {
-      console.log("rsp", rsp);
+      // console.log("rsp", rsp);
       setBrands(rsp);
     }).catch((error) => {
       console.log("reading coffee brand error!");
@@ -41,7 +41,7 @@ export default function Settings() {
 
     await db.getAllAsync<CoffeeBean>(`
     SELECT * FROM coffeeBean;`).then((rsp) => {
-      console.log("rsp", rsp);
+      // console.log("rsp", rsp);
       setBeans(rsp);
     }).catch((error) => {
       console.log("reading coffee bean error!");
@@ -178,7 +178,7 @@ export default function Settings() {
           <Text style={globalStyles.titleText}>編集</Text>
           <TextInput placeholder='編集内容を入力' value={editName} onChangeText={setEditName} style={settingsStyles.newAddInput} maxLength={11} />
           <View style={settingsStyles.newAddContainer}>
-            <TouchableOpacity style={globalStyles.smallBtn} onPress={() => { editing === "brand" ? editBrand() : editing === "bean" ? editBean() : null; }}>
+            <TouchableOpacity style={globalStyles.smallBtn} onPress={() => { editing === "brand" ? editBrand() : editBean(); }}>
               <Text style={globalStyles.smallBtnText}>編集を保存</Text>
             </TouchableOpacity>
             <TouchableOpacity style={globalStyles.smallCancelBtn} onPress={() => { setEditing(null), setEditName(""), setBrandId(null); setBeanId(null); }}>
@@ -268,6 +268,7 @@ export default function Settings() {
             {beanList}
           </ScrollView>
         </View>
+        {editing && editModal}
       </View>
     </Modal>
   )
@@ -292,7 +293,7 @@ export default function Settings() {
       </View>
 
 
-      <TextInput placeholder='new brand name' value={brand} onChangeText={setBrand} style={{ padding: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.PRIMARY }} />
+      {/* <TextInput placeholder='new brand name' value={brand} onChangeText={setBrand} style={{ padding: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.PRIMARY }} />
       <TouchableOpacity style={{ backgroundColor: "red", padding: 20 }} onPress={createBrand}>
         <Text>Add New Coffee Brand</Text>
       </TouchableOpacity>
@@ -301,7 +302,7 @@ export default function Settings() {
       <TouchableOpacity style={{ backgroundColor: "pink", padding: 20 }} onPress={createBean}>
         <Text>Add New Coffee Bean</Text>
       </TouchableOpacity>
-      {beanList}
+      {beanList} */}
     </View>
   )
 }
