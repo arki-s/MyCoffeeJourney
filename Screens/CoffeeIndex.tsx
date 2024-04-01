@@ -62,10 +62,10 @@ export default function CoffeeIndex() {
 
   const list = coffees.map((cf) => {
     return (
-      <View key={cf.id}>
-        <Text >{cf.name}</Text>
-        <Text >{cf.brand}</Text>
-        <Text >{cf.beans}</Text>
+      <View key={cf.id} style={coffeeIndexStyles.coffeeContainer}>
+        <Text style={coffeeIndexStyles.brandText}>{cf.brand}</Text>
+        <Text style={coffeeIndexStyles.coffeeText}>{cf.name}</Text>
+        {/* <Text >{cf.beans}</Text> */}
       </View>
     )
   })
@@ -113,7 +113,6 @@ export default function CoffeeIndex() {
       <Header title={'My図鑑'} />
       <TextInput placeholder='キーワードで検索' style={coffeeIndexStyles.searchInput} />
       {/* <FontAwesome name="search" size={30} color={Colors.PRIMARY} /> */}
-      <Text>今までに飲んだコーヒーのリスト</Text>
       {list}
       <TouchableOpacity style={coffeeIndexStyles.addBtn} onPress={addTestCoffee}>
         <Ionicons name="add-circle" size={50} color={Colors.PRIMARY} />
