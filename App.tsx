@@ -107,12 +107,12 @@ export default function App() {
           favorite INTEGER DEFAULT 0,
           drinkCount INTEGER DEFAULT 0,
           comment TEXT,
-          roast INTEGER DEFAULT 3,
-          body INTEGER DEFAULT 3,
-          sweetness INTEGER DEFAULT 3,
-          fruity INTEGER DEFAULT 3,
-          bitter INTEGER DEFAULT 3,
-          aroma INTEGER DEFAULT 3,
+          roast REAL DEFAULT 1.0,
+          body REAL DEFAULT 1.0,
+          sweetness REAL DEFAULT 1.0,
+          fruity REAL DEFAULT 1.0,
+          bitter REAL DEFAULT 3.0,
+          aroma REAL DEFAULT 3.0,
           FOREIGN KEY (brand_id) REFERENCES coffeeBrand (id));
         `
       )
