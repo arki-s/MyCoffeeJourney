@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { SetStateAction, useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, CoffeeBean, CoffeeBrand } from '../types';
 import { globalStyles } from '../Styles/globalStyles';
@@ -10,6 +10,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import { coffeeIndexStyles } from '../Styles/coffeeIndexStyles';
 import * as SQLite from 'expo-sqlite/next';
 import Slider from '@react-native-community/slider';
+import { AntDesign } from '@expo/vector-icons';
+import DropDownPicker from 'react-native-dropdown-picker';
 
 
 export default function CoffeeIndex() {
@@ -18,6 +20,15 @@ export default function CoffeeIndex() {
   const [beans, setBeans] = useState<CoffeeBean[]>([]);
   const [newCoffee, setNewCoffee] = useState<Coffee | null>(null);
   const [roast, setRoast] = useState(1);
+  const [addModal, setAddModal] = useState(false);
+
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(0);
+  const [items, setItems] = useState([]);
+
+  const [openBe, setOpenBe] = useState(false);
+  const [valueBe, setValueBe] = useState([]);
+  const [itemsBe, setItemsBe] = useState([]);
 
   const db = useSQLiteContext();
 
@@ -45,8 +56,13 @@ export default function CoffeeIndex() {
 
     await db.getAllAsync<CoffeeBrand>(`
     SELECT * FROM coffeeBrand;`).then((rsp) => {
-      // console.log("rsp", rsp);
-      setBrands(rsp);
+      console.log("rsp", rsp);
+      const brandDropDown: any = [];
+
+      rsp.map((br) => { brandDropDown.push({ label: br.name, value: br.id }); })
+
+      setItems(brandDropDown);
+
     }).catch((error) => {
       console.log("reading coffee brand error!");
       console.log(error.message);
@@ -55,7 +71,14 @@ export default function CoffeeIndex() {
     await db.getAllAsync<CoffeeBean>(`
     SELECT * FROM coffeeBean;`).then((rsp) => {
       // console.log("rsp", rsp);
-      setBeans(rsp);
+      // setBeans(rsp);
+
+      const beanDropDown: any = [];
+
+      rsp.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
+
+      setItemsBe(beanDropDown);
+
     }).catch((error) => {
       console.log("reading coffee bean error!");
       console.log(error.message);
@@ -112,10 +135,51 @@ export default function CoffeeIndex() {
 
   const addCoffeeModal = (
     <Modal animationType='slide'>
-      <View style={{ flex: 1, justifyContent: 'center', }}>
+      <View style={globalStyles.bigModalView}>
+        <TouchableOpacity onPress={() => setAddModal(false)}>
+          <AntDesign name="closesquare" size={24} color={Colors.SECONDARY_LIGHT} style={coffeeIndexStyles.closeModalBtn} />
+        </TouchableOpacity>
+        <Text style={[globalStyles.titleText, { color: Colors.SECONDARY_LIGHT }]}>新しいコーヒーの追加</Text>
 
-        <Text>コーヒーブランド選択（プルダウン）</Text>
-        <Text>コーヒー名入力</Text>
+        <View style={{ alignItems: 'center', zIndex: 1 }}>
+          <DropDownPicker
+            placeholder={'Choose a brand'}
+            open={open}
+            value={value}
+            items={items}
+            setOpen={setOpen}
+            setValue={setValue}
+            setItems={setItems}
+            style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+            containerStyle={{ width: '50%', }}
+            dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+            textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
+            zIndex={5000}
+          />
+        </View>
+
+        <TextInput placeholder='コーヒー名を入力' maxLength={11} style={coffeeIndexStyles.coffeeNameInput} />
+
+        <View style={{ alignItems: 'center', zIndex: 2 }}>
+          <DropDownPicker
+            multiple={true}
+            min={1}
+            max={3}
+            mode="BADGE"
+            placeholder={'Choose beans'}
+            open={openBe}
+            value={valueBe}
+            items={itemsBe}
+            setOpen={setOpenBe}
+            setValue={setValueBe}
+            setItems={setItemsBe}
+            style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+            containerStyle={{ width: '90%', }}
+            dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+            textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
+            zIndex={4000}
+          />
+        </View>
         <Text>コーヒー豆選択(複数)横スクロールでオンオフできるようにする</Text>
         <Text>画像アップロード(image picker)</Text>
         <Text>コメント</Text>
@@ -134,7 +198,7 @@ export default function CoffeeIndex() {
           maximumValue={5}
           value={roast}
           onValueChange={(num) => setRoast(num)}
-          minimumTrackTintColor={Colors.PRIMARY_LIGHT}
+          minimumTrackTintColor={Colors.SECONDARY}
           maximumTrackTintColor={Colors.SECONDARY_LIGHT}
         />
 
@@ -149,11 +213,11 @@ export default function CoffeeIndex() {
       <TextInput placeholder='キーワードで検索' style={coffeeIndexStyles.searchInput} />
       {/* <FontAwesome name="search" size={30} color={Colors.PRIMARY} /> */}
       {list}
-      <TouchableOpacity style={coffeeIndexStyles.addBtn} onPress={addTestCoffee}>
+      <TouchableOpacity style={coffeeIndexStyles.addBtn} onPress={() => setAddModal(true)}>
         <Ionicons name="add-circle" size={50} color={Colors.PRIMARY} />
       </TouchableOpacity>
       <Text>メモ：豆とブランドが空の場合はまず設定画面で追加を案内されるようにしたい</Text>
-      {/* {addCoffeeModal} */}
+      {addModal && addCoffeeModal}
     </View>
   )
 }

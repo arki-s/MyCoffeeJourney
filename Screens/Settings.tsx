@@ -61,6 +61,7 @@ export default function Settings() {
         return;
       });
 
+      setBrand("");
       await getData();
 
     })

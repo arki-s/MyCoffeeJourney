@@ -24,6 +24,12 @@ export const globalStyles = StyleSheet.create({
     padding:20,
   },
 
+  bigModalView:{
+    flex: 1,
+    justifyContent: 'center',
+    backgroundColor:Colors.PRIMARY,
+  },
+
   titleText:{
     textAlign:'center',
     fontFamily:'yusei',

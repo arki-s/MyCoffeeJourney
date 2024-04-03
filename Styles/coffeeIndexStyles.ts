@@ -48,7 +48,24 @@ export const coffeeIndexStyles = StyleSheet.create({
    textAlign:'center',
    fontSize:20,
    color:Colors.SECONDARY_LIGHT,
+  },
+
+  closeModalBtn:{
+    position:'absolute',
+    top:10,
+    right:10,
+  },
+
+  coffeeNameInput:{
+    backgroundColor:Colors.SECONDARY_LIGHT,
+    borderRadius:10,
+    padding:5,
+    fontFamily:'yusei',
+    width:'85%',
+    alignSelf:'center',
+
   }
+
 
 
 
