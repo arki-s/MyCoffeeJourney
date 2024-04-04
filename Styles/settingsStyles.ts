@@ -39,8 +39,8 @@ export const settingsStyles = StyleSheet.create({
 
   closeBtn:{
     position:'absolute',
-    top:-5,
-    left:125,
+    top:10,
+    right:10,
   },
 
   newAddContainer:{

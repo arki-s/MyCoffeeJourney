@@ -308,6 +308,38 @@ export default function DBTest() {
     })
   }
 
+  async function dropCoffeeTables() {
+
+    db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `
+        DROP TABLE coffee;
+        `,
+      ).catch((error) => {
+        console.log("drop table1 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE inclusion;
+        `,
+      ).catch((error) => {
+        console.log("drop table4 error!");
+        console.log(error.message);
+        return;
+      });
+
+      console.log("successfully dropped coffee and inclusion table!")
+
+      await getData();
+    })
+  }
+
+
+
+
   const coffee = coffees.map((c) => {
     return (
       <View>
@@ -328,6 +360,9 @@ export default function DBTest() {
       </TouchableOpacity>
       <TouchableOpacity onPress={dropTables} style={{ padding: 15, backgroundColor: "gray" }}>
         <Text>DROP ALL TABLE!</Text>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={dropCoffeeTables} style={{ padding: 15, backgroundColor: "gray" }}>
+        <Text>DROP COFFEE TABLE!</Text>
       </TouchableOpacity>
     </View>
   )

@@ -12,6 +12,8 @@ import * as SQLite from 'expo-sqlite/next';
 import Slider from '@react-native-community/slider';
 import { AntDesign } from '@expo/vector-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
+import toast from 'react-native-toast-notifications/lib/typescript/toast';
+import { useToast } from "react-native-toast-notifications";
 
 
 export default function CoffeeIndex() {
@@ -20,6 +22,7 @@ export default function CoffeeIndex() {
   const [beans, setBeans] = useState<CoffeeBean[]>([]);
   const [newCoffee, setNewCoffee] = useState<Coffee | null>(null);
   const [addModal, setAddModal] = useState(false);
+  const [warningModal, setWarningModal] = useState(false);
 
   const [openBrand, setOpenBrand] = useState(false);
   const [valueBrand, setValueBrand] = useState(0);
@@ -29,14 +32,17 @@ export default function CoffeeIndex() {
   const [valueBean, setValueBean] = useState([]);
   const [itemsBean, setItemsBean] = useState([]);
 
-  const [roast, setRoast] = useState(1);
-  const [body, setBody] = useState(1);
-  const [sweetness, setSweetness] = useState(1);
-  const [fruity, setFruity] = useState(1);
-  const [bitter, setBitter] = useState(1);
-
+  const [coffeeName, setCoffeeName] = useState("");
+  const [comment, setComment] = useState("");
+  const [roast, setRoast] = useState(1.0);
+  const [body, setBody] = useState(1.0);
+  const [sweetness, setSweetness] = useState(1.0);
+  const [fruity, setFruity] = useState(1.0);
+  const [bitter, setBitter] = useState(1.0);
+  const [aroma, setAroma] = useState(1.0);
 
   const db = useSQLiteContext();
+  const toast = useToast();
 
   useEffect(() => {
     db.withExclusiveTransactionAsync(async () => {
@@ -62,7 +68,7 @@ export default function CoffeeIndex() {
 
     await db.getAllAsync<CoffeeBrand>(`
     SELECT * FROM coffeeBrand;`).then((rsp) => {
-      console.log("rsp", rsp);
+      // console.log("rsp", rsp);
       const brandDropDown: any = [];
 
       rsp.map((br) => { brandDropDown.push({ label: br.name, value: br.id }); })
@@ -96,47 +102,94 @@ export default function CoffeeIndex() {
       <View key={cf.id} style={coffeeIndexStyles.coffeeContainer}>
         <Text style={coffeeIndexStyles.brandText}>{cf.brand}</Text>
         <Text style={coffeeIndexStyles.coffeeText}>{cf.name}</Text>
-        {/* <Text >{cf.beans}</Text> */}
       </View>
     )
   })
 
-  async function addTestCoffee() {
+  const warning = warningModal && (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>コーヒー名の入力、コーヒーブランドとコーヒー豆の選択は必須項目です。</Text>
+          <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(false)}>
+            <Text style={globalStyles.smallBtnText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
+
+  const success = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>新しいコーヒー情報を登録しました。</Text>
+          <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(false)}>
+            <Text style={globalStyles.smallBtnText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
+
+  async function addInclusion(coffee_id: number, bean_id: number) {
+    await db.runAsync(
+      `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
+      [coffee_id, bean_id]
+    ).catch((error) => {
+      console.log("create test coffee inclusion error!")
+      console.log(error.message);
+      return;
+    });
+  }
+
+  async function addNewCoffee() {
+    if (coffeeName === "" || valueBrand === 0 || valueBean.length == 0) {
+      setWarningModal(true);
+      return;
+    }
+
     db.withTransactionAsync(async () => {
       const result = await db.runAsync(
-        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?);`,
-        ["モカブレンド", 3.0, 3.0, 1.0, 4.0, 4.0, 4.0, 1.0]
+        `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, comment, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+        [coffeeName, roast, body, sweetness, fruity, bitter, aroma, comment, valueBrand]
       ).catch((error) => {
-        console.log("create test coffee error!")
+        console.log("create coffee error!")
         console.log(error.message);
         return;
       });
 
       console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
 
-      await db.runAsync(
-        `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
-        [(result as SQLite.SQLiteRunResult).lastInsertRowId, 1]
-      ).catch((error) => {
-        console.log("create test coffee inclusion error!")
-        console.log(error.message);
-        return;
-      });
+      if (valueBean.length == 1) {
+        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
+      } else if ((valueBean.length == 2)) {
+        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
+        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
+      } else if ((valueBean.length == 2)) {
+        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
+        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
+        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[2]);
+      }
 
-      await db.runAsync(
-        `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
-        [(result as SQLite.SQLiteRunResult).lastInsertRowId, 2]
-      ).catch((error) => {
-        console.log("create test coffee inclusion error!")
-        console.log(error.message);
-        return;
-      });
+      await getData();
 
     })
 
     console.log("successfully created test coffee!")
 
-    await getData();
+    setValueBrand(0);
+    setValueBean([]);
+    setCoffeeName("");
+    setComment("");
+    setRoast(1.0);
+    setBody(1.0);
+    setSweetness(1.0);
+    setFruity(1.0);
+    setBitter(1.0);
+    setAroma(1.0);
+    setAddModal(false);
+
   }
 
   const values = [
@@ -145,6 +198,7 @@ export default function CoffeeIndex() {
     { name: "甘味　", value: sweetness, setValue: setSweetness },
     { name: "酸味　", value: fruity, setValue: setFruity },
     { name: "苦味　", value: bitter, setValue: setBitter },
+    { name: "香り　", value: aroma, setValue: setAroma }
   ]
 
   const setTaste = values.map((v) => {
@@ -169,8 +223,8 @@ export default function CoffeeIndex() {
   const addCoffeeModal = (
     <Modal animationType='slide'>
       <View style={globalStyles.bigModalView}>
-        <TouchableOpacity onPress={() => setAddModal(false)}>
-          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} style={coffeeIndexStyles.closeModalBtn} />
+        <TouchableOpacity onPress={() => setAddModal(false)} style={coffeeIndexStyles.closeModalBtn} >
+          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
         </TouchableOpacity>
         <Text style={[coffeeIndexStyles.saveBtnText, { textAlign: 'center', marginBottom: 10 }]}>新しいコーヒーの追加</Text>
 
@@ -191,7 +245,7 @@ export default function CoffeeIndex() {
           />
         </View>
 
-        <TextInput placeholder='コーヒー名を入力' maxLength={11} style={coffeeIndexStyles.coffeeNameInput} />
+        <TextInput placeholder='コーヒー名を入力' maxLength={11} value={coffeeName} onChangeText={(text) => setCoffeeName(text)} style={coffeeIndexStyles.coffeeNameInput} />
 
         <View style={{ alignItems: 'center', zIndex: 1, marginVertical: 10 }}>
           <DropDownPicker
@@ -220,17 +274,23 @@ export default function CoffeeIndex() {
           <Text style={globalStyles.smallBtnText}>画像アップロード</Text>
         </TouchableOpacity>
 
-        <TextInput placeholder='コメントを入力' maxLength={200} numberOfLines={4} multiline={true} style={[coffeeIndexStyles.coffeeNameInput, { height: 100, marginTop: 10 }]} />
+        <TextInput placeholder='コメントを入力' maxLength={200} numberOfLines={4} multiline={true}
+          value={comment} onChangeText={(text) => setComment(text)}
+          style={[coffeeIndexStyles.coffeeNameInput, { height: 100, marginTop: 10 }]} />
 
 
-        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} onPress={() => setAddModal(false)}>
+        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} onPress={addNewCoffee}>
           <Text style={coffeeIndexStyles.saveBtnText}>保存する</Text>
         </TouchableOpacity>
 
-
+        {warning}
       </View>
     </Modal>
   )
+
+
+
+
 
   return (
     <View style={globalStyles.container}>
@@ -241,7 +301,7 @@ export default function CoffeeIndex() {
       <TouchableOpacity style={coffeeIndexStyles.addBtn} onPress={() => setAddModal(true)}>
         <Ionicons name="add-circle" size={50} color={Colors.PRIMARY} />
       </TouchableOpacity>
-      <Text>メモ：豆とブランドが空の場合はまず設定画面で追加を案内されるようにしたい</Text>
+      {/* <Text>メモ：豆とブランドが空の場合はまず設定画面で追加を案内されるようにしたい</Text> */}
       {addModal && addCoffeeModal}
     </View>
   )

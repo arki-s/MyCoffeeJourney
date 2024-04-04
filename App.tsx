@@ -17,6 +17,7 @@ import { Asset } from 'expo-asset';
 import * as FileSystem from "expo-file-system";
 import Footer from './Screens/Footer';
 import Settings from './Screens/Settings';
+import { ToastProvider } from 'react-native-toast-notifications'
 
 const Tab = createBottomTabNavigator();
 
@@ -210,9 +211,11 @@ export default function App() {
       </View>
     }>
       <SQLiteProvider databaseName='MyCoffeeJourney.db' useSuspense>
-        <NavigationContainer>
-          <MyTabs />
-        </NavigationContainer>
+        <ToastProvider>
+          <NavigationContainer>
+            <MyTabs />
+          </NavigationContainer>
+        </ToastProvider>
       </SQLiteProvider>
     </Suspense>
   );

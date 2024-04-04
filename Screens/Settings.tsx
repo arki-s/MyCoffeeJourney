@@ -231,8 +231,8 @@ export default function Settings() {
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
         <View style={settingsStyles.modalWindow}>
-          <TouchableOpacity onPress={() => setBrandManage(null)}>
-            <AntDesign name="closesquare" size={28} color={Colors.SECONDARY} style={settingsStyles.closeBtn} />
+          <TouchableOpacity onPress={() => setBrandManage(null)} style={settingsStyles.closeBtn} >
+            <AntDesign name="closesquare" size={28} color={Colors.SECONDARY} />
           </TouchableOpacity>
           <Text style={globalStyles.titleText}>コーヒーブランドの管理</Text>
           <View style={settingsStyles.newAddContainer}>
@@ -255,8 +255,8 @@ export default function Settings() {
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
         <View style={settingsStyles.modalWindow}>
-          <TouchableOpacity onPress={() => setBrandManage(null)}>
-            <AntDesign name="closesquare" size={28} color={Colors.SECONDARY} style={settingsStyles.closeBtn} />
+          <TouchableOpacity onPress={() => setBrandManage(null)} style={settingsStyles.closeBtn} >
+            <AntDesign name="closesquare" size={28} color={Colors.SECONDARY} />
           </TouchableOpacity>
           <Text style={globalStyles.titleText}>コーヒー豆の管理</Text>
           <View style={settingsStyles.newAddContainer}>

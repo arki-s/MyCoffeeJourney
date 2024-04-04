@@ -52,8 +52,8 @@ export const coffeeIndexStyles = StyleSheet.create({
 
   closeModalBtn:{
     position:'absolute',
-    top:0,
-    right:10,
+    top:15,
+    right:15,
   },
 
   coffeeNameInput:{
