@@ -28,6 +28,8 @@ export const globalStyles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor:Colors.PRIMARY,
+    borderColor:Colors.SECONDARY_LIGHT,
+    borderWidth:12,
   },
 
   titleText:{
@@ -44,6 +46,7 @@ export const globalStyles = StyleSheet.create({
   },
 
   smallBtnText:{
+    textAlign:'center',
     fontFamily:'yusei',
     fontSize:14,
     color:Colors.SECONDARY_LIGHT,
@@ -59,6 +62,7 @@ export const globalStyles = StyleSheet.create({
   },
 
   smallCancelBtnText:{
+    textAlign:'center',
     fontFamily:'yusei',
     fontSize:14,
     color:Colors.PRIMARY,

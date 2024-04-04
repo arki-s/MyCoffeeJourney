@@ -52,18 +52,39 @@ export const coffeeIndexStyles = StyleSheet.create({
 
   closeModalBtn:{
     position:'absolute',
-    top:10,
+    top:0,
     right:10,
   },
 
   coffeeNameInput:{
     backgroundColor:Colors.SECONDARY_LIGHT,
     borderRadius:10,
-    padding:5,
+    padding:8,
     fontFamily:'yusei',
     width:'85%',
     alignSelf:'center',
+  },
 
+  addModalText:{
+    fontFamily:'yusei',
+    fontSize:16,
+    color:Colors.SECONDARY_LIGHT,
+  },
+
+  sliderContainer:{
+    display:'flex',
+    flexDirection:'row',
+    gap:10,
+    justifyContent:'space-between',
+    paddingHorizontal:20,
+    alignItems:'center',
+  },
+
+  saveBtnText:{
+    fontFamily:'yusei',
+    fontSize:22,
+    textAlign:'center',
+    color:Colors.SECONDARY_LIGHT,
   }
 
 

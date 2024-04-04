@@ -19,16 +19,22 @@ export default function CoffeeIndex() {
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
   const [beans, setBeans] = useState<CoffeeBean[]>([]);
   const [newCoffee, setNewCoffee] = useState<Coffee | null>(null);
-  const [roast, setRoast] = useState(1);
   const [addModal, setAddModal] = useState(false);
 
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(0);
-  const [items, setItems] = useState([]);
+  const [openBrand, setOpenBrand] = useState(false);
+  const [valueBrand, setValueBrand] = useState(0);
+  const [itemsBrand, setItemsBrand] = useState([]);
 
-  const [openBe, setOpenBe] = useState(false);
-  const [valueBe, setValueBe] = useState([]);
-  const [itemsBe, setItemsBe] = useState([]);
+  const [openBean, setOpenBean] = useState(false);
+  const [valueBean, setValueBean] = useState([]);
+  const [itemsBean, setItemsBean] = useState([]);
+
+  const [roast, setRoast] = useState(1);
+  const [body, setBody] = useState(1);
+  const [sweetness, setSweetness] = useState(1);
+  const [fruity, setFruity] = useState(1);
+  const [bitter, setBitter] = useState(1);
+
 
   const db = useSQLiteContext();
 
@@ -61,7 +67,7 @@ export default function CoffeeIndex() {
 
       rsp.map((br) => { brandDropDown.push({ label: br.name, value: br.id }); })
 
-      setItems(brandDropDown);
+      setItemsBrand(brandDropDown);
 
     }).catch((error) => {
       console.log("reading coffee brand error!");
@@ -77,7 +83,7 @@ export default function CoffeeIndex() {
 
       rsp.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
 
-      setItemsBe(beanDropDown);
+      setItemsBean(beanDropDown);
 
     }).catch((error) => {
       console.log("reading coffee bean error!");
@@ -133,23 +139,50 @@ export default function CoffeeIndex() {
     await getData();
   }
 
+  const values = [
+    { name: "焙煎度", value: roast, setValue: setRoast },
+    { name: "コク　", value: body, setValue: setBody },
+    { name: "甘味　", value: sweetness, setValue: setSweetness },
+    { name: "酸味　", value: fruity, setValue: setFruity },
+    { name: "苦味　", value: bitter, setValue: setBitter },
+  ]
+
+  const setTaste = values.map((v) => {
+
+    return (
+      <View style={coffeeIndexStyles.sliderContainer} key={v.name}>
+        <Text style={coffeeIndexStyles.addModalText}>{v.name}</Text>
+        <Slider
+          style={{ width: 200, height: 40 }}
+          minimumValue={1}
+          maximumValue={5}
+          value={v.value}
+          onValueChange={(num) => v.setValue(num)}
+          minimumTrackTintColor={Colors.SECONDARY}
+          maximumTrackTintColor={Colors.SECONDARY_LIGHT}
+        />
+        <Text style={coffeeIndexStyles.addModalText}>{v.value.toFixed(1)}</Text>
+      </View>
+    );
+  })
+
   const addCoffeeModal = (
     <Modal animationType='slide'>
       <View style={globalStyles.bigModalView}>
         <TouchableOpacity onPress={() => setAddModal(false)}>
-          <AntDesign name="closesquare" size={24} color={Colors.SECONDARY_LIGHT} style={coffeeIndexStyles.closeModalBtn} />
+          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} style={coffeeIndexStyles.closeModalBtn} />
         </TouchableOpacity>
-        <Text style={[globalStyles.titleText, { color: Colors.SECONDARY_LIGHT }]}>新しいコーヒーの追加</Text>
+        <Text style={[coffeeIndexStyles.saveBtnText, { textAlign: 'center', marginBottom: 10 }]}>新しいコーヒーの追加</Text>
 
-        <View style={{ alignItems: 'center', zIndex: 1 }}>
+        <View style={{ alignItems: 'center', zIndex: 2, marginVertical: 10 }}>
           <DropDownPicker
             placeholder={'Choose a brand'}
-            open={open}
-            value={value}
-            items={items}
-            setOpen={setOpen}
-            setValue={setValue}
-            setItems={setItems}
+            open={openBrand}
+            value={valueBrand}
+            items={itemsBrand}
+            setOpen={setOpenBrand}
+            setValue={setValueBrand}
+            setItems={setItemsBrand}
             style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
             containerStyle={{ width: '50%', }}
             dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
@@ -160,19 +193,19 @@ export default function CoffeeIndex() {
 
         <TextInput placeholder='コーヒー名を入力' maxLength={11} style={coffeeIndexStyles.coffeeNameInput} />
 
-        <View style={{ alignItems: 'center', zIndex: 2 }}>
+        <View style={{ alignItems: 'center', zIndex: 1, marginVertical: 10 }}>
           <DropDownPicker
             multiple={true}
             min={1}
             max={3}
             mode="BADGE"
             placeholder={'Choose beans'}
-            open={openBe}
-            value={valueBe}
-            items={itemsBe}
-            setOpen={setOpenBe}
-            setValue={setValueBe}
-            setItems={setItemsBe}
+            open={openBean}
+            value={valueBean}
+            items={itemsBean}
+            setOpen={setOpenBean}
+            setValue={setValueBean}
+            setItems={setItemsBean}
             style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
             containerStyle={{ width: '90%', }}
             dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
@@ -180,27 +213,19 @@ export default function CoffeeIndex() {
             zIndex={4000}
           />
         </View>
-        <Text>コーヒー豆選択(複数)横スクロールでオンオフできるようにする</Text>
-        <Text>画像アップロード(image picker)</Text>
-        <Text>コメント</Text>
 
-        <Text>焙煎度(1~5)</Text>
-        <Text>コク(1~5)</Text>
-        <Text>甘み(1~5)</Text>
-        <Text>酸味(1~5)</Text>
-        <Text>苦味(1~5)</Text>
-        <Text>香り(1~5)</Text>
-        <Text>{roast.toFixed(1)}</Text>
+        {setTaste}
 
-        <Slider
-          style={{ width: 200, height: 40 }}
-          minimumValue={1}
-          maximumValue={5}
-          value={roast}
-          onValueChange={(num) => setRoast(num)}
-          minimumTrackTintColor={Colors.SECONDARY}
-          maximumTrackTintColor={Colors.SECONDARY_LIGHT}
-        />
+        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 10 }]} onPress={() => setAddModal(false)}>
+          <Text style={globalStyles.smallBtnText}>画像アップロード</Text>
+        </TouchableOpacity>
+
+        <TextInput placeholder='コメントを入力' maxLength={200} numberOfLines={4} multiline={true} style={[coffeeIndexStyles.coffeeNameInput, { height: 100, marginTop: 10 }]} />
+
+
+        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} onPress={() => setAddModal(false)}>
+          <Text style={coffeeIndexStyles.saveBtnText}>保存する</Text>
+        </TouchableOpacity>
 
 
       </View>
