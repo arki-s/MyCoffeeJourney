@@ -18,6 +18,7 @@ import * as FileSystem from "expo-file-system";
 import Footer from './Screens/Footer';
 import Settings from './Screens/Settings';
 import { ToastProvider } from 'react-native-toast-notifications'
+import CoffeeDetails from './Screens/CoffeeDetails';
 
 const Tab = createBottomTabNavigator();
 
@@ -49,6 +50,7 @@ function MyTabs() {
       <Tab.Screen name="Review" component={ReviewIndex} />
       <Tab.Screen name="Analytics" component={Analytics} />
       <Tab.Screen name="Settings" component={Settings} />
+      <Tab.Screen name="CoffeeDetails" component={CoffeeDetails} />
       <Tab.Screen name="Test" component={DBTest} />
     </Tab.Navigator>
   );

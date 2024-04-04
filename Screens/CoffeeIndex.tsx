@@ -1,7 +1,7 @@
 import { View, Text, TextInput, TouchableOpacity, Modal } from 'react-native'
 import React, { SetStateAction, useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
-import { Coffee, CoffeeBean, CoffeeBrand } from '../types';
+import { Coffee, CoffeeBean, CoffeeBrand, RootStackParamList } from '../types';
 import { globalStyles } from '../Styles/globalStyles';
 import Header from './Header';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,9 +14,10 @@ import { AntDesign } from '@expo/vector-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
 import toast from 'react-native-toast-notifications/lib/typescript/toast';
 import { useToast } from "react-native-toast-notifications";
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
-export default function CoffeeIndex() {
+export default function CoffeeIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
   const [beans, setBeans] = useState<CoffeeBean[]>([]);
@@ -99,10 +100,11 @@ export default function CoffeeIndex() {
 
   const list = coffees.map((cf) => {
     return (
-      <View key={cf.id} style={coffeeIndexStyles.coffeeContainer}>
+      <TouchableOpacity key={cf.id} style={coffeeIndexStyles.coffeeContainer}
+        onPress={() => navigation.navigate("CoffeeDetails", { id: cf.id })}>
         <Text style={coffeeIndexStyles.brandText}>{cf.brand}</Text>
         <Text style={coffeeIndexStyles.coffeeText}>{cf.name}</Text>
-      </View>
+      </TouchableOpacity>
     )
   })
 

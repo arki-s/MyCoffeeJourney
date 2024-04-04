@@ -2,15 +2,16 @@ import { View, Text, TouchableOpacity, TextInput, Touchable, ImageBackground, Mo
 import React, { useEffect, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import Header from './Header'
-import { CoffeeBean, CoffeeBrand } from '../types';
+import { CoffeeBean, CoffeeBrand, RootStackParamList } from '../types';
 import { useSQLiteContext } from 'expo-sqlite/next';
 import Colors from '../Styles/Colors';
 import { settingsStyles } from '../Styles/settingsStyles';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 
-export default function Settings() {
+export default function Settings({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
   const [beans, setBeans] = useState<CoffeeBean[]>([]);
   const [brand, setBrand] = useState<string>("");

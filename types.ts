@@ -1,8 +1,10 @@
 export type RootStackParamList = {
   Home: undefined;
   MyZukan: undefined;
+  CoffeeDetails: {id: number | undefined};
   History: undefined;
   Analytics: undefined;
+  Settings: undefined;
   Test: undefined;
 }
 

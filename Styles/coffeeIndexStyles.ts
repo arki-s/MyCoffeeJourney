@@ -18,7 +18,7 @@ export const coffeeIndexStyles = StyleSheet.create({
     position:'absolute',
     bottom:10,
     right:10,
-    backgroundColor:Colors.WHITE,
+    backgroundColor:Colors.SECONDARY_LIGHT,
     borderRadius:99,
   },
 
