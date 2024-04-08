@@ -68,6 +68,15 @@ export const globalStyles = StyleSheet.create({
     color:Colors.PRIMARY,
   },
 
+  sliderContainer:{
+    display:'flex',
+    flexDirection:'row',
+    gap:10,
+    justifyContent:'space-between',
+    paddingHorizontal:20,
+    alignItems:'center',
+  },
+
 
 
 
