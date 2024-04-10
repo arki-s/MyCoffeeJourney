@@ -10,6 +10,9 @@ import { coffeeDetailsStyles } from '../Styles/coffeeDetailsStyles'
 import Colors from '../Styles/Colors'
 import Slider from '@react-native-community/slider';
 import { FontAwesome } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+
 
 type CoffeeDetailsProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CoffeeDetails'>;
@@ -77,19 +80,124 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     )
   })
 
+  async function updateImage(imageBase64: string, id: number) {
+    db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `UPDATE coffee SET photo = ? WHERE id = ?;`,
+        [imageBase64, id]
+      ).catch((error) => {
+        console.log("updating an image error!");
+        console.log(error.message);
+        return;
+      });
+    }).catch((error) => {
+      console.log("updating an image error!");
+      console.log(error.message);
+    })
+  }
+
+  async function removeImage(id: number) {
+    db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `UPDATE coffee SET photo = NULL WHERE id = ?;`,
+      ).catch((error) => {
+        console.log("removing an image error!");
+        console.log(error.message);
+        return;
+      });
+    }).catch((error) => {
+      console.log("removing an image error!");
+      console.log(error.message);
+    })
+  }
+
+
+  const pickImage = async () => {
+    if (!memorizedId) return null;
+    console.log("pick image");
+
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    if (permissionResult.granted === false) {
+      console.log("permission denied");
+      setImage(false);
+      return;
+    }
+
+    console.log("permission allowed");
+
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    })
+
+    if (!result.assets) return null;
+
+    const imageUri = result.assets[0]['uri'];
+
+    const resizedImage = await ImageManipulator.manipulateAsync(imageUri,
+      [
+        {
+          resize: {
+            width: 100,
+            height: 100,
+          },
+        },
+      ], {
+      compress: 0.3,
+      base64: true,
+    }
+    )
+
+    if (!result.canceled) {
+      if (!result.assets) return null;
+
+      if (resizedImage.base64 !== undefined) {
+        //ここにDB保存のfunction
+        await updateImage(resizedImage.base64, memorizedId);
+
+      }
+
+      await getData(memorizedId);
+      console.log("successfully updated image!")
+      setImage(false);
+      return;
+    }
+
+    setImage(false);
+    console.log("canceled");
+
+  }
+
+  const checkImage = coffee?.photo ? (
+    <TouchableOpacity style={{ alignItems: 'center' }} onPress={() => { memorizedId != undefined ? removeImage(memorizedId) : null }}>
+      <FontAwesome name="trash" size={50} color={Colors.PRIMARY} />
+      <Text style={globalStyles.titleText}>画像を削除</Text>
+    </TouchableOpacity>
+  ) : (
+    <View style={{ opacity: 0.5 }} >
+      <View style={{ alignItems: 'center' }} >
+        <FontAwesome name="trash" size={50} color={Colors.PRIMARY} />
+        <Text style={globalStyles.titleText}>画像を削除</Text>
+      </View>
+    </View>
+
+  );
+
   const cameraModal = (
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
         <View style={globalStyles.modalBasic}>
           <View style={coffeeDetailsStyles.imageContainer}>
-            <TouchableOpacity style={{ alignItems: 'center' }}>
+            <TouchableOpacity style={{ alignItems: 'center' }} onPress={pickImage}>
               <FontAwesome name="picture-o" size={50} color={Colors.PRIMARY} />
               <Text style={globalStyles.titleText}>画像を選択</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={{ alignItems: 'center' }}>
-              <FontAwesome name="trash" size={50} color={Colors.PRIMARY} />
-              <Text style={globalStyles.titleText}>画像を削除</Text>
-            </TouchableOpacity>
+
+            {checkImage}
+
           </View>
           <TouchableOpacity onPress={() => setImage(false)} style={[globalStyles.smallBtn, { marginTop: 10 }]}>
             <Text style={globalStyles.smallBtnText}>閉じる</Text>
@@ -100,6 +208,8 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   );
 
+  const coffeePhoto = `data:image/png;base64,${coffee?.photo}`;
+
   return (
     <View style={[globalStyles.container, { backgroundColor: Colors.SECONDARY_LIGHT }]}>
       <Header title={coffee ? coffee.name : "コーヒー"} />
@@ -109,7 +219,13 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
         <Text style={coffeeDetailsStyles.coffeeTitleText}>{coffee?.name}</Text>
 
         <View>
-          <Image source={require('../assets/coffee-cup-beans.jpg')} style={coffeeDetailsStyles.coffeeImg} />
+
+          {coffee?.photo ? (
+            <Image source={{ uri: coffeePhoto }} style={coffeeDetailsStyles.coffeeImg} />
+          ) : (
+            <Image source={require('../assets/coffee-cup-beans.jpg')} style={coffeeDetailsStyles.coffeeImg} />
+          )}
+
           <TouchableOpacity onPress={() => setImage(true)} style={coffeeDetailsStyles.cameraIcon}>
             <FontAwesome name="camera" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
