@@ -94,12 +94,16 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       console.log("updating an image error!");
       console.log(error.message);
     })
+
+    console.log("successfully updated an image!");
+    await getData(memorizedId);
   }
 
   async function removeImage(id: number) {
     db.withTransactionAsync(async () => {
       await db.runAsync(
         `UPDATE coffee SET photo = NULL WHERE id = ?;`,
+        [id]
       ).catch((error) => {
         console.log("removing an image error!");
         console.log(error.message);
@@ -109,6 +113,10 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       console.log("removing an image error!");
       console.log(error.message);
     })
+
+    console.log("successfully removed the image!")
+    await getData(memorizedId);
+    setImage(false);
   }
 
 
@@ -155,13 +163,9 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       if (!result.assets) return null;
 
       if (resizedImage.base64 !== undefined) {
-        //ここにDB保存のfunction
         await updateImage(resizedImage.base64, memorizedId);
-
       }
 
-      await getData(memorizedId);
-      console.log("successfully updated image!")
       setImage(false);
       return;
     }
