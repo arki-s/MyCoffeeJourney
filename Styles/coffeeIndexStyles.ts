@@ -50,12 +50,6 @@ export const coffeeIndexStyles = StyleSheet.create({
    color:Colors.SECONDARY_LIGHT,
   },
 
-  closeModalBtn:{
-    position:'absolute',
-    top:15,
-    right:15,
-  },
-
   coffeeNameInput:{
     backgroundColor:Colors.SECONDARY_LIGHT,
     borderRadius:10,

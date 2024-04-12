@@ -225,7 +225,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   const addCoffeeModal = (
     <Modal animationType='slide'>
       <View style={globalStyles.bigModalView}>
-        <TouchableOpacity onPress={() => setAddModal(false)} style={coffeeIndexStyles.closeModalBtn} >
+        <TouchableOpacity onPress={() => setAddModal(false)} style={globalStyles.closeModalBtn} >
           <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
         </TouchableOpacity>
         <Text style={[coffeeIndexStyles.saveBtnText, { textAlign: 'center', marginBottom: 10 }]}>新しいコーヒーの追加</Text>

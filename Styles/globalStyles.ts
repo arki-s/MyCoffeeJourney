@@ -32,6 +32,12 @@ export const globalStyles = StyleSheet.create({
     borderWidth:12,
   },
 
+  closeModalBtn:{
+    position:'absolute',
+    top:17,
+    right:17,
+  },
+
   titleText:{
     textAlign:'center',
     fontFamily:'yusei',
