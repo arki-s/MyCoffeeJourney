@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Modal } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, RootStackParamList, User, Record } from '../types';
@@ -12,6 +12,7 @@ import Slider from '@react-native-community/slider';
 import * as SQLite from 'expo-sqlite/next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
+import { homeStyles } from '../Styles/homeStyles';
 
 
 export default function Home({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
@@ -19,9 +20,12 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const [records, setRecords] = useState<Record[]>([]);
   const [start, setStart] = useState(false);
   const [grindSize, setGrindSize] = useState(3);
-  const [gram, setGram] = useState(0);
-  const [cost, setCost] = useState(0);
+  const [gram, setGram] = useState<number | "">(0);
+  const [cost, setCost] = useState<number | "">(0);
   const [startDate, setStartDate] = useState(new Date());
+  const [openCoffee, setOpenCoffee] = useState(false);
+  const [valueCoffee, setValueCoffee] = useState(0);
+  const [itemsCoffee, setItemsCoffee] = useState([]);
 
 
   const db = useSQLiteContext();
@@ -32,6 +36,26 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     })
   }, [db])
 
+  const HandleCostInput = (input: string) => {
+    const parsedInput = parseInt(input, 10);
+
+    if (parsedInput === 0 || isNaN(parsedInput)) {
+      setCost("");
+    } else {
+      setCost(parsedInput);
+    }
+  }
+
+  const HandleGramInput = (input: string) => {
+    const parsedInput = parseInt(input, 10);
+
+    if (parsedInput === 0 || isNaN(parsedInput)) {
+      setGram("");
+    } else {
+      setGram(parsedInput);
+    }
+  }
+
   const startModal = (
     <Modal animationType='slide'>
       <View style={globalStyles.bigModalView}>
@@ -39,9 +63,9 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
           <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
         </TouchableOpacity>
         <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>コーヒーを飲み始める！</Text>
-        <View style={{ display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+        <View style={homeStyles.inputContainer}>
           <Text style={globalStyles.textLight}>開始日</Text>
-          <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 12 }}>
+          <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
             <RNDateTimePicker
               mode="date"
               display='calendar'
@@ -50,10 +74,51 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
           </View>
         </View>
 
-        <Text style={globalStyles.textLight}>飲むコーヒーを選択</Text>
-        <Text style={globalStyles.textLight}>グラム数</Text>
-        <Text style={globalStyles.textLight}>値段</Text>
-        <Text style={globalStyles.textLight}>挽き目：スライダー</Text>
+        <View style={[homeStyles.inputContainer, { alignItems: 'center', gap: -15, zIndex: 2 }]}>
+          <Text style={globalStyles.textLight}>コーヒーを選択</Text>
+          <View style={{ alignItems: 'center', width: 300 }}>
+            <DropDownPicker
+              placeholder={'Choose coffee'}
+              open={openCoffee}
+              value={valueCoffee}
+              items={itemsCoffee}
+              setOpen={setOpenCoffee}
+              setValue={setValueCoffee}
+              setItems={setItemsCoffee}
+              style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+              containerStyle={{ width: '50%', }}
+              dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+              textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
+              zIndex={5000}
+            />
+          </View>
+
+        </View>
+
+        <View style={homeStyles.inputContainer}>
+          <Text style={globalStyles.textLight}>グラム数</Text>
+          <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={gram.toString()} onChangeText={HandleGramInput} style={homeStyles.numberInput} />
+        </View>
+        <View style={homeStyles.inputContainer}>
+          <Text style={globalStyles.textLight}>値段(円)</Text>
+          <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={cost.toString()} onChangeText={HandleCostInput} style={homeStyles.numberInput} />
+        </View>
+
+        <View style={homeStyles.inputContainer}>
+          <Text style={globalStyles.textLight}>挽き目：{grindSize.toFixed(0)}</Text>
+          <Slider
+            style={{ width: 200, height: 40 }}
+            minimumValue={1}
+            maximumValue={5}
+            value={grindSize}
+            onValueChange={(num) => setGrindSize(num)}
+            minimumTrackTintColor={Colors.SECONDARY}
+            maximumTrackTintColor={Colors.SECONDARY_LIGHT}
+          />
+        </View>
+        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
+          <Text style={globalStyles.titleTextLight}>保存する</Text>
+        </TouchableOpacity>
       </View>
 
     </Modal>
