@@ -18,13 +18,6 @@ export const settingsStyles = StyleSheet.create({
     marginVertical:10,
   },
 
-  btnText:{
-    fontSize:20,
-    fontFamily:'yusei',
-    color:Colors.PRIMARY_LIGHT,
-    textAlign:'center',
-  },
-
   modalWindow:{
     borderRadius:10,
     width:'90%',

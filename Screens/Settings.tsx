@@ -277,25 +277,27 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
 
   return (
     <View style={globalStyles.container}>
-      <Header title={'設定'} />
-      <View style={settingsStyles.contentsContainer}>
-        <TouchableOpacity style={settingsStyles.manageBtn} onPress={() => setBrandManage("brand")}>
-          <Text style={settingsStyles.btnText}>コーヒーブランドの管理</Text>
-        </TouchableOpacity>
+      <ImageBackground source={require('../assets/texture.jpg')} style={globalStyles.imgBackground}>
+        <Header title={'設定'} />
+        <View style={settingsStyles.contentsContainer}>
+          <TouchableOpacity style={settingsStyles.manageBtn} onPress={() => setBrandManage("brand")}>
+            <Text style={globalStyles.btnText}>コーヒーブランドの管理</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={settingsStyles.manageBtn} onPress={() => setBrandManage("bean")}>
-          <Text style={settingsStyles.btnText}>コーヒー豆の管理</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={settingsStyles.manageBtn} onPress={() => setBrandManage("bean")}>
+            <Text style={globalStyles.btnText}>コーヒー豆の管理</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={settingsStyles.manageBtn}>
-          <Text style={settingsStyles.btnText}>!! 全データの削除 !!</Text>
-        </TouchableOpacity>
-        {brandManage == "brand" && brandModal}
-        {brandManage == "bean" && beanModal}
-      </View>
+          <TouchableOpacity style={settingsStyles.manageBtn}>
+            <Text style={globalStyles.btnText}>!! 全データの削除 !!</Text>
+          </TouchableOpacity>
+          {brandManage == "brand" && brandModal}
+          {brandManage == "bean" && beanModal}
+        </View>
 
 
-      {/* <TextInput placeholder='new brand name' value={brand} onChangeText={setBrand} style={{ padding: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.PRIMARY }} />
+
+        {/* <TextInput placeholder='new brand name' value={brand} onChangeText={setBrand} style={{ padding: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.PRIMARY }} />
       <TouchableOpacity style={{ backgroundColor: "red", padding: 20 }} onPress={createBrand}>
         <Text>Add New Coffee Brand</Text>
       </TouchableOpacity>
@@ -305,6 +307,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
         <Text>Add New Coffee Bean</Text>
       </TouchableOpacity>
       {beanList} */}
+      </ImageBackground>
     </View>
   )
 }

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { ImageBackground, StyleSheet } from 'react-native';
 import Colors from './Colors';
 
 export const globalStyles = StyleSheet.create({
@@ -57,6 +57,13 @@ export const globalStyles = StyleSheet.create({
     color:Colors.SECONDARY_LIGHT,
   },
 
+  btnText:{
+    fontSize:20,
+    fontFamily:'yusei',
+    color:Colors.PRIMARY_LIGHT,
+    textAlign:'center',
+  },
+
   smallBtn:{
     backgroundColor:Colors.SECONDARY,
     borderRadius:10,
@@ -95,6 +102,11 @@ export const globalStyles = StyleSheet.create({
     paddingHorizontal:20,
     alignItems:'center',
   },
+
+  imgBackground:{
+    width: '100%',
+    height: '100%',
+  }
 
 
 

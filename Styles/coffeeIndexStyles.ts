@@ -12,6 +12,7 @@ export const coffeeIndexStyles = StyleSheet.create({
     margin:10,
     alignSelf:'center',
     fontFamily:'yusei',
+    backgroundColor:Colors.SECONDARY_LIGHT,
   },
 
   addBtn:{

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, ImageBackground } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, RootStackParamList, User, Record } from '../types';
@@ -62,7 +62,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
         <TouchableOpacity onPress={() => setStart(false)} style={globalStyles.closeModalBtn} >
           <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
         </TouchableOpacity>
-        <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>コーヒーを飲み始める！</Text>
+        <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>新しくコーヒーを飲み始める</Text>
         <View style={homeStyles.inputContainer}>
           <Text style={globalStyles.textLight}>開始日</Text>
           <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
@@ -127,13 +127,15 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
 
   return (
     <View style={globalStyles.container}>
-      <Header title={'ホーム'} />
-      <TouchableOpacity onPress={() => setStart(true)}>
-        <Text>コーヒーを飲み始める！</Text>
-      </TouchableOpacity>
-      {/* 終了日のないレコード一覧を表示åする */}
+      <ImageBackground source={require('../assets/texture.jpg')} style={globalStyles.imgBackground}>
+        <Header title={'ホーム'} />
+        <TouchableOpacity onPress={() => setStart(true)} style={homeStyles.recordBtn}>
+          <Text style={globalStyles.btnText}>新しくコーヒーを飲み始める</Text>
+        </TouchableOpacity>
+        {/* 終了日のないレコード一覧を表示する */}
 
-      {start && startModal}
+        {start && startModal}
+      </ImageBackground>
     </View>
   )
 }
