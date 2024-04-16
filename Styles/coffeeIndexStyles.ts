@@ -59,12 +59,6 @@ export const coffeeIndexStyles = StyleSheet.create({
     alignSelf:'center',
   },
 
-  addModalText:{
-    fontFamily:'yusei',
-    fontSize:16,
-    color:Colors.SECONDARY_LIGHT,
-  },
-
   sliderContainer:{
     display:'flex',
     flexDirection:'row',
@@ -73,13 +67,6 @@ export const coffeeIndexStyles = StyleSheet.create({
     paddingHorizontal:20,
     alignItems:'center',
   },
-
-  saveBtnText:{
-    fontFamily:'yusei',
-    fontSize:22,
-    textAlign:'center',
-    color:Colors.SECONDARY_LIGHT,
-  }
 
 
 

@@ -207,7 +207,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
     return (
       <View style={coffeeIndexStyles.sliderContainer} key={v.name}>
-        <Text style={coffeeIndexStyles.addModalText}>{v.name}</Text>
+        <Text style={globalStyles.textLight}>{v.name}</Text>
         <Slider
           style={{ width: 200, height: 40 }}
           minimumValue={1}
@@ -217,7 +217,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
           minimumTrackTintColor={Colors.SECONDARY}
           maximumTrackTintColor={Colors.SECONDARY_LIGHT}
         />
-        <Text style={coffeeIndexStyles.addModalText}>{v.value.toFixed(1)}</Text>
+        <Text style={globalStyles.textLight}>{v.value.toFixed(1)}</Text>
       </View>
     );
   })
@@ -228,7 +228,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
         <TouchableOpacity onPress={() => setAddModal(false)} style={globalStyles.closeModalBtn} >
           <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
         </TouchableOpacity>
-        <Text style={[coffeeIndexStyles.saveBtnText, { textAlign: 'center', marginBottom: 10 }]}>新しいコーヒーの追加</Text>
+        <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>新しいコーヒーの追加</Text>
 
         <View style={{ alignItems: 'center', zIndex: 2, marginVertical: 10 }}>
           <DropDownPicker
@@ -282,7 +282,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
 
         <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} onPress={addNewCoffee}>
-          <Text style={coffeeIndexStyles.saveBtnText}>保存する</Text>
+          <Text style={globalStyles.titleTextLight}>保存する</Text>
         </TouchableOpacity>
 
         {warning}

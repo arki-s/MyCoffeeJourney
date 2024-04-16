@@ -10,6 +10,8 @@ import Colors from '../Styles/Colors';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Slider from '@react-native-community/slider';
 import * as SQLite from 'expo-sqlite/next';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import RNDateTimePicker from '@react-native-community/datetimepicker';
 
 
 export default function Home({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
@@ -19,7 +21,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const [grindSize, setGrindSize] = useState(3);
   const [gram, setGram] = useState(0);
   const [cost, setCost] = useState(0);
-  const [startDate, setStartDate] = useState(0);
+  const [startDate, setStartDate] = useState(new Date());
 
 
   const db = useSQLiteContext();
@@ -32,19 +34,28 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
 
   const startModal = (
     <Modal animationType='slide'>
-      <View style={globalStyles.modalBackdrop}>
-        <View style={globalStyles.bigModalView}>
-          <TouchableOpacity onPress={() => setStart(false)} style={globalStyles.closeModalBtn} >
-            <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
-          </TouchableOpacity>
-          <Text style={globalStyles.titleText}>コーヒーを飲み始める！</Text>
-          <Text>開始日</Text>
-          <Text>飲むコーヒーを選択</Text>
-          <Text>グラム数</Text>
-          <Text>値段</Text>
-          <Text>挽き目：スライダー</Text>
+      <View style={globalStyles.bigModalView}>
+        <TouchableOpacity onPress={() => setStart(false)} style={globalStyles.closeModalBtn} >
+          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
+        </TouchableOpacity>
+        <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>コーヒーを飲み始める！</Text>
+        <View style={{ display: 'flex', flexDirection: 'row', gap: 10, alignItems: 'center' }}>
+          <Text style={globalStyles.textLight}>開始日</Text>
+          <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 12 }}>
+            <RNDateTimePicker
+              mode="date"
+              display='calendar'
+              value={startDate}
+              onChange={() => setStartDate(startDate)} />
+          </View>
         </View>
+
+        <Text style={globalStyles.textLight}>飲むコーヒーを選択</Text>
+        <Text style={globalStyles.textLight}>グラム数</Text>
+        <Text style={globalStyles.textLight}>値段</Text>
+        <Text style={globalStyles.textLight}>挽き目：スライダー</Text>
       </View>
+
     </Modal>
   );
 

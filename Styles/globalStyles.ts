@@ -44,6 +44,19 @@ export const globalStyles = StyleSheet.create({
     fontSize:18,
   },
 
+  titleTextLight:{
+    fontFamily:'yusei',
+    fontSize:22,
+    textAlign:'center',
+    color:Colors.SECONDARY_LIGHT,
+  },
+
+  textLight:{
+    fontFamily:'yusei',
+    fontSize:16,
+    color:Colors.SECONDARY_LIGHT,
+  },
+
   smallBtn:{
     backgroundColor:Colors.SECONDARY,
     borderRadius:10,
