@@ -26,8 +26,9 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const [openCoffee, setOpenCoffee] = useState(false);
   const [valueCoffee, setValueCoffee] = useState(0);
   const [itemsCoffee, setItemsCoffee] = useState([]);
+  const [warningModal, setWarningModal] = useState(false);
 
-  console.log(startDate.getTime());
+  // console.log(startDate.getTime());
 
   const db = useSQLiteContext();
 
@@ -54,9 +55,48 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       setItemsCoffee(coffeeDropDown);
 
     }).catch((error) => {
-      console.log("reading coffee brand error!");
+      console.log("loading coffee error!");
       console.log(error.message);
+      return;
     });
+
+    const response = await db.getAllAsync<Record>(`
+    SELECT record.id, record.startDate, record.gram, record.cost, record.grindSize, coffee.name AS coffeeName, coffeeBrand.name AS brandName
+    FROM record
+    JOIN coffee ON coffee.id = record.coffee_id
+    JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+    WHERE record.endDate IS NULL;
+    `);
+
+    if (!response) {
+      console.log("loading record error!");
+      return;
+    }
+
+    console.log(response);
+    setRecords(response);
+
+  }
+
+
+
+  async function createNewRecord() {
+    if (!startDate || gram == 0 || valueCoffee == 0) {
+      setWarningModal(true);
+      return;
+    }
+
+    db.runAsync(`
+    INSERT INTO record (startDate, gram, cost, grindSize, coffee_id) VALUES (?, ?, ?, ?, ?);
+    `, [startDate.getTime(), gram, cost, grindSize.toFixed(0), valueCoffee]
+    ).catch((error) => {
+      console.log("creating new record error!");
+      console.log(error.message);
+      return;
+    })
+
+    setStart(false);
+    await getData();
   }
 
   const HandleCostInput = (input: string) => {
@@ -78,6 +118,31 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       setGram(parsedInput);
     }
   }
+
+  const recordList = records.length != 0 ? records.map((rc) => {
+    return (
+      (
+        <View key={rc.id}>
+          <Text>{rc.startDate}</Text>
+        </View>
+      )
+    )
+  }) : (
+    <Text>データがありません</Text>
+  )
+
+  const warning = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>コーヒー名の選択、グラム数の入力は必須項目です。</Text>
+          <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(false)}>
+            <Text style={globalStyles.smallBtnText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
 
   const startModal = (
     <Modal animationType='slide'>
@@ -139,11 +204,11 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
             maximumTrackTintColor={Colors.SECONDARY_LIGHT}
           />
         </View>
-        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
+        <TouchableOpacity onPress={createNewRecord} style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
           <Text style={globalStyles.titleTextLight}>保存する</Text>
         </TouchableOpacity>
+        {warningModal && warning}
       </View>
-
     </Modal>
   );
 
@@ -155,6 +220,8 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
         <TouchableOpacity onPress={() => setStart(true)} style={homeStyles.recordBtn}>
           <Text style={globalStyles.btnText}>新しくコーヒーを飲み始める</Text>
         </TouchableOpacity>
+
+        {recordList}
         {/* 終了日のないレコード一覧を表示する */}
 
         {start && startModal}

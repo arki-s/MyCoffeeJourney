@@ -47,11 +47,12 @@ export type CoffeeBean = {
 export type Record = {
   id: number;
   startDate: number;
-  endDate: number;
+  endDate: number | null;
   gram: number;
   cost: number;
   grindSize: number;
-  coffeeId: number;
+  coffeeName: string;
+  brandName:string;
 }
 
 export type Review = {

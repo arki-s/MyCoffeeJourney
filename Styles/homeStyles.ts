@@ -17,6 +17,7 @@ export const homeStyles = StyleSheet.create({
     gap:10,
     justifyContent:'space-between',
     padding:20,
+    alignItems:'center',
   },
 
   recordBtn:{
