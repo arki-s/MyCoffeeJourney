@@ -52,7 +52,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   }, [db])
 
   async function getData() {
-    await db.getAllAsync<Coffee>(`
+    db.getAllAsync<Coffee>(`
     SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
     FROM coffee
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
@@ -67,7 +67,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
       console.log(error.message);
     });
 
-    await db.getAllAsync<CoffeeBrand>(`
+    db.getAllAsync<CoffeeBrand>(`
     SELECT * FROM coffeeBrand;`).then((rsp) => {
       // console.log("rsp", rsp);
       const brandDropDown: any = [];
@@ -81,7 +81,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
       console.log(error.message);
     });
 
-    await db.getAllAsync<CoffeeBean>(`
+    db.getAllAsync<CoffeeBean>(`
     SELECT * FROM coffeeBean;`).then((rsp) => {
       // console.log("rsp", rsp);
       // setBeans(rsp);
@@ -135,7 +135,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   )
 
   async function addInclusion(coffee_id: number, bean_id: number) {
-    await db.runAsync(
+    db.runAsync(
       `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
       [coffee_id, bean_id]
     ).catch((error) => {
@@ -154,14 +154,19 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     db.withTransactionAsync(async () => {
       const result = await db.runAsync(
         `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, comment, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
-        [coffeeName, roast, body, sweetness, fruity, bitter, aroma, comment, valueBrand]
-      ).catch((error) => {
-        console.log("create coffee error!")
-        console.log(error.message);
-        return;
-      });
+        [coffeeName, roast, body, sweetness, fruity, bitter, aroma, comment, valueBrand])
 
-      console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
+      // ).catch((error) => {
+      //   console.log("create coffee error!")
+      //   console.log(error.message);
+      //   return;
+      // });
+
+      if (!result) {
+        console.log("creating new coffee error!");
+      }
+
+      // console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
 
       if (valueBean.length == 1) {
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
@@ -272,9 +277,9 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
         {setTaste}
 
-        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 10 }]} onPress={() => setAddModal(false)}>
+        {/* <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 10 }]} onPress={() => setAddModal(false)}>
           <Text style={globalStyles.smallBtnText}>画像アップロード</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TextInput placeholder='コメントを入力' maxLength={200} numberOfLines={4} multiline={true}
           value={comment} onChangeText={(text) => setComment(text)}

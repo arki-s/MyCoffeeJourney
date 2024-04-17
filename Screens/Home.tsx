@@ -27,14 +27,37 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const [valueCoffee, setValueCoffee] = useState(0);
   const [itemsCoffee, setItemsCoffee] = useState([]);
 
+  console.log(startDate.getTime());
 
   const db = useSQLiteContext();
 
   useEffect(() => {
     db.withExclusiveTransactionAsync(async () => {
-      // await getData();
+      await getData();
     })
   }, [db])
+
+  async function getData() {
+    db.getAllAsync<Coffee>(`
+    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
+    FROM coffee
+    JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+    JOIN inclusion ON inclusion.coffee_id = coffee.id
+    JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+    GROUP BY coffee.name
+    `).then((rsp) => {
+      // console.log("rsp", rsp);
+      const coffeeDropDown: any = [];
+
+      rsp.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+
+      setItemsCoffee(coffeeDropDown);
+
+    }).catch((error) => {
+      console.log("reading coffee brand error!");
+      console.log(error.message);
+    });
+  }
 
   const HandleCostInput = (input: string) => {
     const parsedInput = parseInt(input, 10);

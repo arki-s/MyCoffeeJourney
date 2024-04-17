@@ -73,7 +73,7 @@ export default function App() {
 
     // ASSET内のDBファイルを使わずに直接DB設定する場合は以下を利用
     db.transactionAsync(async (tx) => {
-      await tx.executeSqlAsync(
+      tx.executeSqlAsync(
         `
         CREATE TABLE IF NOT EXISTS coffeeBean (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -87,7 +87,7 @@ export default function App() {
     });
 
     db.transactionAsync(async (tx) => {
-      await tx.executeSqlAsync(
+      tx.executeSqlAsync(
         `
         CREATE TABLE IF NOT EXISTS coffeeBrand (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -100,7 +100,7 @@ export default function App() {
     });
 
     db.transactionAsync(async (tx) => {
-      await tx.executeSqlAsync(
+      tx.executeSqlAsync(
         `
         CREATE TABLE IF NOT EXISTS coffee (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -125,7 +125,7 @@ export default function App() {
     });
 
     db.transactionAsync(async (tx) => {
-      await tx.executeSqlAsync(
+      tx.executeSqlAsync(
         `
         CREATE TABLE IF NOT EXISTS inclusion (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -141,7 +141,7 @@ export default function App() {
     });
 
     db.transactionAsync(async (tx) => {
-      await tx.executeSqlAsync(
+      tx.executeSqlAsync(
         `
         CREATE TABLE IF NOT EXISTS record (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -160,7 +160,7 @@ export default function App() {
     });
 
     db.transactionAsync(async (tx) => {
-      await tx.executeSqlAsync(
+      tx.executeSqlAsync(
         `
         CREATE TABLE IF NOT EXISTS review (
           id INTEGER PRIMARY KEY AUTOINCREMENT,

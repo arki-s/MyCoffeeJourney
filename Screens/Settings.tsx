@@ -31,7 +31,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
   }, [db])
 
   async function getData() {
-    await db.getAllAsync<CoffeeBrand>(`
+    db.getAllAsync<CoffeeBrand>(`
     SELECT * FROM coffeeBrand;`).then((rsp) => {
       // console.log("rsp", rsp);
       setBrands(rsp);
@@ -40,7 +40,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
       console.log(error.message);
     });
 
-    await db.getAllAsync<CoffeeBean>(`
+    db.getAllAsync<CoffeeBean>(`
     SELECT * FROM coffeeBean;`).then((rsp) => {
       // console.log("rsp", rsp);
       setBeans(rsp);
@@ -54,7 +54,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     if (!brand) return null;
 
     db.withTransactionAsync(async () => {
-      await db.runAsync(
+      db.runAsync(
         `INSERT INTO coffeeBrand (name) VALUES (?);`, [brand]
       ).catch((error) => {
         console.log("creating brand error!");
@@ -72,7 +72,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     // if (!editName || !brandId) return null;
 
     db.withTransactionAsync(async () => {
-      await db.runAsync(
+      db.runAsync(
         `UPDATE coffeeBrand SET name= ? WHERE id = ?;`, [editName, brandId]
       ).catch((error) => {
         console.log("editing brand error!");
@@ -97,7 +97,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     // if (!brandId) return null;
 
     db.withTransactionAsync(async () => {
-      await db.runAsync(
+      db.runAsync(
         `DELETE FROM coffeeBrand WHERE id = ?;`, [id]
       ).catch((error) => {
         console.log("deleting brand error!");
@@ -117,7 +117,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     if (!bean) return null;
 
     db.withTransactionAsync(async () => {
-      await db.runAsync(
+      db.runAsync(
         `INSERT INTO coffeeBean (name) VALUES (?);`, [bean]
       ).catch((error) => {
         console.log("creating bean error!");
@@ -135,7 +135,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     // if (!beanId || !editName) return null;
 
     db.withTransactionAsync(async () => {
-      await db.runAsync(
+      db.runAsync(
         `UPDATE coffeeBean SET name= ? WHERE id = ?;`, [editName, beanId]
       ).catch((error) => {
         console.log("editing bean error!");
@@ -158,7 +158,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     // if (!beanId) return null;
 
     db.withTransactionAsync(async () => {
-      await db.runAsync(
+      db.runAsync(
         `DELETE FROM coffeeBean WHERE id = ?;`, [id]
       ).catch((error) => {
         console.log("deleting bean error!");
