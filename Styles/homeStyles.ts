@@ -29,7 +29,7 @@ export const homeStyles = StyleSheet.create({
     backgroundColor:Colors.SECONDARY_LIGHT,
     borderWidth:4,
     borderColor:Colors.SECONDARY,
-    marginVertical:10,
+    marginVertical:15,
     alignSelf:'center',
   },
 
@@ -39,4 +39,23 @@ export const homeStyles = StyleSheet.create({
     color:Colors.PRIMARY_LIGHT,
     textAlign:'center',
   },
+
+  recordContainer:{
+    width:'90%',
+    padding:10,
+    borderRadius:10,
+    backgroundColor:Colors.PRIMARY,
+    borderWidth:3,
+    borderColor:Colors.SECONDARY_LIGHT,
+    alignItems:'center',
+    justifyContent:'center',
+    marginBottom:14,
+    alignSelf:'center',
+  },
+
+  recordText:{
+    fontFamily:'yusei',
+    fontSize:20,
+    color:Colors.SECONDARY_LIGHT,
+   },
 })

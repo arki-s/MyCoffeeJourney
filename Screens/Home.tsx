@@ -74,11 +74,13 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     }
 
     console.log(response);
+
+    // const date = new Date(response[0]["startDate"]);
+    // console.log(date);
+
     setRecords(response);
 
   }
-
-
 
   async function createNewRecord() {
     if (!startDate || gram == 0 || valueCoffee == 0) {
@@ -120,10 +122,19 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   }
 
   const recordList = records.length != 0 ? records.map((rc) => {
+    const changedate = new Date(rc.startDate);
+    console.log(changedate);
+    const date = `${changedate.getFullYear()}年 ${Number(changedate.getMonth()) + 1}月 ${changedate.getDate()}日`;
+
+
     return (
       (
-        <View key={rc.id}>
-          <Text>{rc.startDate}</Text>
+        <View key={rc.id} style={homeStyles.recordContainer}>
+          <Text style={[homeStyles.recordText, { fontSize: 16, marginBottom: 5 }]}>開始日　{date}</Text>
+          <Text style={homeStyles.recordText}>{rc.brandName}</Text>
+          <Text style={[homeStyles.recordText, { marginBottom: 5 }]}>{rc.coffeeName}</Text>
+          <Text style={[homeStyles.recordText, { fontSize: 16 }]}>{rc.gram}g　{rc.cost}円</Text>
+          <Text style={[homeStyles.recordText, { fontSize: 16 }]}>挽き目：{rc.grindSize}</Text>
         </View>
       )
     )
