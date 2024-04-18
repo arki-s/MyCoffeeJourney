@@ -58,4 +58,36 @@ export const homeStyles = StyleSheet.create({
     fontSize:20,
     color:Colors.SECONDARY_LIGHT,
    },
+
+   completeBtn:{
+    marginBottom:5,
+    marginTop:10,
+    display:'flex',
+    flexDirection:'row',
+    alignItems:'center',
+    justifyContent:'space-between',
+    gap:5,
+    padding:5,
+    backgroundColor:Colors.SECONDARY_LIGHT,
+    borderWidth:4,
+    borderColor:Colors.PRIMARY_LIGHT,
+    borderRadius:12,
+   },
+
+   cupImg:{
+    height:20,
+    width:20,
+   },
+
+   completeBtnText:{
+    fontFamily:'yusei',
+    fontSize:13,
+    color:Colors.PRIMARY,
+   },
+
+   editIcon:{
+    position:'absolute',
+    top:10,
+    right:10,
+   }
 })

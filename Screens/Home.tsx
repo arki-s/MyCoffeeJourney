@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, ImageBackground } from 'react-native'
+import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, ImageBackground, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, RootStackParamList, User, Record } from '../types';
@@ -13,12 +13,13 @@ import * as SQLite from 'expo-sqlite/next';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { homeStyles } from '../Styles/homeStyles';
+import { FontAwesome } from '@expo/vector-icons';
 
 
 export default function Home({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [records, setRecords] = useState<Record[]>([]);
-  const [start, setStart] = useState(false);
+  const [modal, setModal] = useState<"New" | "Edit" | null>(null);
   const [grindSize, setGrindSize] = useState(3);
   const [gram, setGram] = useState<number | "">(0);
   const [cost, setCost] = useState<number | "">(0);
@@ -27,6 +28,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const [valueCoffee, setValueCoffee] = useState(0);
   const [itemsCoffee, setItemsCoffee] = useState([]);
   const [warningModal, setWarningModal] = useState(false);
+  const [editingRecord, setEditingRecord] = useState<number | null>(null);
 
   // console.log(startDate.getTime());
 
@@ -61,7 +63,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     });
 
     const response = await db.getAllAsync<Record>(`
-    SELECT record.id, record.startDate, record.gram, record.cost, record.grindSize, coffee.name AS coffeeName, coffeeBrand.name AS brandName
+    SELECT record.id, record.startDate, record.gram, record.cost, record.grindSize, coffee.name AS coffeeName, coffeeBrand.name AS brandName, coffee.id AS coffeeId
     FROM record
     JOIN coffee ON coffee.id = record.coffee_id
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
@@ -97,8 +99,30 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       return;
     })
 
-    setStart(false);
+    setModal(null);
     await getData();
+  }
+
+  async function editRecord() {
+    if (!editingRecord) return null;
+
+    if (!startDate || gram == 0 || valueCoffee == 0) {
+      setWarningModal(true);
+      return;
+    }
+
+    db.runAsync(`
+    UPDATE record SET startDate = ?, gram = ?, cost = ?, grindSize = ?, coffee_id = ? WHERE id = ?;
+    `, [startDate.getTime(), gram, cost, grindSize, valueCoffee, editingRecord]
+    ).catch((error) => {
+      console.log("editing record error!");
+      console.log(error.message);
+      return;
+    })
+
+    setModal(null);
+    await getData();
+
   }
 
   const HandleCostInput = (input: string) => {
@@ -121,20 +145,45 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     }
   }
 
+  function HandleClosePress() {
+    setCost(0);
+    setGram(0);
+    setStartDate(new Date());
+    setGrindSize(3);
+    setValueCoffee(0);
+    setModal(null);
+  }
+
   const recordList = records.length != 0 ? records.map((rc) => {
     const changedate = new Date(rc.startDate);
     console.log(changedate);
     const date = `${changedate.getFullYear()}年 ${Number(changedate.getMonth()) + 1}月 ${changedate.getDate()}日`;
 
+    function handleEditPress() {
+      setEditingRecord(rc.id);
+      setCost(rc.cost);
+      setGram(rc.gram);
+      setStartDate(changedate);
+      setGrindSize(rc.grindSize);
+      setValueCoffee(rc.coffeeId);
+      setModal("Edit");
+    }
 
     return (
       (
         <View key={rc.id} style={homeStyles.recordContainer}>
+          <TouchableOpacity onPress={handleEditPress} style={homeStyles.editIcon}>
+            <FontAwesome name="pencil" size={22} color={Colors.SECONDARY_LIGHT} />
+          </TouchableOpacity>
           <Text style={[homeStyles.recordText, { fontSize: 16, marginBottom: 5 }]}>開始日　{date}</Text>
           <Text style={homeStyles.recordText}>{rc.brandName}</Text>
           <Text style={[homeStyles.recordText, { marginBottom: 5 }]}>{rc.coffeeName}</Text>
           <Text style={[homeStyles.recordText, { fontSize: 16 }]}>{rc.gram}g　{rc.cost}円</Text>
           <Text style={[homeStyles.recordText, { fontSize: 16 }]}>挽き目：{rc.grindSize}</Text>
+          <TouchableOpacity style={homeStyles.completeBtn}>
+            <Image source={require('../assets/cup_brown.png')} style={homeStyles.cupImg} />
+            <Text style={homeStyles.completeBtnText}>飲み終わった</Text>
+          </TouchableOpacity>
         </View>
       )
     )
@@ -155,13 +204,13 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     </Modal>
   )
 
-  const startModal = (
+  const recordModal = (
     <Modal animationType='slide'>
       <View style={globalStyles.bigModalView}>
-        <TouchableOpacity onPress={() => setStart(false)} style={globalStyles.closeModalBtn} >
+        <TouchableOpacity onPress={HandleClosePress} style={globalStyles.closeModalBtn} >
           <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
         </TouchableOpacity>
-        <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>新しくコーヒーを飲み始める</Text>
+        <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>{modal == "New" ? "新しくコーヒーを飲み始める" : "編集する"}</Text>
         <View style={homeStyles.inputContainer}>
           <Text style={globalStyles.textLight}>開始日</Text>
           <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
@@ -215,7 +264,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
             maximumTrackTintColor={Colors.SECONDARY_LIGHT}
           />
         </View>
-        <TouchableOpacity onPress={createNewRecord} style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
+        <TouchableOpacity onPress={modal === "New" ? createNewRecord : editRecord} style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
           <Text style={globalStyles.titleTextLight}>保存する</Text>
         </TouchableOpacity>
         {warningModal && warning}
@@ -228,14 +277,14 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     <View style={globalStyles.container}>
       <ImageBackground source={require('../assets/texture.jpg')} style={globalStyles.imgBackground}>
         <Header title={'ホーム'} />
-        <TouchableOpacity onPress={() => setStart(true)} style={homeStyles.recordBtn}>
+        <TouchableOpacity onPress={() => setModal("New")} style={homeStyles.recordBtn}>
           <Text style={globalStyles.btnText}>新しくコーヒーを飲み始める</Text>
         </TouchableOpacity>
 
         {recordList}
         {/* 終了日のないレコード一覧を表示する */}
 
-        {start && startModal}
+        {modal && recordModal}
       </ImageBackground>
     </View>
   )

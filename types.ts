@@ -51,6 +51,7 @@ export type Record = {
   gram: number;
   cost: number;
   grindSize: number;
+  coffeeId:number;
   coffeeName: string;
   brandName:string;
 }
