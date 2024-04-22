@@ -30,8 +30,7 @@ export type Coffee = {
   aroma: number;
   brand: string;
   beans: string;
-  // brands: CoffeeBrand;
-  // CoffeeBeans: CoffeeBean[];
+  reviews: Review[];
 }
 
 export type CoffeeBrand = {
@@ -57,9 +56,6 @@ export type Record = {
 }
 
 export type Review = {
-  id: number;
   rating: number;
   comment: string;
-  date: number;
-  recordId: number;
 }

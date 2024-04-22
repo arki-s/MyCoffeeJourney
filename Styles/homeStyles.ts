@@ -89,5 +89,17 @@ export const homeStyles = StyleSheet.create({
     position:'absolute',
     top:10,
     right:10,
-   }
+   },
+
+   commentInput:{
+    fontFamily:'yusei',
+    backgroundColor:Colors.SECONDARY_LIGHT,
+    borderRadius:5,
+    width:'85%',
+    height:150,
+    alignSelf:'center',
+    padding:10,
+    marginVertical:15,
+    zIndex:1,
+   },
 })

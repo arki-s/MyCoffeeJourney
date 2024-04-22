@@ -20,6 +20,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [records, setRecords] = useState<Record[]>([]);
   const [modal, setModal] = useState<"New" | "Edit" | null>(null);
+  const [reviewModal, setReviewModal] = useState(false);
   const [grindSize, setGrindSize] = useState(3);
   const [gram, setGram] = useState<number | "">(0);
   const [cost, setCost] = useState<number | "">(0);
@@ -30,8 +31,16 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const [itemsCoffee, setItemsCoffee] = useState([]);
   const [warningModal, setWarningModal] = useState(false);
   const [editingRecord, setEditingRecord] = useState<number | null>(null);
-  const [rating, setRating] = useState(3);
+  const [rating, setRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
+  const [openRating, setOpenRating] = useState(false);
+  const [itemsRating, setItemsRating] = useState([
+    { label: '⭐️', value: 1 },
+    { label: '⭐️⭐️', value: 2 },
+    { label: '⭐️⭐️⭐️', value: 3 },
+    { label: '⭐️⭐️⭐️⭐️', value: 4 },
+    { label: '⭐️⭐️⭐️⭐️⭐️', value: 5 }
+  ]);
 
 
   // console.log(startDate.getTime());
@@ -130,6 +139,9 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   }
 
   async function completeRecord() {
+    if (!rating) setWarningModal(true);
+
+
     db.runAsync(`
     UPDATE record SET endDate = ? WHERE id = ?;
     `, [endDate.getTime(), editingRecord]
@@ -139,7 +151,23 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       return;
     })
 
+    db.runAsync(`
+    INSERT INTO review (rating, comment, record_id) VALUES (?, ?, ?);
+    `, [rating, comment, editingRecord]
+    ).catch((error) => {
+      console.log("creating review error!");
+      console.log(error.message);
+      return;
+    })
 
+    console.log("successfully created a new review!");
+
+    await getData();
+
+    setComment("");
+    setRating(null);
+    setEditingRecord(null);
+    setReviewModal(false);
 
   }
 
@@ -169,12 +197,20 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     setStartDate(new Date());
     setGrindSize(3);
     setValueCoffee(0);
+    setEditingRecord(null);
     setModal(null);
+  }
+
+  function HandleReviewClosePress() {
+    setComment("");
+    setRating(null);
+    setEditingRecord(null);
+    setReviewModal(false);
   }
 
   const recordList = records.length != 0 ? records.map((rc) => {
     const changedate = new Date(rc.startDate);
-    console.log(changedate);
+    // console.log(changedate);
     const date = `${changedate.getFullYear()}年 ${Number(changedate.getMonth()) + 1}月 ${changedate.getDate()}日`;
 
     function handleEditPress() {
@@ -185,6 +221,11 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       setGrindSize(rc.grindSize);
       setValueCoffee(rc.coffeeId);
       setModal("Edit");
+    }
+
+    function handleCompletePress() {
+      setEditingRecord(rc.id);
+      setReviewModal(true);
     }
 
     return (
@@ -198,7 +239,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
           <Text style={[homeStyles.recordText, { marginBottom: 5 }]}>{rc.coffeeName}</Text>
           <Text style={[homeStyles.recordText, { fontSize: 16 }]}>{rc.gram}g　{rc.cost}円</Text>
           <Text style={[homeStyles.recordText, { fontSize: 16 }]}>挽き目：{rc.grindSize}</Text>
-          <TouchableOpacity style={homeStyles.completeBtn}>
+          <TouchableOpacity onPress={handleCompletePress} style={homeStyles.completeBtn}>
             <Image source={require('../assets/cup_brown.png')} style={homeStyles.cupImg} />
             <Text style={homeStyles.completeBtnText}>飲み終わった</Text>
           </TouchableOpacity>
@@ -217,11 +258,13 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     </View>
   )
 
+  const warningText = reviewModal ? ("評価を選択してください。") : ("コーヒー名の選択、グラム数の入力は必須項目です。");
+
   const warning = (
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
         <View style={globalStyles.modalBasic}>
-          <Text style={globalStyles.titleText}>コーヒー名の選択、グラム数の入力は必須項目です。</Text>
+          <Text style={globalStyles.titleText}>{warningText}</Text>
           <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(false)}>
             <Text style={globalStyles.smallBtnText}>閉じる</Text>
           </TouchableOpacity>
@@ -298,7 +341,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     </Modal>
   );
 
-  const recordBtn = records.length != 0 ? (
+  const recordBtn = itemsCoffee.length != 0 ? (
     <TouchableOpacity onPress={() => setModal("New")} style={homeStyles.recordBtn}>
       <Text style={globalStyles.btnText}>新しくコーヒーを飲み始める</Text>
     </TouchableOpacity>
@@ -309,6 +352,56 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       </View>
     </View>
 
+  );
+
+  const review = (
+    <Modal animationType='slide'>
+      <View style={globalStyles.bigModalView}>
+        <TouchableOpacity onPress={HandleReviewClosePress} style={globalStyles.closeModalBtn} >
+          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
+        </TouchableOpacity>
+        <Text style={globalStyles.titleTextLight}>ご馳走様でした！</Text>
+        <View style={homeStyles.inputContainer}>
+          <Text style={globalStyles.textLight}>終了日</Text>
+          <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
+            <RNDateTimePicker
+              mode="date"
+              display='calendar'
+              value={endDate}
+              onChange={() => setEndDate(endDate)} />
+          </View>
+        </View>
+
+        <View style={[homeStyles.inputContainer, { zIndex: 2 }]}>
+          <Text style={globalStyles.textLight}>評価</Text>
+          <View style={{ alignItems: 'center', width: 360 }}>
+            <DropDownPicker
+              placeholder={'Choose rating'}
+              open={openRating}
+              value={rating}
+              items={itemsRating}
+              setOpen={setOpenRating}
+              setValue={setRating}
+              setItems={setItemsRating}
+              style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+              containerStyle={{ width: '50%', }}
+              dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+              textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
+              zIndex={5000}
+            />
+          </View>
+        </View>
+
+        <TextInput placeholder='感想を入力' value={comment} onChangeText={(text) => setComment(text)}
+          multiline={true} numberOfLines={5} style={homeStyles.commentInput} />
+
+        <TouchableOpacity onPress={completeRecord} style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20, zIndex: 1 }]} >
+          <Text style={globalStyles.titleTextLight}>保存する</Text>
+        </TouchableOpacity>
+
+        {warningModal && warning}
+      </View>
+    </Modal>
   );
 
 
@@ -322,6 +415,8 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
         {recordList}
 
         {modal && recordModal}
+
+        {reviewModal && review}
       </ImageBackground>
     </View>
   )
