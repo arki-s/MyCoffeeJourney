@@ -24,11 +24,15 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const [gram, setGram] = useState<number | "">(0);
   const [cost, setCost] = useState<number | "">(0);
   const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const [openCoffee, setOpenCoffee] = useState(false);
   const [valueCoffee, setValueCoffee] = useState(0);
   const [itemsCoffee, setItemsCoffee] = useState([]);
   const [warningModal, setWarningModal] = useState(false);
   const [editingRecord, setEditingRecord] = useState<number | null>(null);
+  const [rating, setRating] = useState(3);
+  const [comment, setComment] = useState("");
+
 
   // console.log(startDate.getTime());
 
@@ -75,7 +79,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       return;
     }
 
-    console.log(response);
+    // console.log(response);
 
     // const date = new Date(response[0]["startDate"]);
     // console.log(date);
@@ -122,6 +126,20 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
 
     setModal(null);
     await getData();
+
+  }
+
+  async function completeRecord() {
+    db.runAsync(`
+    UPDATE record SET endDate = ? WHERE id = ?;
+    `, [endDate.getTime(), editingRecord]
+    ).catch((error) => {
+      console.log("completing record error!");
+      console.log(error.message);
+      return;
+    })
+
+
 
   }
 
@@ -188,7 +206,15 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       )
     )
   }) : (
-    <Text>データがありません</Text>
+    <View style={homeStyles.recordContainer}>
+      <Text style={[globalStyles.titleTextLight, { fontSize: 24, marginBottom: 20 }]}>このアプリの使い方</Text>
+      <View style={{ paddingHorizontal: 20 }}>
+        <Text style={[homeStyles.recordText, { marginBottom: 10 }]}>1. 設定画面でコーヒーブランドとコーヒー豆を登録する</Text>
+        <Text style={[homeStyles.recordText, { marginBottom: 10 }]}>2. My図鑑画面でコーヒーを登録する</Text>
+        <Text style={[homeStyles.recordText, { marginBottom: 10 }]}>3. ホーム画面で飲み始めたコーヒーの記録を開始する</Text>
+        <Text style={homeStyles.recordText}>4. 履歴や分析画面でこれまでの記録を振り返って楽しむ</Text>
+      </View>
+    </View>
   )
 
   const warning = (
@@ -272,17 +298,28 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     </Modal>
   );
 
+  const recordBtn = records.length != 0 ? (
+    <TouchableOpacity onPress={() => setModal("New")} style={homeStyles.recordBtn}>
+      <Text style={globalStyles.btnText}>新しくコーヒーを飲み始める</Text>
+    </TouchableOpacity>
+  ) : (
+    <View style={{ opacity: 0.5 }}>
+      <View style={homeStyles.recordBtn}>
+        <Text style={globalStyles.btnText}>新しくコーヒーを飲み始める</Text>
+      </View>
+    </View>
+
+  );
+
 
   return (
     <View style={globalStyles.container}>
       <ImageBackground source={require('../assets/texture.jpg')} style={globalStyles.imgBackground}>
         <Header title={'ホーム'} />
-        <TouchableOpacity onPress={() => setModal("New")} style={homeStyles.recordBtn}>
-          <Text style={globalStyles.btnText}>新しくコーヒーを飲み始める</Text>
-        </TouchableOpacity>
+
+        {recordBtn}
 
         {recordList}
-        {/* 終了日のないレコード一覧を表示する */}
 
         {modal && recordModal}
       </ImageBackground>

@@ -1,4 +1,4 @@
-import { View, Text, TextInput, TouchableOpacity, Modal, ImageBackground } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, Modal, ImageBackground, ScrollView } from 'react-native'
 import React, { SetStateAction, useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, CoffeeBean, CoffeeBrand, RootStackParamList } from '../types';
@@ -305,11 +305,14 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
         <Header title={'My図鑑'} />
         <TextInput placeholder='キーワードで検索' style={coffeeIndexStyles.searchInput} />
         {/* <FontAwesome name="search" size={30} color={Colors.PRIMARY} /> */}
-        {list}
+        <ScrollView>
+          {coffees.length != 0 ? list : (
+            <Text style={globalStyles.titleText}>データがありません</Text>
+          )}
+        </ScrollView>
         <TouchableOpacity style={coffeeIndexStyles.addBtn} onPress={() => setAddModal(true)}>
           <Ionicons name="add-circle" size={50} color={Colors.PRIMARY} />
         </TouchableOpacity>
-        {/* <Text>メモ：豆とブランドが空の場合はまず設定画面で追加を案内されるようにしたい</Text> */}
         {addModal && addCoffeeModal}
       </ImageBackground>
     </View>

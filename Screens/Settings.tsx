@@ -237,7 +237,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
           </TouchableOpacity>
           <Text style={globalStyles.titleText}>コーヒーブランドの管理</Text>
           <View style={settingsStyles.newAddContainer}>
-            <TextInput placeholder='新しく追加したいブランド名を入力' style={settingsStyles.newAddInput} maxLength={11} value={brand} onChangeText={setBrand} />
+            <TextInput placeholder='コーヒーブランド名を入力' style={settingsStyles.newAddInput} maxLength={11} value={brand} onChangeText={setBrand} />
             <TouchableOpacity style={globalStyles.smallBtn} onPress={createBrand}>
               <Text style={globalStyles.smallBtnText}>追加</Text>
             </TouchableOpacity>
@@ -261,7 +261,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
           </TouchableOpacity>
           <Text style={globalStyles.titleText}>コーヒー豆の管理</Text>
           <View style={settingsStyles.newAddContainer}>
-            <TextInput placeholder='新しく追加したいコーヒー豆の産地を入力' style={settingsStyles.newAddInput} maxLength={11} value={bean} onChangeText={setBean} />
+            <TextInput placeholder='コーヒー豆の産地を入力' style={settingsStyles.newAddInput} maxLength={11} value={bean} onChangeText={setBean} />
             <TouchableOpacity style={globalStyles.smallBtn} onPress={createBean}>
               <Text style={globalStyles.smallBtnText}>追加</Text>
             </TouchableOpacity>

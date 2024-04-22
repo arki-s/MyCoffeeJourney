@@ -167,7 +167,6 @@ export default function App() {
           record_id INTEGER,
           rating INTEGER DEFAULT 3,
           comment TEXT,
-          date INTEGER NOT NULL,
           FOREIGN KEY (record_id) REFERENCES record (id));
         `
       )
