@@ -53,9 +53,12 @@ export type Record = {
   coffeeId:number;
   coffeeName: string;
   brandName:string;
+  rating:number | null;
+  comment:string | null;
 }
 
 export type Review = {
+  record_id: number;
   rating: number;
   comment: string;
 }
