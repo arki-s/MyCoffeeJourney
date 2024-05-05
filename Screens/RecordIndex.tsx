@@ -25,7 +25,8 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     JOIN coffee ON coffee.id = record.coffee_id
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
     JOIN review ON review.record_id = record.id
-    WHERE record.endDate IS NOT NULL;
+    WHERE record.endDate IS NOT NULL
+    ORDER BY record.endDate DESC;
     `).then((rsp) => {
       // console.log(rsp);
       setRecords(rsp);
@@ -52,7 +53,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
         <Text style={recordIndexStyles.recordTextSmall}>{startDate}〜{endDate}</Text>
         <Text style={recordIndexStyles.recordText}>{record.brandName} {record.coffeeName}</Text>
         <Text style={recordIndexStyles.recordTextSmall}>{record.gram}g 挽き具合:{record.grindSize}</Text>
-        <Text>{ratingStars}</Text>
+        <Text style={{ marginTop: 10 }}>{ratingStars}</Text>
         <Text style={recordIndexStyles.recordTextSmall}>{record.comment}</Text>
       </View>
     )
