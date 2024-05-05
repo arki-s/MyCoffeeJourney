@@ -1,10 +1,11 @@
-import { View, Text, ImageBackground } from 'react-native'
+import { View, Text, ImageBackground, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import Header from './Header'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Coffee, RootStackParamList, Record, Review } from '../types'
 import { useSQLiteContext } from 'expo-sqlite/next';
+import { recordIndexStyles } from '../Styles/recordIndexStyles'
 
 export default function RecordIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [records, setRecords] = useState<Record[]>([]);
@@ -44,11 +45,15 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     const changeEndDate = new Date(record.endDate);
     const endDate = `${changeEndDate.getFullYear()}年 ${Number(changeEndDate.getMonth()) + 1}月 ${changeEndDate.getDate()}日`;
 
+    const ratingStars = record.rating ? "⭐️".repeat(record.rating) : "";
+
     return (
-      <View key={record.id}>
-        <Text>{record.brandName} {record.coffeeName}</Text>
-        <Text>{startDate}</Text>
-        <Text>{endDate}</Text>
+      <View key={record.id} style={recordIndexStyles.recordContainer}>
+        <Text style={recordIndexStyles.recordTextSmall}>{startDate}〜{endDate}</Text>
+        <Text style={recordIndexStyles.recordText}>{record.brandName} {record.coffeeName}</Text>
+        <Text style={recordIndexStyles.recordTextSmall}>{record.gram}g 挽き具合:{record.grindSize}</Text>
+        <Text>{ratingStars}</Text>
+        <Text style={recordIndexStyles.recordTextSmall}>{record.comment}</Text>
       </View>
     )
 
@@ -61,10 +66,10 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
   return (
     <View style={globalStyles.container}>
       <ImageBackground source={require('../assets/texture.jpg')} style={globalStyles.imgBackground}>
-
         <Header title={'履歴'} />
-        <Text>これまでのコーヒーの飲んだ履歴一覧</Text>
-        {list}
+        <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
+          {list}
+        </ScrollView>
       </ImageBackground>
     </View>
   )
