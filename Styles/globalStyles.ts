@@ -106,7 +106,13 @@ export const globalStyles = StyleSheet.create({
   imgBackground:{
     width: '100%',
     height: '100%',
-  }
+  },
+
+  editIcon:{
+    position:'absolute',
+    top:10,
+    right:10,
+   },
 
 
 

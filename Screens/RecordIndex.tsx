@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, ScrollView } from 'react-native'
+import { View, Text, ImageBackground, ScrollView, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import Header from './Header'
@@ -6,6 +6,8 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { Coffee, RootStackParamList, Record, Review } from '../types'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { recordIndexStyles } from '../Styles/recordIndexStyles'
+import { FontAwesome } from '@expo/vector-icons';
+import Colors from '../Styles/Colors'
 
 export default function RecordIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [records, setRecords] = useState<Record[]>([]);
@@ -37,6 +39,14 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     })
   }
 
+  async function HandleEditPress() {
+
+  }
+
+  async function HandleDeletePress() {
+
+  }
+
   const list = records ? records.map((record) => {
     if (!record.endDate) return null;
 
@@ -48,8 +58,13 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
 
     const ratingStars = record.rating ? "⭐️".repeat(record.rating) : "";
 
+
+
     return (
       <View key={record.id} style={recordIndexStyles.recordContainer}>
+        <TouchableOpacity onPress={HandleEditPress} style={globalStyles.editIcon}>
+          <FontAwesome name="pencil" size={22} color={Colors.SECONDARY_LIGHT} />
+        </TouchableOpacity>
         <Text style={recordIndexStyles.recordTextSmall}>{startDate}〜{endDate}</Text>
         <Text style={recordIndexStyles.recordText}>{record.brandName} {record.coffeeName}</Text>
         <Text style={recordIndexStyles.recordTextSmall}>{record.gram}g 挽き具合:{record.grindSize}</Text>

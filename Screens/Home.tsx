@@ -133,6 +133,12 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       return;
     })
 
+    setCost(0);
+    setGram(0);
+    setStartDate(new Date());
+    setGrindSize(3);
+    setValueCoffee(0);
+    setEditingRecord(null);
     setModal(null);
     await getData();
 
@@ -168,6 +174,31 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     setRating(null);
     setEditingRecord(null);
     setReviewModal(false);
+
+  }
+
+  async function deleteRecord() {
+    if (!editingRecord) return null;
+
+    db.runAsync(`DELETE FROM record WHERE id = ?`, [editingRecord])
+      .catch((error) => {
+        console.log("deleting record error!");
+        console.log(error.message);
+        return;
+      })
+
+    console.log("successfully deleted the record!");
+
+    await getData();
+
+    setCost(0);
+    setGram(0);
+    setStartDate(new Date());
+    setGrindSize(3);
+    setValueCoffee(0);
+    setEditingRecord(null);
+    setModal(null);
+    await getData();
 
   }
 
@@ -231,7 +262,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     return (
       (
         <View key={rc.id} style={homeStyles.recordContainer}>
-          <TouchableOpacity onPress={handleEditPress} style={homeStyles.editIcon}>
+          <TouchableOpacity onPress={handleEditPress} style={globalStyles.editIcon}>
             <FontAwesome name="pencil" size={22} color={Colors.SECONDARY_LIGHT} />
           </TouchableOpacity>
           <Text style={[homeStyles.recordText, { fontSize: 16, marginBottom: 5 }]}>開始日　{date}</Text>
@@ -336,6 +367,11 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
         <TouchableOpacity onPress={modal === "New" ? createNewRecord : editRecord} style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
           <Text style={globalStyles.titleTextLight}>保存する</Text>
         </TouchableOpacity>
+        {modal === "Edit" && (
+          <TouchableOpacity style={homeStyles.deleteBtn} onPress={deleteRecord}>
+            <Text style={homeStyles.deleteText}>データを削除</Text>
+          </TouchableOpacity>
+        )}
         {warningModal && warning}
       </View>
     </Modal>

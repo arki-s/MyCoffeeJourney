@@ -85,12 +85,6 @@ export const homeStyles = StyleSheet.create({
     color:Colors.PRIMARY,
    },
 
-   editIcon:{
-    position:'absolute',
-    top:10,
-    right:10,
-   },
-
    commentInput:{
     fontFamily:'yusei',
     backgroundColor:Colors.SECONDARY_LIGHT,
@@ -102,4 +96,19 @@ export const homeStyles = StyleSheet.create({
     marginVertical:15,
     zIndex:1,
    },
+
+   deleteText:{
+    color:Colors.SECONDARY_LIGHT,
+    fontFamily:'yusei',
+    fontSize:12,
+   },
+
+   deleteBtn:{
+    borderRadius:10,
+    alignSelf: 'center',
+    marginVertical: 20,
+    borderWidth:1,
+    padding:8,
+    borderColor:Colors.SECONDARY_LIGHT,
+   }
 })
