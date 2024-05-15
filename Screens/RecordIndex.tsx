@@ -47,7 +47,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
 
   }
 
-  const list = records ? records.map((record) => {
+  const list = records.length > 0 ? records.map((record) => {
     if (!record.endDate) return null;
 
     const changeStartDate = new Date(record.startDate);
@@ -74,7 +74,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     )
 
   }) : (
-    <Text>履歴がありません。</Text>
+    <Text style={globalStyles.titleText}>履歴がありません</Text>
   )
 
 

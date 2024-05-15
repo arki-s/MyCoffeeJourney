@@ -22,6 +22,8 @@ type CoffeeDetailsProps = {
 export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps) {
   const [coffee, setCoffee] = useState<Coffee | null>(null);
   const [image, setImage] = useState(false);
+  const [count, setCount] = useState(0);
+  const [averageRating, setAverageRating] = useState<number | null>(null);
 
   const db = useSQLiteContext();
   const memorizedId = useMemo(() => route.params.id, [route.params.id]);
@@ -48,6 +50,29 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       console.log("reading coffee error!");
       console.log(error.message);
     });
+
+    await db.getAllAsync(`SELECT COUNT(*) FROM record WHERE coffee_id = ${memorizedId}`)
+      .then((rsp) => {
+        console.log(rsp[0]["COUNT(*)"]);
+        setCount(parseInt(rsp[0]["COUNT(*)"]));
+      }).catch((error) => {
+        console.log("count error!");
+        console.log(error.message);
+      })
+
+    await db.getAllAsync(`
+      SELECT AVG(rating) FROM review
+      JOIN record ON record.id = review.record_id
+      JOIN coffee ON coffee.id = record.coffee_id
+      WHERE coffee.id = ${memorizedId}
+      `).then((rsp) => {
+      console.log("average", rsp);
+      setAverageRating(parseInt(rsp[0]["AVG(rating)"]));
+      console.log(averageRating);
+    }).catch((error) => {
+      console.log("average rating error!")
+      console.log(error.message);
+    })
   }
 
   const coffeeTaste = coffee ? [
@@ -242,10 +267,10 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
         {tasteSliders}
 
-        <Text style={globalStyles.titleText}>飲んだ回数</Text>
+        <Text style={globalStyles.titleText}>飲んだ回数 : {count}</Text>
         <Text style={globalStyles.titleText}>コメント</Text>
         <Text style={globalStyles.titleText}>{coffee?.comment}</Text>
-        <Text style={globalStyles.titleText}>評価平均</Text>
+        <Text style={globalStyles.titleText}>評価平均 : {averageRating}</Text>
         <Text style={globalStyles.titleText}>これまでのレビュー</Text>
       </ScrollView>
       {image && cameraModal}
