@@ -2,7 +2,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, Modal, Touchable } fro
 import React, { useEffect, useMemo, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { Coffee, RootStackParamList } from '../types'
+import { Coffee, RootStackParamList, Review } from '../types'
 import { RouteProp } from '@react-navigation/native'
 import Header from './Header'
 import { useSQLiteContext } from 'expo-sqlite/next'
@@ -24,6 +24,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   const [image, setImage] = useState(false);
   const [count, setCount] = useState(0);
   const [averageRating, setAverageRating] = useState<number | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
 
   const db = useSQLiteContext();
   const memorizedId = useMemo(() => route.params.id, [route.params.id]);
@@ -52,7 +53,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     });
 
     await db.getAllAsync(`SELECT COUNT(*) FROM record WHERE coffee_id = ${memorizedId}`)
-      .then((rsp) => {
+      .then((rsp: any) => {
         console.log(rsp[0]["COUNT(*)"]);
         setCount(parseInt(rsp[0]["COUNT(*)"]));
       }).catch((error) => {
@@ -65,12 +66,25 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       JOIN record ON record.id = review.record_id
       JOIN coffee ON coffee.id = record.coffee_id
       WHERE coffee.id = ${memorizedId}
-      `).then((rsp) => {
+      `).then((rsp: any) => {
       console.log("average", rsp);
-      setAverageRating(parseInt(rsp[0]["AVG(rating)"]));
+      setAverageRating(parseFloat(rsp[0]["AVG(rating)"]));
       console.log(averageRating);
     }).catch((error) => {
       console.log("average rating error!")
+      console.log(error.message);
+    })
+
+    await db.getAllAsync(`
+    SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date FROM review
+    JOIN record ON record.id = review.record_id
+    JOIN coffee ON coffee.id = record.coffee_id
+    WHERE coffee.id = ${memorizedId}
+    `).then((rsp: any) => {
+      console.log("reviews", rsp);
+      setReviews(rsp);
+    }).catch((error) => {
+      console.log("reviews error!");
       console.log(error.message);
     })
   }
