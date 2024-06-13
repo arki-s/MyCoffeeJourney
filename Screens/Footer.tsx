@@ -56,7 +56,7 @@ export default function Footer({ navigation }: BottomTabBarProps) {
       </View>
 
       <View style={footerStyles.iconContainer}>
-        <TouchableOpacity onPress={HandleTestPress}>
+        <TouchableOpacity onPress={HandleAnalyticsPress}>
           <Image source={require('../assets/analisys.png')} style={footerStyles.iconImg} />
           <Text style={footerStyles.title}>分析</Text>
         </TouchableOpacity>
