@@ -77,8 +77,6 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }
 
 
-
-
   const value: CoffeeContextValue = { coffees, setCoffees, brands, setBrands, beans, setBeans, records, setRecords, reviews, setReviews };
   return <CoffeeContext.Provider value={value}>{children}</CoffeeContext.Provider>;
 }

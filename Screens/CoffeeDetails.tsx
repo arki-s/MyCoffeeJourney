@@ -76,7 +76,8 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     })
 
     await db.getAllAsync(`
-    SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date FROM review
+    SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date
+    FROM review
     JOIN record ON record.id = review.record_id
     JOIN coffee ON coffee.id = record.coffee_id
     WHERE coffee.id = ${memorizedId}
@@ -88,6 +89,16 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       console.log(error.message);
     })
   }
+
+  const pastReviews = reviews && reviews.map((review) => {
+    const ratingStars = review.rating ? "⭐️".repeat(review.rating) : "";
+    return (
+      <>
+        <Text style={globalStyles.titleText}>{ratingStars}</Text>
+        <Text style={globalStyles.titleText}>{review.comment}</Text>
+      </>
+    )
+  })
 
   const coffeeTaste = coffee ? [
     { name: "焙煎度", value: coffee.roast },
@@ -286,6 +297,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
         <Text style={globalStyles.titleText}>{coffee?.comment}</Text>
         <Text style={globalStyles.titleText}>評価平均 : {averageRating}</Text>
         <Text style={globalStyles.titleText}>これまでのレビュー</Text>
+        {pastReviews}
       </ScrollView>
       {image && cameraModal}
     </View>
