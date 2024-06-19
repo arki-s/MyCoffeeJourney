@@ -24,7 +24,14 @@ export const recordIndexStyles = StyleSheet.create({
     color:Colors.SECONDARY_LIGHT,
     fontFamily:'yusei',
     fontSize:14,
-  }
+  },
+
+   buttonContainer:{
+    display:'flex',
+    flexDirection:'row',
+    justifyContent:'flex-end',
+    gap:10,
+   }
 
 
 })

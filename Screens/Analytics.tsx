@@ -49,8 +49,19 @@ export default function Analytics({ navigation }: { navigation: NativeStackNavig
       console.log(error.message);
     })
 
-
-
+    // await db.getAllAsync(`
+    //   SELECT SUM(gram / julianday(endDate) - julianday(startDate)) AS average
+    //   FROM record
+    //   WHERE endDate IS NOT NULL
+    //   AND startDate <> endDate;
+    //   `).then((rsp) => {
+    //   console.log("average gram", rsp);
+    //   const average: any = rsp[0];
+    //   setAverageGram(average.average);
+    // }).catch((error) => {
+    //   console.log("average gram error!");
+    //   console.log(error.message);
+    // })
   }
 
 
@@ -60,7 +71,7 @@ export default function Analytics({ navigation }: { navigation: NativeStackNavig
       <ImageBackground source={require('../assets/texture.jpg')} style={globalStyles.imgBackground}>
         <Header title={'分析'} />
         <Text>コーヒーを飲んだ回数: {totalCount}</Text>
-        <Text>一日のコーヒー平均グラム</Text>
+        {/* <Text>一日のコーヒー平均グラム: {averageGram}g</Text> */}
         <Text>飲んだコーヒーの総グラム: {totalGram}g</Text>
         <Text>各ランキング</Text>
       </ImageBackground>

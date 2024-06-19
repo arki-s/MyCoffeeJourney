@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text, ImageBackground, ScrollView, Modal, Pressable } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import Header from './Header'
@@ -8,9 +8,13 @@ import { useSQLiteContext } from 'expo-sqlite/next';
 import { recordIndexStyles } from '../Styles/recordIndexStyles'
 import { FontAwesome } from '@expo/vector-icons';
 import Colors from '../Styles/Colors'
+import { AntDesign } from '@expo/vector-icons';
+import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler'
+
 
 export default function RecordIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [records, setRecords] = useState<Record[]>([]);
+  const [modalState, setModalState] = useState<"edit" | "delete" | null>(null);
 
   const db = useSQLiteContext();
 
@@ -62,19 +66,52 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
 
     return (
       <View key={record.id} style={recordIndexStyles.recordContainer}>
-        <TouchableOpacity onPress={HandleEditPress} style={globalStyles.editIcon}>
-          <FontAwesome name="pencil" size={22} color={Colors.SECONDARY_LIGHT} />
-        </TouchableOpacity>
-        <Text style={recordIndexStyles.recordTextSmall}>{startDate}〜{endDate}</Text>
-        <Text style={recordIndexStyles.recordText}>{record.brandName} {record.coffeeName}</Text>
-        <Text style={recordIndexStyles.recordTextSmall}>{record.gram}g 挽き具合:{record.grindSize}</Text>
-        <Text style={{ marginTop: 10 }}>{ratingStars}</Text>
-        <Text style={recordIndexStyles.recordTextSmall}>{record.comment}</Text>
+        <View style={recordIndexStyles.buttonContainer}>
+          <TouchableOpacity onPress={() => setModalState("edit")}>
+            <FontAwesome name="pencil" size={22} color={Colors.SECONDARY_LIGHT} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalState("delete")}>
+            <FontAwesome name="trash-o" size={22} color={Colors.SECONDARY_LIGHT} />
+          </TouchableOpacity>
+        </View>
+        <View style={{ marginTop: -20, zIndex: -10 }}>
+          <Text style={recordIndexStyles.recordTextSmall}>{startDate}〜{endDate}</Text>
+          <Text style={recordIndexStyles.recordText}>{record.brandName} {record.coffeeName}</Text>
+          <Text style={recordIndexStyles.recordTextSmall}>{record.gram}g  {record.cost.toLocaleString('en-US').replace(/\B(?=(\d{3})+(?!\d))/g, ",")}円  挽き具合 : {record.grindSize}</Text>
+          <Text style={{ marginTop: 10 }}>{ratingStars}</Text>
+          <Text style={recordIndexStyles.recordTextSmall}>{record.comment}</Text>
+        </View>
       </View>
     )
 
   }) : (
     <Text style={globalStyles.titleText}>履歴がありません</Text>
+  )
+
+  const edit = (
+    <Modal animationType='slide' transparent={false}>
+      <View style={globalStyles.bigModalView}>
+        <TouchableOpacity onPress={() => setModalState(null)} style={globalStyles.closeModalBtn}>
+          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setModalState(null)}>
+          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
+        </TouchableOpacity>
+      </View>
+    </Modal>
+  )
+
+  const deletion = (
+    <Modal animationType='slide' transparent={false}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <TouchableOpacity onPress={() => setModalState(null)} style={globalStyles.smallCancelBtn}>
+            <Text style={globalStyles.smallCancelBtn}>閉じる</Text>
+          </TouchableOpacity>
+
+        </View>
+      </View>
+    </Modal>
   )
 
 
@@ -86,6 +123,8 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
         <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
           {list}
         </ScrollView>
+        {modalState === "edit" && edit}
+        {modalState === "delete" && deletion}
       </ImageBackground>
     </View>
   )

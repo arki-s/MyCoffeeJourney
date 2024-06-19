@@ -19,6 +19,7 @@ import Footer from './Screens/Footer';
 import Settings from './Screens/Settings';
 import { ToastProvider } from 'react-native-toast-notifications'
 import CoffeeDetails from './Screens/CoffeeDetails';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const Tab = createBottomTabNavigator();
 
@@ -213,9 +214,11 @@ export default function App() {
     }>
       <SQLiteProvider databaseName='MyCoffeeJourney.db' useSuspense>
         <ToastProvider>
-          <NavigationContainer>
-            <MyTabs />
-          </NavigationContainer>
+          <GestureHandlerRootView>
+            <NavigationContainer>
+              <MyTabs />
+            </NavigationContainer>
+          </GestureHandlerRootView>
         </ToastProvider>
       </SQLiteProvider>
     </Suspense>
