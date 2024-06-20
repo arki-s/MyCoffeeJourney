@@ -63,6 +63,35 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     const ratingStars = record.rating ? "⭐️".repeat(record.rating) : "";
 
 
+    const edit = (
+      <Modal animationType='slide'>
+        <View style={globalStyles.bigModalView}>
+          <TouchableOpacity onPress={() => setModalState(null)} style={globalStyles.closeModalBtn}>
+            <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalState(null)}>
+            <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
+          </TouchableOpacity>
+          <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>履歴の編集</Text>
+        </View>
+      </Modal>
+    )
+
+    const deletion = (
+      <Modal animationType='slide' transparent={true}>
+        <View style={globalStyles.modalBackdrop}>
+          <View style={globalStyles.modalBasic}>
+            <Text style={globalStyles.titleText}>この履歴を削除しますか？{"\n"}削除したらデータは元に戻せません。</Text>
+            <TouchableOpacity onPress={() => setModalState(null)} style={[globalStyles.smallBtn, { marginTop: 10 }]}>
+              <Text style={globalStyles.smallBtnText}>削除する</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => setModalState(null)} style={[globalStyles.smallCancelBtn, { marginTop: 10 }]}>
+              <Text style={globalStyles.smallCancelBtnText}>閉じる</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+    )
 
     return (
       <View key={record.id} style={recordIndexStyles.recordContainer}>
@@ -81,37 +110,13 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
           <Text style={{ marginTop: 10 }}>{ratingStars}</Text>
           <Text style={recordIndexStyles.recordTextSmall}>{record.comment}</Text>
         </View>
+        {modalState === "edit" && edit}
+        {modalState === "delete" && deletion}
       </View>
     )
 
   }) : (
     <Text style={globalStyles.titleText}>履歴がありません</Text>
-  )
-
-  const edit = (
-    <Modal animationType='slide' transparent={false}>
-      <View style={globalStyles.bigModalView}>
-        <TouchableOpacity onPress={() => setModalState(null)} style={globalStyles.closeModalBtn}>
-          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => setModalState(null)}>
-          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
-        </TouchableOpacity>
-      </View>
-    </Modal>
-  )
-
-  const deletion = (
-    <Modal animationType='slide' transparent={false}>
-      <View style={globalStyles.modalBackdrop}>
-        <View style={globalStyles.modalBasic}>
-          <TouchableOpacity onPress={() => setModalState(null)} style={globalStyles.smallCancelBtn}>
-            <Text style={globalStyles.smallCancelBtn}>閉じる</Text>
-          </TouchableOpacity>
-
-        </View>
-      </View>
-    </Modal>
   )
 
 
@@ -123,8 +128,8 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
         <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
           {list}
         </ScrollView>
-        {modalState === "edit" && edit}
-        {modalState === "delete" && deletion}
+
+
       </ImageBackground>
     </View>
   )
