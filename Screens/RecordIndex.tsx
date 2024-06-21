@@ -10,11 +10,26 @@ import { FontAwesome } from '@expo/vector-icons';
 import Colors from '../Styles/Colors'
 import { AntDesign } from '@expo/vector-icons';
 import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler'
+import RNDateTimePicker from '@react-native-community/datetimepicker';
 
 
 export default function RecordIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [records, setRecords] = useState<Record[]>([]);
   const [modalState, setModalState] = useState<"edit" | "delete" | null>(null);
+  const [grindSize, setGrindSize] = useState(3);
+  const [gram, setGram] = useState<number | "">(0);
+  const [cost, setCost] = useState<number | "">(0);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [rating, setRating] = useState<number | null>(null);
+  const [comment, setComment] = useState("");
+  const [itemsRating, setItemsRating] = useState([
+    { label: '⭐️', value: 1 },
+    { label: '⭐️⭐️', value: 2 },
+    { label: '⭐️⭐️⭐️', value: 3 },
+    { label: '⭐️⭐️⭐️⭐️', value: 4 },
+    { label: '⭐️⭐️⭐️⭐️⭐️', value: 5 }
+  ]);
 
   const db = useSQLiteContext();
 
@@ -55,10 +70,10 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     if (!record.endDate) return null;
 
     const changeStartDate = new Date(record.startDate);
-    const startDate = `${changeStartDate.getFullYear()}年 ${Number(changeStartDate.getMonth()) + 1}月 ${changeStartDate.getDate()}日`;
+    const startDateDisplay = `${changeStartDate.getFullYear()}年 ${Number(changeStartDate.getMonth()) + 1}月 ${changeStartDate.getDate()}日`;
 
     const changeEndDate = new Date(record.endDate);
-    const endDate = `${changeEndDate.getFullYear()}年 ${Number(changeEndDate.getMonth()) + 1}月 ${changeEndDate.getDate()}日`;
+    const endDateDisplay = `${changeEndDate.getFullYear()}年 ${Number(changeEndDate.getMonth()) + 1}月 ${changeEndDate.getDate()}日`;
 
     const ratingStars = record.rating ? "⭐️".repeat(record.rating) : "";
 
@@ -73,6 +88,30 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
             <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
           </TouchableOpacity>
           <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>履歴の編集</Text>
+
+          <Text style={globalStyles.textLight}>開始日</Text>
+          <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
+            <RNDateTimePicker
+              mode="date"
+              display='calendar'
+              value={startDate}
+              onChange={() => setStartDate(startDate)} />
+          </View>
+          <Text style={globalStyles.textLight}>終了日</Text>
+          <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
+            <RNDateTimePicker
+              mode="date"
+              display='calendar'
+              value={startDate}
+              onChange={() => setStartDate(startDate)} />
+          </View>
+          <Text>コーヒーを選択</Text>
+          <Text>グラム数</Text>
+          <Text>値段(円)</Text>
+          <Text>挽き目</Text>
+          <TouchableOpacity style={globalStyles.smallBtn}>
+            <Text style={globalStyles.titleTextLight}>編集内容を保存する</Text>
+          </TouchableOpacity>
         </View>
       </Modal>
     )
@@ -104,7 +143,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
           </TouchableOpacity>
         </View>
         <View style={{ marginTop: -20, zIndex: -10 }}>
-          <Text style={recordIndexStyles.recordTextSmall}>{startDate}〜{endDate}</Text>
+          <Text style={recordIndexStyles.recordTextSmall}>{startDateDisplay}〜{endDateDisplay}</Text>
           <Text style={recordIndexStyles.recordText}>{record.brandName} {record.coffeeName}</Text>
           <Text style={recordIndexStyles.recordTextSmall}>{record.gram}g  {record.cost.toLocaleString('en-US').replace(/\B(?=(\d{3})+(?!\d))/g, ",")}円  挽き具合 : {record.grindSize}</Text>
           <Text style={{ marginTop: 10 }}>{ratingStars}</Text>
