@@ -1,4 +1,4 @@
-import { View, Text, ImageBackground, ScrollView, Modal, Pressable } from 'react-native'
+import { View, Text, ImageBackground, ScrollView, Modal, TextInput, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import Header from './Header'
@@ -9,13 +9,18 @@ import { recordIndexStyles } from '../Styles/recordIndexStyles'
 import { FontAwesome } from '@expo/vector-icons';
 import Colors from '../Styles/Colors'
 import { AntDesign } from '@expo/vector-icons';
-import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler'
+// import { TouchableOpacity } from 'react-native-gesture-handler'
 import RNDateTimePicker from '@react-native-community/datetimepicker';
+import DropDownPicker from 'react-native-dropdown-picker';
+import Slider from '@react-native-community/slider'
 
 
 export default function RecordIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [records, setRecords] = useState<Record[]>([]);
   const [modalState, setModalState] = useState<"edit" | "delete" | null>(null);
+  const [itemsCoffee, setItemsCoffee] = useState([]);
+  const [openCoffee, setOpenCoffee] = useState(false);
+  const [valueCoffee, setValueCoffee] = useState(0);
   const [grindSize, setGrindSize] = useState(3);
   const [gram, setGram] = useState<number | "">(0);
   const [cost, setCost] = useState<number | "">(0);
@@ -23,6 +28,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
   const [endDate, setEndDate] = useState(new Date());
   const [rating, setRating] = useState<number | null>(null);
   const [comment, setComment] = useState("");
+  const [openRating, setOpenRating] = useState(false);
   const [itemsRating, setItemsRating] = useState([
     { label: '⭐️', value: 1 },
     { label: '⭐️⭐️', value: 2 },
@@ -56,6 +62,32 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
       console.log(error.message);
       return;
     })
+
+    db.getAllAsync<Coffee>(`
+      SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
+      FROM coffee
+      JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+      JOIN inclusion ON inclusion.coffee_id = coffee.id
+      JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+      GROUP BY coffee.name
+      `).then((rsp) => {
+      // console.log("rsp", rsp);
+      const coffeeDropDown: any = [];
+
+      rsp.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+
+      setItemsCoffee(coffeeDropDown);
+
+    }).catch((error) => {
+      console.log("loading coffee error!");
+      console.log(error.message);
+      return;
+    });
+  }
+
+  function HandleClosePress() {
+
+    setModalState(null);
   }
 
   async function HandleEditPress() {
@@ -80,38 +112,106 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
 
     const edit = (
       <Modal animationType='slide'>
-        <View style={globalStyles.bigModalView}>
-          <TouchableOpacity onPress={() => setModalState(null)} style={globalStyles.closeModalBtn}>
+        <View style={[globalStyles.bigModalView, { zIndex: 2 }]}>
+          <TouchableOpacity onPress={HandleClosePress} style={{ position: 'absolute', top: 25, right: 20, zIndex: 10 }}>
             <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => setModalState(null)}>
-            <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
-          </TouchableOpacity>
-          <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>履歴の編集</Text>
 
-          <Text style={globalStyles.textLight}>開始日</Text>
-          <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
-            <RNDateTimePicker
-              mode="date"
-              display='calendar'
-              value={startDate}
-              onChange={() => setStartDate(startDate)} />
+          <Text style={[globalStyles.titleTextLight, { marginBottom: 10, zIndex: 1 }]}>履歴の編集</Text>
+
+          <View style={globalStyles.inputContainerRecord}>
+            <Text style={globalStyles.textLight}>開始日</Text>
+            <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
+              <RNDateTimePicker
+                mode="date"
+                display='calendar'
+                value={startDate}
+                onChange={() => setStartDate(startDate)} />
+            </View>
           </View>
-          <Text style={globalStyles.textLight}>終了日</Text>
-          <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
-            <RNDateTimePicker
-              mode="date"
-              display='calendar'
-              value={startDate}
-              onChange={() => setStartDate(startDate)} />
+
+          <View style={globalStyles.inputContainerRecord}>
+            <Text style={globalStyles.textLight}>終了日</Text>
+            <View style={{ backgroundColor: Colors.SECONDARY_LIGHT, borderRadius: 5 }}>
+              <RNDateTimePicker
+                mode="date"
+                display='calendar'
+                value={startDate}
+                onChange={() => setStartDate(startDate)} />
+            </View>
           </View>
-          <Text>コーヒーを選択</Text>
-          <Text>グラム数</Text>
-          <Text>値段(円)</Text>
-          <Text>挽き目</Text>
-          <TouchableOpacity style={globalStyles.smallBtn}>
-            <Text style={globalStyles.titleTextLight}>編集内容を保存する</Text>
-          </TouchableOpacity>
+
+          <View style={globalStyles.inputContainerRecord}>
+            <Text style={globalStyles.textLight}>コーヒーを選択</Text>
+            <View style={{ alignItems: 'center', width: 300, marginLeft: -15 }}>
+              <DropDownPicker
+                placeholder={'Choose coffee'}
+                open={openCoffee}
+                value={valueCoffee}
+                items={itemsCoffee}
+                setOpen={setOpenCoffee}
+                setValue={setValueCoffee}
+                setItems={setItemsCoffee}
+                style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+                containerStyle={{ width: '50%', }}
+                dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+                textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
+                zIndex={5000}
+              />
+            </View>
+          </View>
+
+          <View style={globalStyles.inputContainerRecord}>
+            <Text style={globalStyles.textLight}>グラム数</Text>
+            <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={gram.toString()} style={globalStyles.numberInput} />
+          </View>
+
+          <View style={globalStyles.inputContainerRecord}>
+            <Text style={globalStyles.textLight}>値段(円)</Text>
+            <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={cost.toString()} style={globalStyles.numberInput} />
+          </View>
+
+          <View style={globalStyles.inputContainerRecord}>
+            <Text style={globalStyles.textLight}>挽き目：{grindSize.toFixed(0)}</Text>
+            <Slider
+              style={{ width: 200, height: 40 }}
+              minimumValue={1}
+              maximumValue={5}
+              value={grindSize}
+              onValueChange={(num) => setGrindSize(num)}
+              minimumTrackTintColor={Colors.SECONDARY}
+              maximumTrackTintColor={Colors.SECONDARY_LIGHT}
+            />
+          </View>
+
+          <View style={globalStyles.inputContainerRecord}>
+            <Text style={globalStyles.textLight}>評価</Text>
+            <View style={{ alignItems: 'center', width: 360 }}>
+              <DropDownPicker
+                placeholder={'Choose rating'}
+                open={openRating}
+                value={rating}
+                items={itemsRating}
+                setOpen={setOpenRating}
+                setValue={setRating}
+                setItems={setItemsRating}
+                style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+                containerStyle={{ width: '50%', }}
+                dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+                textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
+                zIndex={5000}
+              />
+            </View>
+          </View>
+
+          <TextInput placeholder='感想を入力' value={comment} onChangeText={(text) => setComment(text)}
+            multiline={true} numberOfLines={5} style={globalStyles.commentInput} />
+
+          <View style={{ padding: 20 }}>
+            <TouchableOpacity style={globalStyles.smallBtn}>
+              <Text style={globalStyles.titleTextLight}>編集内容を保存する</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </Modal>
     )
@@ -167,8 +267,6 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
         <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
           {list}
         </ScrollView>
-
-
       </ImageBackground>
     </View>
   )

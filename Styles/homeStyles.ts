@@ -2,14 +2,6 @@ import { StyleSheet } from 'react-native';
 import Colors from './Colors';
 
 export const homeStyles = StyleSheet.create({
-  numberInput:{
-    backgroundColor:Colors.SECONDARY_LIGHT,
-    padding:5,
-    paddingHorizontal:10,
-    borderRadius:5,
-    fontFamily:'yusei',
-    width:'40%',
-  },
 
   inputContainer:{
     display:'flex',
@@ -83,18 +75,6 @@ export const homeStyles = StyleSheet.create({
     fontFamily:'yusei',
     fontSize:13,
     color:Colors.PRIMARY,
-   },
-
-   commentInput:{
-    fontFamily:'yusei',
-    backgroundColor:Colors.SECONDARY_LIGHT,
-    borderRadius:5,
-    width:'85%',
-    height:150,
-    alignSelf:'center',
-    padding:10,
-    marginVertical:15,
-    zIndex:1,
    },
 
    deleteText:{

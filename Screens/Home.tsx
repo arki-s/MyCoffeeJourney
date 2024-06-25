@@ -345,11 +345,11 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
 
         <View style={homeStyles.inputContainer}>
           <Text style={globalStyles.textLight}>グラム数</Text>
-          <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={gram.toString()} onChangeText={HandleGramInput} style={homeStyles.numberInput} />
+          <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={gram.toString()} onChangeText={HandleGramInput} style={globalStyles.numberInput} />
         </View>
         <View style={homeStyles.inputContainer}>
           <Text style={globalStyles.textLight}>値段(円)</Text>
-          <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={cost.toString()} onChangeText={HandleCostInput} style={homeStyles.numberInput} />
+          <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={cost.toString()} onChangeText={HandleCostInput} style={globalStyles.numberInput} />
         </View>
 
         <View style={homeStyles.inputContainer}>
@@ -429,7 +429,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
         </View>
 
         <TextInput placeholder='感想を入力' value={comment} onChangeText={(text) => setComment(text)}
-          multiline={true} numberOfLines={5} style={homeStyles.commentInput} />
+          multiline={true} numberOfLines={5} style={globalStyles.commentInput} />
 
         <TouchableOpacity onPress={completeRecord} style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20, zIndex: 1 }]} >
           <Text style={globalStyles.titleTextLight}>保存する</Text>

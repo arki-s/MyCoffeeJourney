@@ -114,6 +114,37 @@ export const globalStyles = StyleSheet.create({
     right:10,
    },
 
+   numberInput:{
+    backgroundColor:Colors.SECONDARY_LIGHT,
+    padding:5,
+    paddingHorizontal:10,
+    borderRadius:5,
+    fontFamily:'yusei',
+    width:'40%',
+  },
+
+  commentInput:{
+    fontFamily:'yusei',
+    backgroundColor:Colors.SECONDARY_LIGHT,
+    borderRadius:5,
+    width:'85%',
+    height:150,
+    alignSelf:'center',
+    padding:10,
+    marginVertical:15,
+    zIndex:1,
+   },
+
+   inputContainerRecord:{
+    display:'flex',
+    flexDirection:'row',
+    gap:10,
+    justifyContent:'space-between',
+    paddingVertical:10,
+    paddingHorizontal:20,
+    alignItems:'center',
+  },
+
 
 
 
