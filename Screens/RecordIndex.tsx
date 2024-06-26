@@ -47,7 +47,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
 
   async function getData() {
     db.getAllAsync<Record>(`
-    SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment
+    SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId
     FROM record
     JOIN coffee ON coffee.id = record.coffee_id
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
@@ -87,6 +87,13 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
 
   function HandleClosePress() {
 
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setGram(0);
+    setCost(0);
+    setGrindSize(0);
+    setRating(null);
+    setComment("");
     setModalState(null);
   }
 
@@ -108,6 +115,21 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     const endDateDisplay = `${changeEndDate.getFullYear()}年 ${Number(changeEndDate.getMonth()) + 1}月 ${changeEndDate.getDate()}日`;
 
     const ratingStars = record.rating ? "⭐️".repeat(record.rating) : "";
+
+    function HandleEditPress() {
+      setStartDate(new Date(record.startDate));
+
+      if (record.endDate) setEndDate(new Date(record.endDate));
+
+      setValueCoffee(record.coffeeId);
+
+      setGram(record.gram);
+      setCost(record.cost);
+      setGrindSize(record.grindSize);
+      setRating(record.rating);
+      setComment(record.comment ? record.comment : "");
+      setModalState("edit");
+    }
 
 
     const edit = (
@@ -136,8 +158,8 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
               <RNDateTimePicker
                 mode="date"
                 display='calendar'
-                value={startDate}
-                onChange={() => setStartDate(startDate)} />
+                value={endDate}
+                onChange={() => setEndDate(endDate)} />
             </View>
           </View>
 
@@ -235,7 +257,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     return (
       <View key={record.id} style={recordIndexStyles.recordContainer}>
         <View style={recordIndexStyles.buttonContainer}>
-          <TouchableOpacity onPress={() => setModalState("edit")}>
+          <TouchableOpacity onPress={HandleEditPress}>
             <FontAwesome name="pencil" size={22} color={Colors.SECONDARY_LIGHT} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setModalState("delete")}>
