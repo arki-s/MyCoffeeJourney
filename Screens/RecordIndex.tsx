@@ -47,7 +47,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
 
   async function getData() {
     db.getAllAsync<Record>(`
-    SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId
+    SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
     FROM record
     JOIN coffee ON coffee.id = record.coffee_id
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
@@ -97,18 +97,80 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     setModalState(null);
   }
 
-  async function HandleSavePress(recordId: number) {
-    if (!recordId) return null;
+  async function HandleSavePress(recordId: number, reviewId: number) {
+    if (!recordId || !startDate || !endDate || !valueCoffee || !gram || !cost || !grindSize || !rating) return null;
 
+    db.runAsync(`
+    UPDATE record SET startDate = ?, endDate = ?, coffee_id = ?, gram = ?, cost = ?, grindSize = ? WHERE id = ?;
+    `, [startDate.getTime(), endDate.getTime(), valueCoffee, gram, cost, grindSize.toFixed(0), recordId]
+    ).catch((error) => {
+      console.log("editing record error!");
+      console.log(error.message);
+      return;
+    })
+
+    db.runAsync(`
+    UPDATE review SET rating = ?, comment = ? WHERE id = ?;
+    `, [rating, comment, reviewId]
+    ).catch((error) => {
+      console.log("editing review error!");
+      console.log(error.message);
+      return;
+    })
+
+    console.log("successfully edited the record!");
+
+    await getData();
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setGram(0);
+    setCost(0);
+    setGrindSize(0);
+    setRating(null);
+    setComment("");
+    setModalState(null);
 
   }
 
-  async function HandleDeletePress() {
+  async function HandleDeletePress(recordId: number) {
+    if (!recordId) return null;
 
+    db.runAsync(`DELETE FROM record WHERE id = ?`, [recordId])
+      .catch((error) => {
+        console.log("deleting record error!");
+        console.log(error.message);
+        return;
+      })
+
+    console.log("successfully deleted the record!");
+
+    await getData();
+    setModalState(null);
+
+  }
+
+  const HandleGramInput = (input: string) => {
+    const parsedInput = parseInt(input, 10);
+
+    if (parsedInput === 0 || isNaN(parsedInput)) {
+      setGram("");
+    } else {
+      setGram(parsedInput);
+    }
+  }
+
+  const HandleCostInput = (input: string) => {
+    const parsedInput = parseInt(input, 10);
+
+    if (parsedInput === 0 || isNaN(parsedInput)) {
+      setCost("");
+    } else {
+      setCost(parsedInput);
+    }
   }
 
   const list = records.length > 0 ? records.map((record) => {
-    if (!record.endDate) return null;
+    if (!record.endDate && !record.reviewId) return null;
 
     const changeStartDate = new Date(record.startDate);
     const startDateDisplay = `${changeStartDate.getFullYear()}年 ${Number(changeStartDate.getMonth()) + 1}月 ${changeStartDate.getDate()}日`;
@@ -186,12 +248,12 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
 
           <View style={globalStyles.inputContainerRecord}>
             <Text style={globalStyles.textLight}>グラム数</Text>
-            <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={gram.toString()} style={globalStyles.numberInput} />
+            <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={gram.toString()} onChangeText={HandleGramInput} style={globalStyles.numberInput} />
           </View>
 
           <View style={globalStyles.inputContainerRecord}>
             <Text style={globalStyles.textLight}>値段(円)</Text>
-            <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={cost.toString()} style={globalStyles.numberInput} />
+            <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={cost.toString()} onChangeText={HandleCostInput} style={globalStyles.numberInput} />
           </View>
 
           <View style={globalStyles.inputContainerRecord}>
@@ -231,7 +293,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
             multiline={true} numberOfLines={5} style={globalStyles.commentInput} />
 
           <View style={{ padding: 20 }}>
-            <TouchableOpacity style={globalStyles.smallBtn} onPress={() => HandleSavePress(record.id)}>
+            <TouchableOpacity style={globalStyles.smallBtn} onPress={() => HandleSavePress(record.id, record.reviewId)}>
               <Text style={globalStyles.titleTextLight}>編集内容を保存する</Text>
             </TouchableOpacity>
           </View>
@@ -244,7 +306,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
         <View style={globalStyles.modalBackdrop}>
           <View style={globalStyles.modalBasic}>
             <Text style={globalStyles.titleText}>この履歴を削除しますか？{"\n"}削除したらデータは元に戻せません。</Text>
-            <TouchableOpacity onPress={() => setModalState(null)} style={[globalStyles.smallBtn, { marginTop: 10 }]}>
+            <TouchableOpacity onPress={() => HandleDeletePress(record.id)} style={[globalStyles.smallBtn, { marginTop: 10 }]}>
               <Text style={globalStyles.smallBtnText}>削除する</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setModalState(null)} style={[globalStyles.smallCancelBtn, { marginTop: 10 }]}>

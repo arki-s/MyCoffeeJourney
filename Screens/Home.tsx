@@ -147,7 +147,6 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   async function completeRecord() {
     if (!rating) setWarningModal(true);
 
-
     db.runAsync(`
     UPDATE record SET endDate = ? WHERE id = ?;
     `, [endDate.getTime(), editingRecord]

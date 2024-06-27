@@ -55,6 +55,7 @@ export type Record = {
   brandName:string;
   rating:number | null;
   comment:string | null;
+  reviewId: number | null;
 }
 
 export type Review = {
