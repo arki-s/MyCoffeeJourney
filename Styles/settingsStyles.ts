@@ -15,7 +15,7 @@ export const settingsStyles = StyleSheet.create({
     backgroundColor:Colors.SECONDARY_LIGHT,
     borderWidth:4,
     borderColor:Colors.SECONDARY,
-    marginVertical:10,
+    marginVertical:15,
   },
 
   modalWindow:{

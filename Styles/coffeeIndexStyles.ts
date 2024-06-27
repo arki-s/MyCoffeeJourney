@@ -9,7 +9,7 @@ export const coffeeIndexStyles = StyleSheet.create({
     borderRadius:5,
     borderWidth:3,
     borderColor:Colors.SECONDARY,
-    margin:10,
+    margin:15,
     alignSelf:'center',
     fontFamily:'yusei',
     backgroundColor:Colors.SECONDARY_LIGHT,

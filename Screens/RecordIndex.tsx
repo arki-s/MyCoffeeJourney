@@ -97,7 +97,9 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     setModalState(null);
   }
 
-  async function HandleEditPress() {
+  async function HandleSavePress(recordId: number) {
+    if (!recordId) return null;
+
 
   }
 
@@ -130,7 +132,6 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
       setComment(record.comment ? record.comment : "");
       setModalState("edit");
     }
-
 
     const edit = (
       <Modal animationType='slide'>
@@ -230,7 +231,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
             multiline={true} numberOfLines={5} style={globalStyles.commentInput} />
 
           <View style={{ padding: 20 }}>
-            <TouchableOpacity style={globalStyles.smallBtn}>
+            <TouchableOpacity style={globalStyles.smallBtn} onPress={() => HandleSavePress(record.id)}>
               <Text style={globalStyles.titleTextLight}>編集内容を保存する</Text>
             </TouchableOpacity>
           </View>
@@ -286,7 +287,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     <View style={globalStyles.container}>
       <ImageBackground source={require('../assets/texture.jpg')} style={globalStyles.imgBackground}>
         <Header title={'履歴'} />
-        <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 10 }}>
+        <ScrollView showsVerticalScrollIndicator={false} style={{ marginTop: 15 }}>
           {list}
         </ScrollView>
       </ImageBackground>
