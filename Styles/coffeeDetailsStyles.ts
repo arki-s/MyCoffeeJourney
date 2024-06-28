@@ -34,5 +34,35 @@ export const coffeeDetailsStyles = StyleSheet.create({
     gap:25,
   },
 
+  countContainer:{
+    paddingHorizontal:"20%",
+    flexDirection:'row',
+    justifyContent:'space-between',
+  },
+
+  countText:{
+    fontFamily:'yusei',
+    fontSize:18,
+  },
+
+  reviewText:{
+    textAlign:'center',
+    fontFamily:'yusei',
+    fontSize:16,
+  },
+
+  smallStar:{
+    paddingTop:4,
+    fontFamily:'yusei',
+    fontSize:12,
+  },
+
+  reviewContainer:{
+    display:'flex',
+    flexDirection:'row',
+    justifyContent:'center',
+    gap:10,
+  },
+
 
 })

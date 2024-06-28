@@ -52,7 +52,11 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       console.log(error.message);
     });
 
-    await db.getAllAsync(`SELECT COUNT(*) FROM record WHERE coffee_id = ${memorizedId}`)
+    await db.getAllAsync(`
+      SELECT COUNT(*)
+      FROM record
+      WHERE coffee_id = ${memorizedId}
+      AND endDate IS NOT NULL;`)
       .then((rsp: any) => {
         console.log(rsp[0]["COUNT(*)"]);
         setCount(parseInt(rsp[0]["COUNT(*)"]));
@@ -81,6 +85,8 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     JOIN record ON record.id = review.record_id
     JOIN coffee ON coffee.id = record.coffee_id
     WHERE coffee.id = ${memorizedId}
+    ORDER BY record.endDate DESC
+    LIMIT 5;
     `).then((rsp: any) => {
       console.log("reviews", rsp);
       setReviews(rsp);
@@ -91,12 +97,18 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   }
 
   const pastReviews = reviews && reviews.map((review) => {
+    if (!review.date) return null;
     const ratingStars = review.rating ? "⭐️".repeat(review.rating) : "";
+    const changeEndDate = new Date(review.date);
+    const endDateDisplay = `${changeEndDate.getFullYear()}年 ${Number(changeEndDate.getMonth()) + 1}月 ${changeEndDate.getDate()}日`;
     return (
-      <>
-        <Text style={globalStyles.titleText}>{ratingStars}</Text>
-        <Text style={globalStyles.titleText}>{review.comment}</Text>
-      </>
+      <View key={review.record_id}>
+        <View style={coffeeDetailsStyles.reviewContainer}>
+          <Text style={coffeeDetailsStyles.reviewText}>{endDateDisplay}</Text>
+          <Text style={coffeeDetailsStyles.reviewText}>{ratingStars}</Text>
+        </View>
+        <Text style={coffeeDetailsStyles.reviewText}>{review.comment}</Text>
+      </View>
     )
   })
 
@@ -264,6 +276,25 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   const coffeePhoto = `data:image/png;base64,${coffee?.photo}`;
 
+  function averageStars() {
+    if (!averageRating) return null;
+
+    let check: number = Math.floor(averageRating);
+
+    if (averageRating - check == 0.5) {
+      return (
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start' }}>
+          <Text style={coffeeDetailsStyles.countText}>{"⭐️".repeat(averageRating)}</Text><Text style={coffeeDetailsStyles.smallStar}>⭐</Text>
+        </View>
+      )
+    }
+
+    return (
+      <Text style={coffeeDetailsStyles.countText}>{"⭐️".repeat(averageRating)}</Text>
+    )
+
+  }
+
   return (
     <View style={[globalStyles.container, { backgroundColor: Colors.SECONDARY_LIGHT }]}>
       <Header title={coffee ? coffee.name : "コーヒー"} />
@@ -285,6 +316,13 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
           </TouchableOpacity>
         </View>
 
+        <View style={coffeeDetailsStyles.countContainer}>
+          <Text style={coffeeDetailsStyles.countText}>評価平均 :</Text><Text style={coffeeDetailsStyles.countText}>{averageStars()}</Text>
+        </View>
+        <View style={coffeeDetailsStyles.countContainer}>
+          <Text style={coffeeDetailsStyles.countText}>飲んだ回数 :</Text><Text style={coffeeDetailsStyles.countText}>{count} 回</Text>
+        </View>
+
         <View style={{ marginVertical: 10 }}>
           <Text style={[globalStyles.titleText, { fontSize: 14 }]}>コーヒー豆産地</Text>
           <Text style={globalStyles.titleText}>{coffee?.beans}</Text>
@@ -292,11 +330,9 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
         {tasteSliders}
 
-        <Text style={globalStyles.titleText}>飲んだ回数 : {count}</Text>
-        <Text style={globalStyles.titleText}>コメント</Text>
-        <Text style={globalStyles.titleText}>{coffee?.comment}</Text>
-        <Text style={globalStyles.titleText}>評価平均 : {averageRating}</Text>
-        <Text style={globalStyles.titleText}>これまでのレビュー</Text>
+        <Text style={[globalStyles.titleText, { marginVertical: 7 }]}>{coffee?.comment}</Text>
+
+        <Text style={[globalStyles.titleText, { marginVertical: 7, fontSize: 16 }]}>最新レビュー(5件まで)</Text>
         {pastReviews}
       </ScrollView>
       {image && cameraModal}

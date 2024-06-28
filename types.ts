@@ -62,4 +62,5 @@ export type Review = {
   record_id: number;
   rating: number;
   comment: string;
+  date: number | null;
 }

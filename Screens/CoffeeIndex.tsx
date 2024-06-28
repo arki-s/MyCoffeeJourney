@@ -16,7 +16,6 @@ import toast from 'react-native-toast-notifications/lib/typescript/toast';
 import { useToast } from "react-native-toast-notifications";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-
 export default function CoffeeIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   const [coffees, setCoffees] = useState<Coffee[]>([]);
   const [brands, setBrands] = useState<CoffeeBrand[]>([]);
@@ -41,6 +40,8 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   const [fruity, setFruity] = useState(1.0);
   const [bitter, setBitter] = useState(1.0);
   const [aroma, setAroma] = useState(1.0);
+
+  const [searchWord, setSearchWord] = useState("");
 
   const db = useSQLiteContext();
   const toast = useToast();
@@ -97,6 +98,24 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
       console.log(error.message);
     });
   }
+
+  const filteredCoffee = (!coffees) ? [] : coffees.filter((coffee) => {
+    let beans: string[] = [];
+    let brands: string[] = [];
+
+    itemsBean.map((bean) => {
+      beans.push(bean.label);
+    })
+
+    itemsBrand.map((brand) => {
+      brands.push(brand.label);
+    })
+
+    const haystack = coffee.name + beans.join("") + brands.join("");
+    const isMatched = (!searchWord) || (!!searchWord && haystack.toLowerCase().includes(searchWord.toLowerCase()));
+    return isMatched;
+
+  })
 
   const list = coffees.map((cf) => {
     return (
@@ -296,17 +315,14 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   )
 
 
-
-
-
   return (
     <View style={globalStyles.container}>
       <ImageBackground source={require('../assets/texture.jpg')} style={{ width: '100%', height: '100%' }}>
         <Header title={'My図鑑'} />
-        <TextInput placeholder='キーワードで検索' style={coffeeIndexStyles.searchInput} />
+        <TextInput placeholder='キーワードで検索' style={coffeeIndexStyles.searchInput} value={searchWord} onChangeText={(text) => setSearchWord(text)} />
         {/* <FontAwesome name="search" size={30} color={Colors.PRIMARY} /> */}
         <ScrollView>
-          {coffees.length != 0 ? list : (
+          {filteredCoffee.length != 0 ? list : (
             <Text style={globalStyles.titleText}>データがありません</Text>
           )}
         </ScrollView>
