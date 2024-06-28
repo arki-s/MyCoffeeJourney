@@ -21,6 +21,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
   const [brandManage, setBrandManage] = useState<"brand" | "bean" | null>(null);
   const [editing, setEditing] = useState<"brand" | "bean" | null>(null);
   const [editName, setEditName] = useState("");
+  const [modalState, setModalState] = useState<"confirm" | "after" | null>(null);
 
   const db = useSQLiteContext();
 
@@ -173,6 +174,76 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     })
   };
 
+  async function deleteAllPress() {
+
+    db.withTransactionAsync(async () => {
+      await db.runAsync(
+        `
+        DROP TABLE coffee;
+        `,
+      ).catch((error) => {
+        console.log("drop table1 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE coffeeBrand;
+        `,
+      ).catch((error) => {
+        console.log("drop table2 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE coffeeBean;
+        `,
+      ).catch((error) => {
+        console.log("drop table3 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE inclusion;
+        `,
+      ).catch((error) => {
+        console.log("drop table4 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE record;
+        `,
+      ).catch((error) => {
+        console.log("drop table5 error!");
+        console.log(error.message);
+        return;
+      });
+
+      await db.runAsync(
+        `
+        DROP TABLE review;
+        `,
+      ).catch((error) => {
+        console.log("drop table6 error!");
+        console.log(error.message);
+        return;
+      });
+    })
+
+    console.log("successfully dropped all table!");
+
+    await getData();
+    setModalState("after");
+  }
+
   const editModal = (
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
@@ -275,6 +346,35 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     </Modal>
   )
 
+  const deletion = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>全てのデータを削除しますか？{"\n"}削除したらデータは元に戻せません。</Text>
+          <TouchableOpacity onPress={deleteAllPress} style={[globalStyles.smallBtn, { marginTop: 10 }]}>
+            <Text style={globalStyles.smallBtnText}>削除する</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalState(null)} style={[globalStyles.smallCancelBtn, { marginTop: 10 }]}>
+            <Text style={globalStyles.smallCancelBtnText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
+
+  const deletionAfter = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>全てのデータが正常に削除されました。</Text>
+          <TouchableOpacity onPress={() => setModalState(null)} style={[globalStyles.smallCancelBtn, { marginTop: 10 }]}>
+            <Text style={globalStyles.smallCancelBtnText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
+
   return (
     <View style={globalStyles.container}>
       <ImageBackground source={require('../assets/texture.jpg')} style={globalStyles.imgBackground}>
@@ -288,11 +388,13 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
             <Text style={globalStyles.btnText}>コーヒー豆の管理</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={settingsStyles.manageBtn}>
+          <TouchableOpacity style={settingsStyles.manageBtn} onPress={() => setModalState("confirm")}>
             <Text style={globalStyles.btnText}>!! 全データの削除 !!</Text>
           </TouchableOpacity>
           {brandManage == "brand" && brandModal}
           {brandManage == "bean" && beanModal}
+          {modalState == "confirm" && deletion}
+          {modalState == "after" && deletionAfter}
         </View>
 
 
