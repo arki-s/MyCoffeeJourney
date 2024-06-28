@@ -119,6 +119,8 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   async function editRecord() {
     if (!editingRecord) return null;
 
+    console.log(startDate);
+
     if (!startDate || gram == 0 || valueCoffee == 0) {
       setWarningModal(true);
       return;
@@ -303,6 +305,12 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     </Modal>
   )
 
+  const onChangeStartDate = (event, selectedDate) => {
+    const currentDate = selectedDate || startDate;
+    const parsedDate = new Date(currentDate);
+    setStartDate(parsedDate);
+  };
+
   const recordModal = (
     <Modal animationType='slide'>
       <View style={globalStyles.bigModalView}>
@@ -317,7 +325,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
               mode="date"
               display='calendar'
               value={startDate}
-              onChange={() => setStartDate(startDate)} />
+              onChange={onChangeStartDate} />
           </View>
         </View>
 
@@ -389,6 +397,12 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
 
   );
 
+  const onChangeEndDate = (event, selectedDate) => {
+    const currentDate = selectedDate || startDate;
+    const parsedDate = new Date(currentDate);
+    setEndDate(parsedDate);
+  };
+
   const review = (
     <Modal animationType='slide'>
       <View style={globalStyles.bigModalView}>
@@ -403,7 +417,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
               mode="date"
               display='calendar'
               value={endDate}
-              onChange={() => setEndDate(endDate)} />
+              onChange={onChangeEndDate} />
           </View>
         </View>
 

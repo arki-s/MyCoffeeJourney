@@ -102,7 +102,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     const changeEndDate = new Date(review.date);
     const endDateDisplay = `${changeEndDate.getFullYear()}年 ${Number(changeEndDate.getMonth()) + 1}月 ${changeEndDate.getDate()}日`;
     return (
-      <View key={review.record_id}>
+      <View key={review.record_id} style={{ marginHorizontal: 20 }}>
         <View style={coffeeDetailsStyles.reviewContainer}>
           <Text style={coffeeDetailsStyles.reviewText}>{endDateDisplay}</Text>
           <Text style={coffeeDetailsStyles.reviewText}>{ratingStars}</Text>
@@ -216,7 +216,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
           },
         },
       ], {
-      compress: 0.3,
+      compress: 0.7,
       base64: true,
     }
     )
@@ -277,7 +277,11 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   const coffeePhoto = `data:image/png;base64,${coffee?.photo}`;
 
   function averageStars() {
-    if (!averageRating) return null;
+    if (!averageRating) {
+      return (
+        <Text style={coffeeDetailsStyles.countText}>未評価</Text>
+      )
+    }
 
     let check: number = Math.floor(averageRating);
 
@@ -330,10 +334,11 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
         {tasteSliders}
 
-        <Text style={[globalStyles.titleText, { marginVertical: 7 }]}>{coffee?.comment}</Text>
+        <Text style={coffeeDetailsStyles.commentText}>{coffee?.comment}</Text>
 
         <Text style={[globalStyles.titleText, { marginVertical: 7, fontSize: 16 }]}>最新レビュー(5件まで)</Text>
         {pastReviews}
+
       </ScrollView>
       {image && cameraModal}
     </View>

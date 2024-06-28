@@ -64,5 +64,13 @@ export const coffeeDetailsStyles = StyleSheet.create({
     gap:10,
   },
 
+  commentText:{
+    fontFamily:'yusei',
+    fontSize:18,
+    marginVertical: 7,
+    marginHorizontal: 20
+   },
+
+
 
 })

@@ -195,6 +195,18 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
       setModalState("edit");
     }
 
+    const onChangeStartDate = (event, selectedDate) => {
+      const currentDate = selectedDate || startDate;
+      const parsedDate = new Date(currentDate);
+      setStartDate(parsedDate);
+    };
+
+    const onChangeEndDate = (event, selectedDate) => {
+      const currentDate = selectedDate || startDate;
+      const parsedDate = new Date(currentDate);
+      setEndDate(parsedDate);
+    };
+
     const edit = (
       <Modal animationType='slide'>
         <View style={[globalStyles.bigModalView, { zIndex: 2 }]}>
@@ -211,7 +223,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
                 mode="date"
                 display='calendar'
                 value={startDate}
-                onChange={() => setStartDate(startDate)} />
+                onChange={onChangeStartDate} />
             </View>
           </View>
 
@@ -222,7 +234,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
                 mode="date"
                 display='calendar'
                 value={endDate}
-                onChange={() => setEndDate(endDate)} />
+                onChange={onChangeEndDate} />
             </View>
           </View>
 
