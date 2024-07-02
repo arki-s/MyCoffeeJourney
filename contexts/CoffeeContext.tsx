@@ -35,17 +35,14 @@ const defaultContextValue: CoffeeContextValue = {
 const CoffeeContext = createContext<CoffeeContextValue>(defaultContextValue);
 
 export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [coffees, setCoffees] = useState<Coffee[]>([]);
-  const [brands, setBrands] = useState<CoffeeBrand[]>([]);
-  const [beans, setBeans] = useState<CoffeeBean[]>([]);
-  const [records, setRecords] = useState<Record[]>([]);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [coffees, setCoffees] = useState<Coffee[] | null>([]);
+  const [brands, setBrands] = useState<CoffeeBrand[] | null>([]);
+  const [beans, setBeans] = useState<CoffeeBean[] | null>([]);
+  const [records, setRecords] = useState<Record[] | null>([]);
+  const [reviews, setReviews] = useState<Review[] | null>([]);
 
-  const db = SQLite.openDatabase('MyCoffeeJourney.db');
-
-  // useEffect(() => {
-
-  // }, [])
+  // const db = SQLite.openDatabase('MyCoffeeJourney.db');
+  const db = useSQLiteContext();
 
   useEffect(() => {
     db.withExclusiveTransactionAsync(async () => {
@@ -67,13 +64,70 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         return rsp;
       })
 
-
     }).catch((error) => {
       console.log("reading coffee error!");
       console.log(error.message);
     });
 
+    db.getAllAsync<CoffeeBrand>(`
+      SELECT * FROM coffeeBrand;`).then((rsp) => {
+      // console.log("rsp", rsp);
+      // setBrands(rsp);
+      setBrands(() => {
+        return rsp;
+      })
+    }).catch((error) => {
+      console.log("reading coffee brand error!");
+      console.log(error.message);
+    });
 
+    db.getAllAsync<CoffeeBean>(`
+      SELECT * FROM coffeeBean;`).then((rsp) => {
+      // console.log("rsp", rsp);
+      // setBeans(rsp);
+      setBeans(() => {
+        return rsp;
+      })
+    }).catch((error) => {
+      console.log("reading coffee bean error!");
+      console.log(error.message);
+    });
+
+    db.getAllAsync<Record>(`
+      SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
+      FROM record
+      JOIN coffee ON coffee.id = record.coffee_id
+      JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+      JOIN review ON review.record_id = record.id
+      ORDER BY record.endDate DESC;
+      `).then((rsp) => {
+      // console.log(rsp);
+      // setRecords(rsp);
+      setRecords(() => {
+        return rsp;
+      })
+    }).catch((error) => {
+      console.log("loading error!");
+      console.log(error.message);
+      return;
+    })
+
+    await db.getAllAsync(`
+      SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date, review.record_id AS record_id
+      FROM review
+      JOIN record ON record.id = review.record_id
+      JOIN coffee ON coffee.id = record.coffee_id
+      ORDER BY record.endDate DESC;
+      `).then((rsp: any) => {
+      console.log("reviews", rsp);
+      // setReviews(rsp);
+      setReviews(() => {
+        return rsp;
+      })
+    }).catch((error) => {
+      console.log("reviews error!");
+      console.log(error.message);
+    })
   }
 
 
