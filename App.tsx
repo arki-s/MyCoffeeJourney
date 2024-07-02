@@ -20,6 +20,7 @@ import Settings from './Screens/Settings';
 import { ToastProvider } from 'react-native-toast-notifications'
 import CoffeeDetails from './Screens/CoffeeDetails';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { CoffeeProvider } from './contexts/CoffeeContext';
 
 const Tab = createBottomTabNavigator();
 
@@ -216,7 +217,9 @@ export default function App() {
         <ToastProvider>
           <GestureHandlerRootView>
             <NavigationContainer>
-              <MyTabs />
+              <CoffeeProvider>
+                <MyTabs />
+              </CoffeeProvider>
             </NavigationContainer>
           </GestureHandlerRootView>
         </ToastProvider>

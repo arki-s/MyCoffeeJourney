@@ -3,6 +3,7 @@ import React, { Dispatch, SetStateAction, createContext, useEffect, useState } f
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, CoffeeBean, CoffeeBrand, Record, Review } from '../types';
 import * as SQLite from 'expo-sqlite';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 type CoffeeContextValue = {
@@ -32,7 +33,7 @@ const defaultContextValue: CoffeeContextValue = {
 
 }
 
-const CoffeeContext = createContext<CoffeeContextValue>(defaultContextValue);
+export const CoffeeContext = createContext<CoffeeContextValue>(defaultContextValue);
 
 export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [coffees, setCoffees] = useState<Coffee[] | null>([]);
@@ -43,6 +44,12 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // const db = SQLite.openDatabase('MyCoffeeJourney.db');
   const db = useSQLiteContext();
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getData();
+    }, []),
+  );
 
   useEffect(() => {
     db.withExclusiveTransactionAsync(async () => {

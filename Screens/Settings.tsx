@@ -9,11 +9,13 @@ import { settingsStyles } from '../Styles/settingsStyles';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import useCoffee from '../hooks/useCoffee';
 
 
 export default function Settings({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
-  const [brands, setBrands] = useState<CoffeeBrand[]>([]);
-  const [beans, setBeans] = useState<CoffeeBean[]>([]);
+  // const [brands, setBrands] = useState<CoffeeBrand[]>([]);
+  // const [beans, setBeans] = useState<CoffeeBean[]>([]);
+  const { brands, setBrands, beans, setBeans } = useCoffee();
   const [brand, setBrand] = useState<string>("");
   const [brandId, setBrandId] = useState<number | null>(null);
   const [bean, setBean] = useState<string>("");
@@ -64,6 +66,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
       });
 
       setBrand("");
+
       await getData();
 
     })
@@ -87,6 +90,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
       setBrandId(null);
       setEditing(null);
       setEditName("");
+
       await getData();
 
     })
@@ -108,6 +112,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
       });
 
       setBrandId(null);
+
       await getData();
 
     })
@@ -263,7 +268,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     </Modal>
   )
 
-  const brandList = brands.map((br) => {
+  const brandList = brands ? brands.map((br) => {
     return (
       <View style={settingsStyles.brandBeansList} key={br.id}>
         <Text style={settingsStyles.listText}>{br.name}</Text>
@@ -279,9 +284,13 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
         </View>
       </View>
     )
-  });
+  }) : (
+    <View>
+      <Text style={settingsStyles.listText}>データがありません。</Text>
+    </View>
+  );
 
-  const beanList = beans.map((be) => {
+  const beanList = beans ? beans.map((be) => {
     return (
       <View style={settingsStyles.brandBeansList} key={be.id}>
         <Text style={settingsStyles.listText}>{be.name}</Text>
@@ -297,7 +306,11 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
         </View>
       </View>
     )
-  });
+  }) : (
+    <View>
+      <Text style={settingsStyles.listText}>データがありません。</Text>
+    </View>
+  );
 
   const brandModal = (
     <Modal animationType='slide' transparent={true}>
