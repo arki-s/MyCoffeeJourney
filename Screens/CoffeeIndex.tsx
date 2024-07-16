@@ -138,7 +138,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
   })
 
-  const list = coffees.map((cf) => {
+  const list = coffees && coffees.map((cf) => {
     return (
       <TouchableOpacity key={cf.id} style={coffeeIndexStyles.coffeeContainer}
         onPress={() => navigation.navigate("CoffeeDetails", { id: cf.id })}>

@@ -1,5 +1,5 @@
 import { View, Text, ImageBackground, ScrollView, Modal, TextInput, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import Header from './Header'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -13,10 +13,12 @@ import { AntDesign } from '@expo/vector-icons';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import DropDownPicker from 'react-native-dropdown-picker';
 import Slider from '@react-native-community/slider'
+import { CoffeeContext } from '../contexts/CoffeeContext'
 
 
 export default function RecordIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
-  const [records, setRecords] = useState<Record[]>([]);
+  const { coffees, records, setRecords } = useContext(CoffeeContext);
+  // const [records, setRecords] = useState<Record[]>([]);
   const [modalState, setModalState] = useState<"edit" | "delete" | null>(null);
   const [itemsCoffee, setItemsCoffee] = useState([]);
   const [openCoffee, setOpenCoffee] = useState(false);
@@ -63,26 +65,32 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
       return;
     })
 
-    db.getAllAsync<Coffee>(`
-      SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
-      FROM coffee
-      JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-      JOIN inclusion ON inclusion.coffee_id = coffee.id
-      JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
-      GROUP BY coffee.name
-      `).then((rsp) => {
-      // console.log("rsp", rsp);
-      const coffeeDropDown: any = [];
+    // db.getAllAsync<Coffee>(`
+    //   SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
+    //   FROM coffee
+    //   JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+    //   JOIN inclusion ON inclusion.coffee_id = coffee.id
+    //   JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+    //   GROUP BY coffee.name
+    //   `).then((rsp) => {
+    //   // console.log("rsp", rsp);
+    //   const coffeeDropDown: any = [];
 
-      rsp.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+    //   rsp.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
 
-      setItemsCoffee(coffeeDropDown);
+    //   setItemsCoffee(coffeeDropDown);
 
-    }).catch((error) => {
-      console.log("loading coffee error!");
-      console.log(error.message);
-      return;
-    });
+    // }).catch((error) => {
+    //   console.log("loading coffee error!");
+    //   console.log(error.message);
+    //   return;
+    // });
+
+    const coffeeDropDown: any = [];
+
+    coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+
+    setItemsCoffee(coffeeDropDown);
   }
 
   function HandleClosePress() {
@@ -169,7 +177,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     }
   }
 
-  const list = records.length > 0 ? records.map((record) => {
+  const list = records && records.length > 0 ? records.map((record) => {
     if (!record.endDate && !record.reviewId) return null;
 
     const changeStartDate = new Date(record.startDate);

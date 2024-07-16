@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, ImageBackground, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, RootStackParamList, User, Record } from '../types';
 import { globalStyles } from '../Styles/globalStyles';
@@ -14,11 +14,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import RNDateTimePicker from '@react-native-community/datetimepicker';
 import { homeStyles } from '../Styles/homeStyles';
 import { FontAwesome } from '@expo/vector-icons';
+import { CoffeeContext } from '../contexts/CoffeeContext';
 
 
 export default function Home({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
-  const [coffees, setCoffees] = useState<Coffee[]>([]);
-  const [records, setRecords] = useState<Record[]>([]);
+  // const [coffees, setCoffees] = useState<Coffee[]>([]);
+  // const [records, setRecords] = useState<Record[]>([]);
+  const { coffees, setCoffees, records, setRecords } = useContext(CoffeeContext);
   const [modal, setModal] = useState<"New" | "Edit" | null>(null);
   const [reviewModal, setReviewModal] = useState(false);
   const [grindSize, setGrindSize] = useState(3);
@@ -54,26 +56,32 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   }, [db])
 
   async function getData() {
-    db.getAllAsync<Coffee>(`
-    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
-    FROM coffee
-    JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    JOIN inclusion ON inclusion.coffee_id = coffee.id
-    JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
-    GROUP BY coffee.name
-    `).then((rsp) => {
-      // console.log("rsp", rsp);
-      const coffeeDropDown: any = [];
+    // db.getAllAsync<Coffee>(`
+    // SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
+    // FROM coffee
+    // JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+    // JOIN inclusion ON inclusion.coffee_id = coffee.id
+    // JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+    // GROUP BY coffee.name
+    // `).then((rsp) => {
+    //   // console.log("rsp", rsp);
+    //   const coffeeDropDown: any = [];
 
-      rsp.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+    //   rsp.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
 
-      setItemsCoffee(coffeeDropDown);
+    //   setItemsCoffee(coffeeDropDown);
 
-    }).catch((error) => {
-      console.log("loading coffee error!");
-      console.log(error.message);
-      return;
-    });
+    // }).catch((error) => {
+    //   console.log("loading coffee error!");
+    //   console.log(error.message);
+    //   return;
+    // });
+
+    const coffeeDropDown: any = [];
+
+    coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+
+    setItemsCoffee(coffeeDropDown);
 
     const response = await db.getAllAsync<Record>(`
     SELECT record.id, record.startDate, record.gram, record.cost, record.grindSize, coffee.name AS coffeeName, coffeeBrand.name AS brandName, coffee.id AS coffeeId
@@ -240,7 +248,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     setReviewModal(false);
   }
 
-  const recordList = records.length != 0 ? records.map((rc) => {
+  const recordList = records && records.length != 0 ? records.map((rc) => {
     const changedate = new Date(rc.startDate);
     // console.log(changedate);
     const date = `${changedate.getFullYear()}年 ${Number(changedate.getMonth()) + 1}月 ${changedate.getDate()}日`;
