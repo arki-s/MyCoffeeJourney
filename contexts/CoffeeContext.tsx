@@ -5,6 +5,7 @@ import { Coffee, CoffeeBean, CoffeeBrand, Record, Review } from '../types';
 import * as SQLite from 'expo-sqlite';
 import { useFocusEffect } from '@react-navigation/native';
 
+//comment
 
 type CoffeeContextValue = {
   coffees: Coffee[] | null;
