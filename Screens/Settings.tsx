@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, TextInput, Touchable, ImageBackground, Modal, ScrollView } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import Header from './Header'
 import { CoffeeBean, CoffeeBrand, RootStackParamList } from '../types';
@@ -9,13 +9,14 @@ import { settingsStyles } from '../Styles/settingsStyles';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome } from '@expo/vector-icons';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import useCoffee from '../hooks/useCoffee';
+import { CoffeeContext } from '../contexts/CoffeeContext';
 
 
 export default function Settings({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   // const [brands, setBrands] = useState<CoffeeBrand[]>([]);
   // const [beans, setBeans] = useState<CoffeeBean[]>([]);
-  const { brands, setBrands, beans, setBeans } = useCoffee();
+  // const { brands, setBrands, beans, setBeans } = useCoffee();
+  const { coffees, setCoffees, brands, setBrands, beans, setBeans } = useContext(CoffeeContext);
   const [brand, setBrand] = useState<string>("");
   const [brandId, setBrandId] = useState<number | null>(null);
   const [bean, setBean] = useState<string>("");

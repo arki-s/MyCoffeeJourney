@@ -1,5 +1,5 @@
 import { View, Text, TextInput, TouchableOpacity, Modal, ImageBackground, ScrollView } from 'react-native'
-import React, { SetStateAction, useEffect, useState } from 'react'
+import React, { SetStateAction, useContext, useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, CoffeeBean, CoffeeBrand, RootStackParamList } from '../types';
 import { globalStyles } from '../Styles/globalStyles';
@@ -15,11 +15,14 @@ import DropDownPicker from 'react-native-dropdown-picker';
 import toast from 'react-native-toast-notifications/lib/typescript/toast';
 import { useToast } from "react-native-toast-notifications";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { CoffeeContext } from '../contexts/CoffeeContext';
 
 export default function CoffeeIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
-  const [coffees, setCoffees] = useState<Coffee[]>([]);
-  const [brands, setBrands] = useState<CoffeeBrand[]>([]);
-  const [beans, setBeans] = useState<CoffeeBean[]>([]);
+  // const [coffees, setCoffees] = useState<Coffee[]>([]);
+  // const [brands, setBrands] = useState<CoffeeBrand[]>([]);
+  // const [beans, setBeans] = useState<CoffeeBean[]>([]);
+  // const { brands, setBrands, beans, setBeans } = useCoffee();
+  const { coffees, setCoffees, brands, setBrands, beans, setBeans } = useContext(CoffeeContext);
   const [newCoffee, setNewCoffee] = useState<Coffee | null>(null);
   const [addModal, setAddModal] = useState(false);
   const [warningModal, setWarningModal] = useState(false);
@@ -68,36 +71,54 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
       console.log(error.message);
     });
 
-    db.getAllAsync<CoffeeBrand>(`
-    SELECT * FROM coffeeBrand;`).then((rsp) => {
-      // console.log("rsp", rsp);
-      const brandDropDown: any = [];
+    // db.getAllAsync<CoffeeBrand>(`
+    // SELECT * FROM coffeeBrand;`).then((rsp) => {
+    //   // console.log("rsp", rsp);
+    //   const brandDropDown: any = [];
 
-      rsp.map((br) => { brandDropDown.push({ label: br.name, value: br.id }); })
+    //   rsp.map((br) => { brandDropDown.push({ label: br.name, value: br.id }); })
 
-      setItemsBrand(brandDropDown);
+    //   setItemsBrand(brandDropDown);
 
-    }).catch((error) => {
-      console.log("reading coffee brand error!");
-      console.log(error.message);
-    });
+    // }).catch((error) => {
+    //   console.log("reading coffee brand error!");
+    //   console.log(error.message);
+    // });
 
-    db.getAllAsync<CoffeeBean>(`
-    SELECT * FROM coffeeBean;`).then((rsp) => {
-      // console.log("rsp", rsp);
-      // setBeans(rsp);
+    const brandDropDown: any = [];
 
-      const beanDropDown: any = [];
+    brands && brands.map((brand) => {
+      brandDropDown.push({ label: brand.name, value: brand.id });
+    })
 
-      rsp.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
+    setItemsBrand(brandDropDown);
 
-      setItemsBean(beanDropDown);
+    // db.getAllAsync<CoffeeBean>(`
+    // SELECT * FROM coffeeBean;`).then((rsp) => {
+    //   // console.log("rsp", rsp);
+    //   // setBeans(rsp);
 
-    }).catch((error) => {
-      console.log("reading coffee bean error!");
-      console.log(error.message);
-    });
+    //   const beanDropDown: any = [];
+
+    //   rsp.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
+
+    //   setItemsBean(beanDropDown);
+
+    // }).catch((error) => {
+    //   console.log("reading coffee bean error!");
+    //   console.log(error.message);
+    // });
+
+    const beanDropDown: any = [];
+
+    beans && beans.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
+
+    setItemsBean(beanDropDown);
   }
+
+
+
+
 
   const filteredCoffee = (!coffees) ? [] : coffees.filter((coffee) => {
     let beans: string[] = [];
