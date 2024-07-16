@@ -50,10 +50,15 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   const db = useSQLiteContext();
 
   useEffect(() => {
-    db.withExclusiveTransactionAsync(async () => {
-      await getData();
-    })
-  }, [db])
+
+    const coffeeDropDown: any = [];
+    coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+    setItemsCoffee(coffeeDropDown);
+
+    // db.withExclusiveTransactionAsync(async () => {
+    //   await getData();
+    // })
+  }, [])
 
   async function getData() {
     // db.getAllAsync<Coffee>(`
@@ -77,31 +82,47 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     //   return;
     // });
 
-    const coffeeDropDown: any = [];
+    // const coffeeDropDown: any = [];
+    // coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+    // setItemsCoffee(coffeeDropDown);
 
-    coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+    // const response = await db.getAllAsync<Record>(`
+    // SELECT record.id, record.startDate, record.gram, record.cost, record.grindSize, coffee.name AS coffeeName, coffeeBrand.name AS brandName, coffee.id AS coffeeId
+    // FROM record
+    // JOIN coffee ON coffee.id = record.coffee_id
+    // JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+    // WHERE record.endDate IS NULL;
+    // `);
 
-    setItemsCoffee(coffeeDropDown);
-
-    const response = await db.getAllAsync<Record>(`
-    SELECT record.id, record.startDate, record.gram, record.cost, record.grindSize, coffee.name AS coffeeName, coffeeBrand.name AS brandName, coffee.id AS coffeeId
-    FROM record
-    JOIN coffee ON coffee.id = record.coffee_id
-    JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    WHERE record.endDate IS NULL;
-    `);
-
-    if (!response) {
-      console.log("loading record error!");
-      return;
-    }
+    // if (!response) {
+    //   console.log("loading record error!");
+    //   return;
+    // }
 
     // console.log(response);
 
     // const date = new Date(response[0]["startDate"]);
     // console.log(date);
 
-    setRecords(response);
+    // setRecords(response);
+
+    db.getAllAsync<Record>(`
+      SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
+      FROM record
+      JOIN coffee ON coffee.id = record.coffee_id
+      JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+      LEFT JOIN review ON review.record_id = record.id
+      ORDER BY record.endDate DESC;
+      `).then((rsp) => {
+      // console.log("record result", rsp);
+      setRecords(rsp);
+
+    }).catch((error) => {
+      console.log("loading error!");
+      console.log(error.message);
+      return;
+    })
+
 
   }
 
@@ -127,7 +148,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
   async function editRecord() {
     if (!editingRecord) return null;
 
-    console.log(startDate);
+    // console.log(startDate);
 
     if (!startDate || gram == 0 || valueCoffee == 0) {
       setWarningModal(true);
@@ -248,7 +269,11 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     setReviewModal(false);
   }
 
-  const recordList = records && records.length != 0 ? records.map((rc) => {
+  const recordWithoutEndDate = records && records.filter(rc => !rc.endDate);
+
+  const recordList = recordWithoutEndDate && recordWithoutEndDate.length > 0 ? recordWithoutEndDate.map((rc) => {
+    // console.log("Home true");
+    if (rc.endDate) return null;
     const changedate = new Date(rc.startDate);
     // console.log(changedate);
     const date = `${changedate.getFullYear()}年 ${Number(changedate.getMonth()) + 1}月 ${changedate.getDate()}日`;

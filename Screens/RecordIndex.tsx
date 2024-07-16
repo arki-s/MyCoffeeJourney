@@ -42,28 +42,32 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
   const db = useSQLiteContext();
 
   useEffect(() => {
-    db.withExclusiveTransactionAsync(async () => {
-      await getData();
-    })
-  }, [db])
+
+    const coffeeDropDown: any = [];
+    coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+    setItemsCoffee(coffeeDropDown);
+
+    // db.withExclusiveTransactionAsync(async () => {
+    //   await getData();
+    // })
+  }, [])
 
   async function getData() {
-    db.getAllAsync<Record>(`
-    SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
-    FROM record
-    JOIN coffee ON coffee.id = record.coffee_id
-    JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    JOIN review ON review.record_id = record.id
-    WHERE record.endDate IS NOT NULL
-    ORDER BY record.endDate DESC;
-    `).then((rsp) => {
-      // console.log(rsp);
-      setRecords(rsp);
-    }).catch((error) => {
-      console.log("loading error!");
-      console.log(error.message);
-      return;
-    })
+    // db.getAllAsync<Record>(`
+    // SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
+    // FROM record
+    // JOIN coffee ON coffee.id = record.coffee_id
+    // JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+    // JOIN review ON review.record_id = record.id
+    // ORDER BY record.endDate DESC;
+    // `).then((rsp) => {
+    //   // console.log(rsp);
+    //   setRecords(rsp);
+    // }).catch((error) => {
+    //   console.log("loading error!");
+    //   console.log(error.message);
+    //   return;
+    // })
 
     // db.getAllAsync<Coffee>(`
     //   SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
@@ -86,12 +90,29 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     //   return;
     // });
 
-    const coffeeDropDown: any = [];
+    // const coffeeDropDown: any = [];
+    // coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+    // setItemsCoffee(coffeeDropDown);
 
-    coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
+    db.getAllAsync<Record>(`
+      SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
+      FROM record
+      JOIN coffee ON coffee.id = record.coffee_id
+      JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+      LEFT JOIN review ON review.record_id = record.id
+      ORDER BY record.endDate DESC;
+      `).then((rsp) => {
+      // console.log("record result", rsp);
+      setRecords(rsp);
 
-    setItemsCoffee(coffeeDropDown);
+    }).catch((error) => {
+      console.log("loading error!");
+      console.log(error.message);
+      return;
+    })
+
   }
+
 
   function HandleClosePress() {
 
@@ -177,8 +198,11 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     }
   }
 
-  const list = records && records.length > 0 ? records.map((record) => {
-    if (!record.endDate && !record.reviewId) return null;
+  const recordWithEndDate = records && records.filter(rc => rc.endDate);
+
+  const list = recordWithEndDate ? recordWithEndDate.map((record) => {
+    // console.log("recordIndex true");
+    if (!record.endDate || !record.reviewId) return null;
 
     const changeStartDate = new Date(record.startDate);
     const startDateDisplay = `${changeStartDate.getFullYear()}年 ${Number(changeStartDate.getMonth()) + 1}月 ${changeStartDate.getDate()}日`;
