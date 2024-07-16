@@ -50,10 +50,21 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   const toast = useToast();
 
   useEffect(() => {
-    db.withExclusiveTransactionAsync(async () => {
-      await getData();
+
+    const brandDropDown: any = [];
+    brands && brands.map((brand) => {
+      brandDropDown.push({ label: brand.name, value: brand.id });
     })
-  }, [db])
+    setItemsBrand(brandDropDown);
+
+    const beanDropDown: any = [];
+    beans && beans.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
+    setItemsBean(beanDropDown);
+
+    //   db.withExclusiveTransactionAsync(async () => {
+    //     await getData();
+    //   })
+  }, [])
 
   async function getData() {
     db.getAllAsync<Coffee>(`
@@ -85,13 +96,13 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     //   console.log(error.message);
     // });
 
-    const brandDropDown: any = [];
+    // const brandDropDown: any = [];
 
-    brands && brands.map((brand) => {
-      brandDropDown.push({ label: brand.name, value: brand.id });
-    })
+    // brands && brands.map((brand) => {
+    //   brandDropDown.push({ label: brand.name, value: brand.id });
+    // })
 
-    setItemsBrand(brandDropDown);
+    // setItemsBrand(brandDropDown);
 
     // db.getAllAsync<CoffeeBean>(`
     // SELECT * FROM coffeeBean;`).then((rsp) => {
@@ -109,16 +120,12 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     //   console.log(error.message);
     // });
 
-    const beanDropDown: any = [];
+    // const beanDropDown: any = [];
 
-    beans && beans.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
+    // beans && beans.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
 
-    setItemsBean(beanDropDown);
+    // setItemsBean(beanDropDown);
   }
-
-
-
-
 
   const filteredCoffee = (!coffees) ? [] : coffees.filter((coffee) => {
     let beans: string[] = [];

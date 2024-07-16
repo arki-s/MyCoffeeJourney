@@ -16,7 +16,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
   // const [brands, setBrands] = useState<CoffeeBrand[]>([]);
   // const [beans, setBeans] = useState<CoffeeBean[]>([]);
   // const { brands, setBrands, beans, setBeans } = useCoffee();
-  const { coffees, setCoffees, brands, setBrands, beans, setBeans } = useContext(CoffeeContext);
+  const { brands, setBrands, beans, setBeans } = useContext(CoffeeContext);
   const [brand, setBrand] = useState<string>("");
   const [brandId, setBrandId] = useState<number | null>(null);
   const [bean, setBean] = useState<string>("");
@@ -28,11 +28,11 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
 
   const db = useSQLiteContext();
 
-  useEffect(() => {
-    db.withExclusiveTransactionAsync(async () => {
-      await getData();
-    })
-  }, [db])
+  // useEffect(() => {
+  //   db.withExclusiveTransactionAsync(async () => {
+  //     await getData();
+  //   })
+  // }, [db])
 
   async function getData() {
     db.getAllAsync<CoffeeBrand>(`

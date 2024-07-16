@@ -270,9 +270,9 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
             </View>
           </View>
 
-          <View style={globalStyles.inputContainerRecord}>
+          <View style={[globalStyles.inputContainerRecord, { zIndex: 5 }]}>
             <Text style={globalStyles.textLight}>コーヒーを選択</Text>
-            <View style={{ alignItems: 'center', width: 300, marginLeft: -15 }}>
+            <View style={{ alignItems: 'center', width: 300, marginLeft: -15, zIndex: 5 }}>
               <DropDownPicker
                 placeholder={'Choose coffee'}
                 open={openCoffee}
@@ -290,17 +290,17 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
             </View>
           </View>
 
-          <View style={globalStyles.inputContainerRecord}>
+          <View style={[globalStyles.inputContainerRecord, { zIndex: -1 }]}>
             <Text style={globalStyles.textLight}>グラム数</Text>
             <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={gram.toString()} onChangeText={HandleGramInput} style={globalStyles.numberInput} />
           </View>
 
-          <View style={globalStyles.inputContainerRecord}>
+          <View style={[globalStyles.inputContainerRecord, { zIndex: -1 }]}>
             <Text style={globalStyles.textLight}>値段(円)</Text>
             <TextInput placeholder='金額' keyboardType='numeric' maxLength={5} value={cost.toString()} onChangeText={HandleCostInput} style={globalStyles.numberInput} />
           </View>
 
-          <View style={globalStyles.inputContainerRecord}>
+          <View style={[globalStyles.inputContainerRecord, { zIndex: -1 }]}>
             <Text style={globalStyles.textLight}>挽き目：{grindSize.toFixed(0)}</Text>
             <Slider
               style={{ width: 200, height: 40 }}
@@ -313,9 +313,9 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
             />
           </View>
 
-          <View style={globalStyles.inputContainerRecord}>
+          <View style={[globalStyles.inputContainerRecord, { zIndex: 1 }]}>
             <Text style={globalStyles.textLight}>評価</Text>
-            <View style={{ alignItems: 'center', width: 360 }}>
+            <View style={{ alignItems: 'center', width: 360, zIndex: 1 }}>
               <DropDownPicker
                 placeholder={'Choose rating'}
                 open={openRating}
@@ -328,13 +328,13 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
                 containerStyle={{ width: '50%', }}
                 dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
                 textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
-                zIndex={5000}
+                zIndex={4000}
               />
             </View>
           </View>
 
           <TextInput placeholder='感想を入力' value={comment} onChangeText={(text) => setComment(text)}
-            multiline={true} numberOfLines={5} style={globalStyles.commentInput} />
+            multiline={true} numberOfLines={5} style={[globalStyles.commentInput, { zIndex: -1 }]} />
 
           <View style={{ padding: 20 }}>
             <TouchableOpacity style={globalStyles.smallBtn} onPress={() => HandleSavePress(record.id, record.reviewId)}>
