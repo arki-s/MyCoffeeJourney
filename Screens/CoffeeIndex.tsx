@@ -12,8 +12,8 @@ import * as SQLite from 'expo-sqlite/next';
 import Slider from '@react-native-community/slider';
 import { AntDesign } from '@expo/vector-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
-import toast from 'react-native-toast-notifications/lib/typescript/toast';
-import { useToast } from "react-native-toast-notifications";
+// import toast from 'react-native-toast-notifications/lib/typescript/toast';
+// import { useToast } from "react-native-toast-notifications";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CoffeeContext } from '../contexts/CoffeeContext';
 
@@ -23,9 +23,9 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   // const [beans, setBeans] = useState<CoffeeBean[]>([]);
   // const { brands, setBrands, beans, setBeans } = useCoffee();
   const { coffees, setCoffees, brands, setBrands, beans, setBeans } = useContext(CoffeeContext);
-  const [newCoffee, setNewCoffee] = useState<Coffee | null>(null);
+  // const [newCoffee, setNewCoffee] = useState<Coffee | null>(null);
   const [addModal, setAddModal] = useState(false);
-  const [warningModal, setWarningModal] = useState(false);
+  const [warningModal, setWarningModal] = useState<"warning" | "confirm" | null>(null);
 
   const [openBrand, setOpenBrand] = useState(false);
   const [valueBrand, setValueBrand] = useState(0);
@@ -47,7 +47,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   const [searchWord, setSearchWord] = useState("");
 
   const db = useSQLiteContext();
-  const toast = useToast();
+  // const toast = useToast();
 
   useEffect(() => {
 
@@ -71,11 +71,11 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
     FROM coffee
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    JOIN inclusion ON inclusion.coffee_id = coffee.id
-    JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+    LEFT JOIN inclusion ON inclusion.coffee_id = coffee.id
+    LEFT JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
     GROUP BY coffee.name
     ;`).then((rsp) => {
-      // console.log("rsp", rsp);
+      console.log("getData works", rsp);
       setCoffees(rsp);
     }).catch((error) => {
       console.log("reading coffee error!");
@@ -155,12 +155,12 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     )
   })
 
-  const warning = warningModal && (
+  const warning = (
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
         <View style={globalStyles.modalBasic}>
           <Text style={globalStyles.titleText}>コーヒー名の入力、コーヒーブランドとコーヒー豆の選択は必須項目です。</Text>
-          <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(false)}>
+          <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(null)}>
             <Text style={globalStyles.smallBtnText}>閉じる</Text>
           </TouchableOpacity>
         </View>
@@ -173,7 +173,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
       <View style={globalStyles.modalBackdrop}>
         <View style={globalStyles.modalBasic}>
           <Text style={globalStyles.titleText}>新しいコーヒー情報を登録しました。</Text>
-          <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(false)}>
+          <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(null)}>
             <Text style={globalStyles.smallBtnText}>閉じる</Text>
           </TouchableOpacity>
         </View>
@@ -194,7 +194,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
   async function addNewCoffee() {
     if (coffeeName === "" || valueBrand === 0 || valueBean.length == 0) {
-      setWarningModal(true);
+      setWarningModal("warning");
       return;
     }
 
@@ -213,14 +213,15 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
         console.log("creating new coffee error!");
       }
 
-      console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
+      // console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
+      // console.log(valueBean.length);
 
       if (valueBean.length == 1) {
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
       } else if ((valueBean.length == 2)) {
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
-      } else if ((valueBean.length == 2)) {
+      } else if ((valueBean.length == 3)) {
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[2]);
@@ -229,8 +230,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
     })
 
-    await getData();
-    console.log("successfully created test coffee!")
+    console.log("successfully created new coffee!")
 
     setValueBrand(0);
     setValueBean([]);
@@ -243,6 +243,10 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     setBitter(1.0);
     setAroma(1.0);
     setAddModal(false);
+
+    await getData();
+
+    setWarningModal("confirm");
 
   }
 
@@ -337,7 +341,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
           <Text style={globalStyles.titleTextLight}>保存する</Text>
         </TouchableOpacity>
 
-        {warning}
+        {warningModal === "warning" && warning}
       </View>
     </Modal>
   )
@@ -358,6 +362,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
           <Ionicons name="add-circle" size={50} color={Colors.PRIMARY} />
         </TouchableOpacity>
         {addModal && addCoffeeModal}
+        {warningModal === "confirm" && success}
       </ImageBackground>
     </View>
   )

@@ -67,7 +67,7 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     LEFT JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
     GROUP BY coffee.name
     ;`).then((rsp) => {
-      console.log("rsp", rsp);
+      // console.log("rsp", rsp);
       setCoffees(() => {
         return rsp;
       })
