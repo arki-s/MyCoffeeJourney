@@ -71,6 +71,15 @@ export const coffeeDetailsStyles = StyleSheet.create({
     marginHorizontal: 20
    },
 
+   buttonContainer:{
+    marginVertical:15,
+    marginRight:15,
+    display:'flex',
+    flexDirection:'row',
+    justifyContent:'flex-end',
+    gap:10
+   }
+
 
 
 })

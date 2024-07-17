@@ -1,8 +1,8 @@
 import { View, Text, Image, ScrollView, TouchableOpacity, Modal, Touchable } from 'react-native'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { Coffee, RootStackParamList, Review } from '../types'
+import { Coffee, RootStackParamList, Review, Record } from '../types'
 import { RouteProp } from '@react-navigation/native'
 import Header from './Header'
 import { useSQLiteContext } from 'expo-sqlite/next'
@@ -12,6 +12,7 @@ import Slider from '@react-native-community/slider';
 import { FontAwesome } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import { CoffeeContext } from '../contexts/CoffeeContext'
 
 
 type CoffeeDetailsProps = {
@@ -20,11 +21,13 @@ type CoffeeDetailsProps = {
 }
 
 export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps) {
+  const { setCoffees, setRecords, reviews, setReviews } = useContext(CoffeeContext);
   const [coffee, setCoffee] = useState<Coffee | null>(null);
   const [image, setImage] = useState(false);
   const [count, setCount] = useState(0);
   const [averageRating, setAverageRating] = useState<number | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  // const [reviews, setReviews] = useState<Review[]>([]);
+  const [modalState, setModalState] = useState<"edit" | "delete" | null>(null);
 
   const db = useSQLiteContext();
   const memorizedId = useMemo(() => route.params.id, [route.params.id]);
@@ -40,8 +43,8 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
     FROM coffee
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    JOIN inclusion ON inclusion.coffee_id = coffee.id
-    JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+    LEFT JOIN inclusion ON inclusion.coffee_id = coffee.id
+    LEFT JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
     WHERE coffee.id = ${id}
     GROUP BY coffee.name
     ;`).then((rsp) => {
@@ -94,6 +97,96 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       console.log("reviews error!");
       console.log(error.message);
     })
+  }
+
+  async function getDataAll() {
+    db.getAllAsync<Coffee>(`
+      SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
+      FROM coffee
+      JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+      JOIN inclusion ON inclusion.coffee_id = coffee.id
+      JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+      GROUP BY coffee.name
+      ;`).then((rsp) => {
+      setCoffees(rsp);
+
+    }).catch((error) => {
+      console.log("reading coffee error!");
+      console.log(error.message);
+    });
+
+    db.getAllAsync<Record>(`
+      SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
+      FROM record
+      JOIN coffee ON coffee.id = record.coffee_id
+      JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
+      LEFT JOIN review ON review.record_id = record.id
+      ORDER BY record.endDate DESC;
+      `).then((rsp) => {
+      setRecords(rsp);
+    }).catch((error) => {
+      console.log("loading error!");
+      console.log(error.message);
+      return;
+    })
+
+    await db.getAllAsync(`
+      SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date, review.record_id AS record_id
+      FROM review
+      JOIN record ON record.id = review.record_id
+      JOIN coffee ON coffee.id = record.coffee_id
+      ORDER BY record.endDate DESC;
+      `).then((rsp: any) => {
+      setReviews(rsp);
+    }).catch((error) => {
+      console.log("reviews error!");
+      console.log(error.message);
+    })
+
+  }
+
+  async function deleteCoffee() {
+
+    db.runAsync(
+      `DELETE FROM review
+       JOIN record ON review.record_id = record.id
+       WHERE record.coffee_id = ${memorizedId};`,
+    ).catch((error) => {
+      console.log("deleting reviews error!")
+      console.log(error.message);
+      return;
+    });
+
+    db.runAsync(
+      `DELETE FROM record WHERE coffee_id = ${memorizedId}`,
+    ).catch((error) => {
+      console.log("deleting records error!")
+      console.log(error.message);
+      return;
+    });
+
+    db.runAsync(
+      `DELETE FROM inclusion WHERE coffee_id = ${memorizedId}`,
+    ).catch((error) => {
+      console.log("deleting inclusions error!")
+      console.log(error.message);
+      return;
+    });
+
+    db.runAsync(
+      `DELETE FROM coffee WHERE id = ${memorizedId}`,
+    ).catch((error) => {
+      console.log("deleting coffee error!")
+      console.log(error.message);
+      return;
+    });
+
+    await getDataAll();
+    console.log('successfully deleted a coffee data!');
+    setModalState(null);
+
+    navigation.navigate('MyZukan');
+
   }
 
   const pastReviews = reviews && reviews.map((review) => {
@@ -299,6 +392,24 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   }
 
+  const deleteModal = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>
+            このコーヒー情報を削除しますか？{"\n"}一度削除すると履歴やレビューも削除され、データを元に戻すことはできなくなります。
+          </Text>
+          <TouchableOpacity style={[globalStyles.smallBtn, { marginVertical: 8 }]} onPress={deleteCoffee}>
+            <Text style={globalStyles.smallBtnText}>削除する</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={globalStyles.smallCancelBtn} onPress={() => setModalState(null)}>
+            <Text style={globalStyles.smallCancelBtnText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
+
   return (
     <View style={[globalStyles.container, { backgroundColor: Colors.SECONDARY_LIGHT }]}>
       <Header title={coffee ? coffee.name : "コーヒー"} />
@@ -336,11 +447,22 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
         <Text style={coffeeDetailsStyles.commentText}>{coffee?.comment}</Text>
 
+
         <Text style={[globalStyles.titleText, { marginVertical: 7, fontSize: 16 }]}>最新レビュー(5件まで)</Text>
         {pastReviews}
 
+        <View style={coffeeDetailsStyles.buttonContainer}>
+          <TouchableOpacity>
+            <FontAwesome name="pencil" size={22} color={Colors.PRIMARY} />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalState("delete")}>
+            <FontAwesome name="trash-o" size={22} color={Colors.PRIMARY} />
+          </TouchableOpacity>
+        </View>
+
       </ScrollView>
       {image && cameraModal}
+      {modalState === "delete" && deleteModal}
     </View>
   )
 }

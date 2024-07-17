@@ -145,7 +145,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
   })
 
-  const list = coffees && coffees.map((cf) => {
+  const list = filteredCoffee && filteredCoffee.map((cf) => {
     return (
       <TouchableOpacity key={cf.id} style={coffeeIndexStyles.coffeeContainer}
         onPress={() => navigation.navigate("CoffeeDetails", { id: cf.id })}>
@@ -213,7 +213,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
         console.log("creating new coffee error!");
       }
 
-      // console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
+      console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
 
       if (valueBean.length == 1) {
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
@@ -226,10 +226,10 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[2]);
       }
 
-      await getData();
 
     })
 
+    await getData();
     console.log("successfully created test coffee!")
 
     setValueBrand(0);

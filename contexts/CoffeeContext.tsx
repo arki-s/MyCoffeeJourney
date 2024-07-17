@@ -63,11 +63,11 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
     FROM coffee
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    JOIN inclusion ON inclusion.coffee_id = coffee.id
-    JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+    LEFT JOIN inclusion ON inclusion.coffee_id = coffee.id
+    LEFT JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
     GROUP BY coffee.name
     ;`).then((rsp) => {
-      // console.log("rsp", rsp);
+      console.log("rsp", rsp);
       setCoffees(() => {
         return rsp;
       })
@@ -76,6 +76,26 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       console.log("reading coffee error!");
       console.log(error.message);
     });
+
+    // db.getAllAsync<Coffee>(`
+    //   SELECT * FROM coffee
+    //   ;`).then((rsp) => {
+    //   console.log("all coffee", rsp);
+
+    // }).catch((error) => {
+    //   console.log("reading coffee error!");
+    //   console.log(error.message);
+    // });
+
+    // db.getAllAsync<Coffee>(`
+    //   SELECT * FROM inclusion
+    //   ;`).then((rsp) => {
+    //   console.log("all coffee", rsp);
+
+    // }).catch((error) => {
+    //   console.log("reading coffee error!");
+    //   console.log(error.message);
+    // });
 
     db.getAllAsync<CoffeeBrand>(`
       SELECT * FROM coffeeBrand;`).then((rsp) => {
@@ -109,7 +129,7 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       LEFT JOIN review ON review.record_id = record.id
       ORDER BY record.endDate DESC;
       `).then((rsp) => {
-      console.log("record result", rsp);
+      // console.log("record result", rsp);
       // setRecords(rsp);
       setRecords(() => {
         return rsp;
@@ -127,7 +147,7 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       JOIN coffee ON coffee.id = record.coffee_id
       ORDER BY record.endDate DESC;
       `).then((rsp: any) => {
-      console.log("reviews", rsp);
+      // console.log("reviews", rsp);
       // setReviews(rsp);
       setReviews(() => {
         return rsp;
