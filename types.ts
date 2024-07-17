@@ -59,6 +59,7 @@ export type Record = {
 }
 
 export type Review = {
+  coffee_id: number;
   record_id: number;
   rating: number;
   comment: string;

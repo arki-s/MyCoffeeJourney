@@ -20,7 +20,7 @@ import { CoffeeContext } from '../contexts/CoffeeContext';
 export default function Home({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
   // const [coffees, setCoffees] = useState<Coffee[]>([]);
   // const [records, setRecords] = useState<Record[]>([]);
-  const { coffees, setCoffees, records, setRecords } = useContext(CoffeeContext);
+  const { coffees, setCoffees, records, setRecords, setReviews } = useContext(CoffeeContext);
   const [modal, setModal] = useState<"New" | "Edit" | null>(null);
   const [reviewModal, setReviewModal] = useState(false);
   const [grindSize, setGrindSize] = useState(3);
@@ -121,6 +121,23 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
       console.log("loading error!");
       console.log(error.message);
       return;
+    })
+
+    await db.getAllAsync(`
+      SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date, review.record_id AS record_id, coffee.id AS coffee_id
+      FROM review
+      JOIN record ON record.id = review.record_id
+      JOIN coffee ON coffee.id = record.coffee_id
+      ORDER BY record.endDate DESC;
+      `).then((rsp: any) => {
+      // console.log("reviews", rsp);
+      // setReviews(rsp);
+      setReviews(() => {
+        return rsp;
+      })
+    }).catch((error) => {
+      console.log("reviews error!");
+      console.log(error.message);
     })
 
 

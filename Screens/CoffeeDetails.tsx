@@ -48,7 +48,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     WHERE coffee.id = ${id}
     GROUP BY coffee.name
     ;`).then((rsp) => {
-      console.log("Details rsp", rsp);
+      // console.log("Details rsp", rsp);
       setCoffee(rsp ? rsp[0] : null);
     }).catch((error) => {
       console.log("reading coffee error!");
@@ -61,7 +61,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       WHERE coffee_id = ${memorizedId}
       AND endDate IS NOT NULL;`)
       .then((rsp: any) => {
-        console.log(rsp[0]["COUNT(*)"]);
+        // console.log(rsp[0]["COUNT(*)"]);
         setCount(parseInt(rsp[0]["COUNT(*)"]));
       }).catch((error) => {
         console.log("count error!");
@@ -74,29 +74,29 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       JOIN coffee ON coffee.id = record.coffee_id
       WHERE coffee.id = ${memorizedId}
       `).then((rsp: any) => {
-      console.log("average", rsp);
+      // console.log("average", rsp);
       setAverageRating(parseFloat(rsp[0]["AVG(rating)"]));
-      console.log(averageRating);
+      // console.log(averageRating);
     }).catch((error) => {
       console.log("average rating error!")
       console.log(error.message);
     })
 
-    await db.getAllAsync(`
-    SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date
-    FROM review
-    JOIN record ON record.id = review.record_id
-    JOIN coffee ON coffee.id = record.coffee_id
-    WHERE coffee.id = ${memorizedId}
-    ORDER BY record.endDate DESC
-    LIMIT 5;
-    `).then((rsp: any) => {
-      console.log("reviews", rsp);
-      setReviews(rsp);
-    }).catch((error) => {
-      console.log("reviews error!");
-      console.log(error.message);
-    })
+    // await db.getAllAsync(`
+    // SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date
+    // FROM review
+    // JOIN record ON record.id = review.record_id
+    // JOIN coffee ON coffee.id = record.coffee_id
+    // WHERE coffee.id = ${memorizedId}
+    // ORDER BY record.endDate DESC
+    // LIMIT 5;
+    // `).then((rsp: any) => {
+    //   console.log("reviews", rsp);
+    //   setReviews(rsp);
+    // }).catch((error) => {
+    //   console.log("reviews error!");
+    //   console.log(error.message);
+    // })
   }
 
   async function getDataAll() {
@@ -189,7 +189,10 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   }
 
-  const pastReviews = reviews && reviews.map((review) => {
+  const filteredReviews = reviews && reviews.filter(rv => rv.coffee_id === memorizedId);
+  // console.log(filteredReviews);
+
+  const pastReviews = filteredReviews && filteredReviews.map((review) => {
     if (!review.date) return null;
     const ratingStars = review.rating ? "⭐️".repeat(review.rating) : "";
     const changeEndDate = new Date(review.date);

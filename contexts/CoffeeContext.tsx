@@ -141,13 +141,13 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     })
 
     await db.getAllAsync(`
-      SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date, review.record_id AS record_id
+      SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date, review.record_id AS record_id, coffee.id AS coffee_id
       FROM review
       JOIN record ON record.id = review.record_id
       JOIN coffee ON coffee.id = record.coffee_id
       ORDER BY record.endDate DESC;
       `).then((rsp: any) => {
-      // console.log("reviews", rsp);
+      console.log("reviews", rsp);
       // setReviews(rsp);
       setReviews(() => {
         return rsp;
