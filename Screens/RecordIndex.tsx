@@ -50,7 +50,7 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     // db.withExclusiveTransactionAsync(async () => {
     //   await getData();
     // })
-  }, [])
+  }, [coffees])
 
   async function getData() {
     // db.getAllAsync<Record>(`
@@ -218,6 +218,8 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
       if (record.endDate) setEndDate(new Date(record.endDate));
 
       setValueCoffee(record.coffeeId);
+      // console.log(valueCoffee);
+      // console.log(itemsCoffee);
 
       setGram(record.gram);
       setCost(record.cost);

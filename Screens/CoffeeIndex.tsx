@@ -64,7 +64,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     //   db.withExclusiveTransactionAsync(async () => {
     //     await getData();
     //   })
-  }, [])
+  }, [brands, beans])
 
   async function getData() {
     db.getAllAsync<Coffee>(`

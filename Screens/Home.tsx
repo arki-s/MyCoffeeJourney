@@ -44,7 +44,6 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     { label: '⭐️⭐️⭐️⭐️⭐️', value: 5 }
   ]);
 
-
   // console.log(startDate.getTime());
 
   const db = useSQLiteContext();
@@ -58,7 +57,9 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     // db.withExclusiveTransactionAsync(async () => {
     //   await getData();
     // })
-  }, [])
+  }, [coffees])
+
+  console.log(itemsCoffee);
 
   async function getData() {
     // db.getAllAsync<Coffee>(`

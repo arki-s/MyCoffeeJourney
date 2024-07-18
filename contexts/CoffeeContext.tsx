@@ -147,7 +147,7 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       JOIN coffee ON coffee.id = record.coffee_id
       ORDER BY record.endDate DESC;
       `).then((rsp: any) => {
-      console.log("reviews", rsp);
+      // console.log("reviews", rsp);
       // setReviews(rsp);
       setReviews(() => {
         return rsp;
