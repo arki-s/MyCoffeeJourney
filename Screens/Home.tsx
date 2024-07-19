@@ -59,7 +59,7 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     // })
   }, [coffees])
 
-  console.log(itemsCoffee);
+  // console.log(itemsCoffee);
 
   async function getData() {
     // db.getAllAsync<Coffee>(`

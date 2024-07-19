@@ -71,12 +71,30 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
     FROM coffee
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    LEFT JOIN inclusion ON inclusion.coffee_id = coffee.id
-    LEFT JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
+    JOIN inclusion ON inclusion.coffee_id = coffee.id
+    JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
     GROUP BY coffee.name
     ;`).then((rsp) => {
       console.log("getData works", rsp);
       setCoffees(rsp);
+    }).catch((error) => {
+      console.log("reading coffee error!");
+      console.log(error.message);
+    });
+
+    db.getAllAsync<Coffee>(`
+      SELECT * FROM coffee
+      ;`).then((rsp) => {
+      console.log("coffees", rsp);
+    }).catch((error) => {
+      console.log("reading coffee error!");
+      console.log(error.message);
+    });
+
+    db.getAllAsync<Coffee>(`
+      SELECT * FROM inclusion
+      ;`).then((rsp) => {
+      console.log("inclusion", rsp);
     }).catch((error) => {
       console.log("reading coffee error!");
       console.log(error.message);
@@ -216,17 +234,22 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
       // console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
       // console.log(valueBean.length);
 
-      if (valueBean.length == 1) {
-        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
-      } else if ((valueBean.length == 2)) {
-        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
-        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
-      } else if ((valueBean.length == 3)) {
-        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
-        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
-        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[2]);
+      // if (valueBean.length == 1) {
+      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
+      // } else if ((valueBean.length == 2)) {
+      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
+      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
+      // } else if ((valueBean.length == 3)) {
+      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
+      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
+      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[2]);
+      // }
+
+      for (let i = 0; i < valueBean.length; i++) {
+        addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[i]);
       }
 
+      await getData();
 
     })
 
@@ -243,8 +266,6 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     setBitter(1.0);
     setAroma(1.0);
     setAddModal(false);
-
-    await getData();
 
     setWarningModal("confirm");
 
