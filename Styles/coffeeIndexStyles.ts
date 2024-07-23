@@ -51,15 +51,6 @@ export const coffeeIndexStyles = StyleSheet.create({
    color:Colors.SECONDARY_LIGHT,
   },
 
-  coffeeNameInput:{
-    backgroundColor:Colors.SECONDARY_LIGHT,
-    borderRadius:10,
-    padding:8,
-    fontFamily:'yusei',
-    width:'85%',
-    alignSelf:'center',
-  },
-
   sliderContainer:{
     display:'flex',
     flexDirection:'row',

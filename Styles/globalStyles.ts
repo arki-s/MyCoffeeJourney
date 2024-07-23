@@ -145,7 +145,14 @@ export const globalStyles = StyleSheet.create({
     alignItems:'center',
   },
 
-
+  coffeeNameInput:{
+    backgroundColor:Colors.SECONDARY_LIGHT,
+    borderRadius:10,
+    padding:8,
+    fontFamily:'yusei',
+    width:'85%',
+    alignSelf:'center',
+  },
 
 
 

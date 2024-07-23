@@ -324,7 +324,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
           />
         </View>
 
-        <TextInput placeholder='コーヒー名を入力' maxLength={11} value={coffeeName} onChangeText={(text) => setCoffeeName(text)} style={coffeeIndexStyles.coffeeNameInput} />
+        <TextInput placeholder='コーヒー名を入力' maxLength={11} value={coffeeName} onChangeText={(text) => setCoffeeName(text)} style={globalStyles.coffeeNameInput} />
 
         <View style={{ alignItems: 'center', zIndex: 1, marginVertical: 10 }}>
           <DropDownPicker
@@ -355,7 +355,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
         <TextInput placeholder='コメントを入力' maxLength={200} numberOfLines={4} multiline={true}
           value={comment} onChangeText={(text) => setComment(text)}
-          style={[coffeeIndexStyles.coffeeNameInput, { height: 100, marginTop: 10 }]} />
+          style={[globalStyles.coffeeNameInput, { height: 100, marginTop: 10 }]} />
 
 
         <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} onPress={addNewCoffee}>

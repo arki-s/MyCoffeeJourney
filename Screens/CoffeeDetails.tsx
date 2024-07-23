@@ -1,4 +1,4 @@
-import { View, Text, Image, ScrollView, TouchableOpacity, Modal, Touchable } from 'react-native'
+import { View, Text, Image, ScrollView, TouchableOpacity, Modal, Touchable, TextInput } from 'react-native'
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
@@ -13,6 +13,8 @@ import { FontAwesome } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
 import { CoffeeContext } from '../contexts/CoffeeContext'
+import DropDownPicker from 'react-native-dropdown-picker'
+import { AntDesign } from '@expo/vector-icons';
 
 
 type CoffeeDetailsProps = {
@@ -21,13 +23,31 @@ type CoffeeDetailsProps = {
 }
 
 export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps) {
-  const { setCoffees, setRecords, reviews, setReviews } = useContext(CoffeeContext);
+  const { setCoffees, brands, setBrands, beans, setBeans, setRecords, reviews, setReviews } = useContext(CoffeeContext);
   const [coffee, setCoffee] = useState<Coffee | null>(null);
   const [image, setImage] = useState(false);
   const [count, setCount] = useState(0);
   const [averageRating, setAverageRating] = useState<number | null>(null);
   // const [reviews, setReviews] = useState<Review[]>([]);
   const [modalState, setModalState] = useState<"edit" | "delete" | null>(null);
+
+  const [openBrand, setOpenBrand] = useState(false);
+  const [valueBrand, setValueBrand] = useState(0);
+  const [itemsBrand, setItemsBrand] = useState([]);
+
+  const [openBean, setOpenBean] = useState(false);
+  const [valueBean, setValueBean] = useState([]);
+  const [itemsBean, setItemsBean] = useState([]);
+
+  const [coffeeName, setCoffeeName] = useState("");
+  const [comment, setComment] = useState("");
+  const [roast, setRoast] = useState(1.0);
+  const [body, setBody] = useState(1.0);
+  const [sweetness, setSweetness] = useState(1.0);
+  const [fruity, setFruity] = useState(1.0);
+  const [bitter, setBitter] = useState(1.0);
+  const [aroma, setAroma] = useState(1.0);
+  const [warningModal, setWarningModal] = useState(false);
 
   const db = useSQLiteContext();
   const memorizedId = useMemo(() => route.params.id, [route.params.id]);
@@ -36,6 +56,16 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     db.withExclusiveTransactionAsync(async () => {
       await getData(memorizedId);
     })
+
+    const brandDropDown: any = [];
+    brands && brands.map((brand) => {
+      brandDropDown.push({ label: brand.name, value: brand.id });
+    })
+    setItemsBrand(brandDropDown);
+
+    const beanDropDown: any = [];
+    beans && beans.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
+    setItemsBean(beanDropDown);
   }, [db, memorizedId])
 
   async function getData(id: any) {
@@ -207,6 +237,8 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       </View>
     )
   })
+
+
 
   const coffeeTaste = coffee ? [
     { name: "焙煎度", value: coffee.roast },
@@ -413,6 +445,116 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     </Modal>
   )
 
+  //重複コードのためどこかでまとめられるかも　start
+
+  const values = [
+    { name: "焙煎度", value: roast, setValue: setRoast },
+    { name: "コク　", value: body, setValue: setBody },
+    { name: "甘味　", value: sweetness, setValue: setSweetness },
+    { name: "酸味　", value: fruity, setValue: setFruity },
+    { name: "苦味　", value: bitter, setValue: setBitter },
+    { name: "香り　", value: aroma, setValue: setAroma }
+  ]
+
+  const setTaste = values.map((v) => {
+
+    return (
+      <View style={globalStyles.sliderContainer} key={v.name}>
+        <Text style={globalStyles.textLight}>{v.name}</Text>
+        <Slider
+          style={{ width: 200, height: 40 }}
+          minimumValue={1}
+          maximumValue={5}
+          value={v.value}
+          onValueChange={(num) => v.setValue(num)}
+          minimumTrackTintColor={Colors.SECONDARY}
+          maximumTrackTintColor={Colors.SECONDARY_LIGHT}
+        />
+        <Text style={globalStyles.textLight}>{v.value.toFixed(1)}</Text>
+      </View>
+    );
+  })
+
+  const warning = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>コーヒー名の入力、コーヒーブランドとコーヒー豆の選択は必須項目です。</Text>
+          <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(false)}>
+            <Text style={globalStyles.smallBtnText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
+
+  //重複コードのためどこかでまとめられるかも　end
+
+  const editModal = (
+    <Modal animationType='slide'>
+      <View style={globalStyles.bigModalView}>
+        <TouchableOpacity onPress={() => setModalState(null)} style={globalStyles.closeModalBtn} >
+          <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
+        </TouchableOpacity>
+        <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>コーヒー情報の編集</Text>
+
+        <View style={{ alignItems: 'center', zIndex: 2, marginVertical: 10 }}>
+          <DropDownPicker
+            placeholder={'Choose a brand'}
+            open={openBrand}
+            value={valueBrand}
+            items={itemsBrand}
+            setOpen={setOpenBrand}
+            setValue={setValueBrand}
+            setItems={setItemsBrand}
+            style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+            containerStyle={{ width: '50%', }}
+            dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+            textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
+            zIndex={5000}
+          />
+        </View>
+
+        <TextInput placeholder='コーヒー名を入力' maxLength={11} value={coffeeName} onChangeText={(text) => setCoffeeName(text)} style={globalStyles.coffeeNameInput} />
+
+        <View style={{ alignItems: 'center', zIndex: 1, marginVertical: 10 }}>
+          <DropDownPicker
+            multiple={true}
+            min={1}
+            max={3}
+            mode="BADGE"
+            placeholder={'Choose beans'}
+            open={openBean}
+            value={valueBean}
+            items={itemsBean}
+            setOpen={setOpenBean}
+            setValue={setValueBean}
+            setItems={setItemsBean}
+            style={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+            containerStyle={{ width: '90%', }}
+            dropDownContainerStyle={{ backgroundColor: Colors.SECONDARY_LIGHT }}
+            textStyle={{ fontFamily: 'yusei', fontSize: 12 }}
+            zIndex={4000}
+          />
+        </View>
+
+        {setTaste}
+
+        <TextInput placeholder='コメントを入力' maxLength={200} numberOfLines={4} multiline={true}
+          value={comment} onChangeText={(text) => setComment(text)}
+          style={[globalStyles.coffeeNameInput, { height: 100, marginTop: 10 }]} />
+
+
+        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
+          <Text style={globalStyles.titleTextLight}>保存する</Text>
+        </TouchableOpacity>
+
+        {warningModal && warning}
+      </View>
+    </Modal>
+
+  );
+
   return (
     <View style={[globalStyles.container, { backgroundColor: Colors.SECONDARY_LIGHT }]}>
       <Header title={coffee ? coffee.name : "コーヒー"} />
@@ -455,7 +597,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
         {pastReviews}
 
         <View style={coffeeDetailsStyles.buttonContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => setModalState("edit")}>
             <FontAwesome name="pencil" size={22} color={Colors.PRIMARY} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setModalState("delete")}>
@@ -466,6 +608,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       </ScrollView>
       {image && cameraModal}
       {modalState === "delete" && deleteModal}
+      {modalState === "edit" && editModal}
     </View>
   )
 }
