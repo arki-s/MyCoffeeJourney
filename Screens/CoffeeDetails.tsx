@@ -70,7 +70,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   async function getData(id: any) {
     await db.getAllAsync<Coffee>(`
-    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
+    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, coffeeBrand.id AS brand_id,GROUP_CONCAT(coffeeBean.name) AS beans
     FROM coffee
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
     LEFT JOIN inclusion ON inclusion.coffee_id = coffee.id
@@ -78,7 +78,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     WHERE coffee.id = ${id}
     GROUP BY coffee.name
     ;`).then((rsp) => {
-      // console.log("Details rsp", rsp);
+      console.log("Details rsp", rsp);
       setCoffee(rsp ? rsp[0] : null);
     }).catch((error) => {
       console.log("reading coffee error!");
@@ -131,13 +131,14 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   async function getDataAll() {
     db.getAllAsync<Coffee>(`
-      SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
+      SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, coffeeBrand.id AS brand_id, GROUP_CONCAT(coffeeBean.name) AS beans
       FROM coffee
       JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
       JOIN inclusion ON inclusion.coffee_id = coffee.id
       JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
       GROUP BY coffee.name
       ;`).then((rsp) => {
+      console.log(rsp);
       setCoffees(rsp);
 
     }).catch((error) => {
@@ -447,6 +448,40 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   //重複コードのためどこかでまとめられるかも　start
 
+  async function HandleSavePress() {
+
+  }
+
+  function HandleEditPress() {
+    if (!coffee) return null;
+
+    // setValueBrand(coffee.brand_id);
+    setCoffeeName(coffee.name);
+    // setValueBean();
+    setRoast(coffee.roast);
+    setBody(coffee.body);
+    setSweetness(coffee.sweetness);
+    setBitter(coffee.bitter);
+    setAroma(coffee.aroma);
+    setComment(coffee.comment);
+    setModalState("edit");
+  }
+
+  function HandleCloseEditPress() {
+    if (!coffee) return null;
+
+    // setValueBrand(coffee.brand_id);
+    setCoffeeName(coffee.name);
+    // setValueBean();
+    setRoast(coffee.roast);
+    setBody(coffee.body);
+    setSweetness(coffee.sweetness);
+    setBitter(coffee.bitter);
+    setAroma(coffee.aroma);
+    setComment(coffee.comment);
+    setModalState(null);
+  }
+
   const values = [
     { name: "焙煎度", value: roast, setValue: setRoast },
     { name: "コク　", value: body, setValue: setBody },
@@ -597,7 +632,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
         {pastReviews}
 
         <View style={coffeeDetailsStyles.buttonContainer}>
-          <TouchableOpacity onPress={() => setModalState("edit")}>
+          <TouchableOpacity onPress={HandleEditPress}>
             <FontAwesome name="pencil" size={22} color={Colors.PRIMARY} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setModalState("delete")}>

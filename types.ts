@@ -29,6 +29,7 @@ export type Coffee = {
   bitter: number;
   aroma: number;
   brand: string;
+  brand_id: number;
   beans: string;
   reviews: Review[];
 }
