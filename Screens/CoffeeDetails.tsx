@@ -455,7 +455,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   function HandleEditPress() {
     if (!coffee) return null;
 
-    // setValueBrand(coffee.brand_id);
+    setValueBrand(coffee.brand_id);
     setCoffeeName(coffee.name);
     // setValueBean();
     setRoast(coffee.roast);
