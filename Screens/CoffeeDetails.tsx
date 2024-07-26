@@ -15,6 +15,7 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { CoffeeContext } from '../contexts/CoffeeContext'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { AntDesign } from '@expo/vector-icons';
+import * as SQLite from 'expo-sqlite/next';
 
 
 type CoffeeDetailsProps = {
@@ -448,8 +449,88 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   //重複コードのためどこかでまとめられるかも　start
 
-  async function HandleSavePress() {
+  async function addInclusion(coffee_id: number, bean_id: number) {
 
+    let check: boolean = false;
+
+    db.runAsync(
+      `SELECT COUNT(*) FROM inclusion WHERE coffee_id = ? AND bean_id = ?;`,
+      [coffee_id, bean_id]
+    ).then((rsp) => {
+      console.log("inclusion", rsp);
+    }).catch((error) => {
+      console.log("editing inclusion error!")
+      console.log(error.message);
+      return;
+    });
+
+    // db.runAsync(
+    //   `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
+    //   [coffee_id, bean_id]
+    // ).catch((error) => {
+    //   console.log("editing inclusion error!")
+    //   console.log(error.message);
+    //   return;
+    // });
+
+
+    // db.runAsync(
+    //   `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
+    //   [coffee_id, bean_id]
+    // ).catch((error) => {
+    //   console.log("editing inclusion error!")
+    //   console.log(error.message);
+    //   return;
+    // });
+  }
+
+  async function HandleSavePress() {
+    if (coffeeName === "" || valueBrand === 0 || valueBean.length == 0) {
+      setWarningModal(true);
+      return;
+    }
+
+    try {
+      await db.withTransactionAsync(async () => {
+        const result = await db.runAsync(
+          `UPDATE coffee SET name = ?, roast = ?, body = ?, sweetness = ?, fruity =?, bitter = ?, aroma = ?, comment =?, brand_id = ? WHERE id = ${memorizedId};`,
+          [coffeeName, roast, body, sweetness, fruity, bitter, aroma, comment, valueBrand]
+        );
+
+        if (!result) {
+          console.log("editing coffee error!");
+        }
+
+        for (let i = 0; i < valueBean.length; i++) {
+          addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[i]);
+        }
+
+        await getData(memorizedId);
+      });
+
+      HandleCloseEditPress();
+    } catch (error) {
+      console.error("Error saving coffee:", error);
+    }
+
+    // db.withTransactionAsync(async () => {
+    //   const result = await db.runAsync(
+    //     `UPDATE coffee SET name = ?, roast = ?, body = ?, sweetness = ?, fruity =?, bitter = ?, aroma = ?, comment =? , brand_id = ?) WHERE id = ${memorizedId};`,
+    //     [coffeeName, roast, body, sweetness, fruity, bitter, aroma, comment, valueBrand])
+
+    //   if (!result) {
+    //     console.log("editing coffee error!");
+    //   }
+
+    //   for (let i = 0; i < valueBean.length; i++) {
+    //     addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[i]);
+    //   }
+
+    //   await getData(memorizedId);
+
+    // })
+
+    // HandleCloseEditPress;
   }
 
   function HandleEditPress() {
@@ -586,7 +667,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
           style={[globalStyles.coffeeNameInput, { height: 100, marginTop: 10 }]} />
 
 
-        <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
+        <TouchableOpacity onPress={HandleSavePress} style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 20 }]} >
           <Text style={globalStyles.titleTextLight}>保存する</Text>
         </TouchableOpacity>
 
