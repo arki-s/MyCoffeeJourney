@@ -36,7 +36,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   const [itemsBrand, setItemsBrand] = useState([]);
 
   const [openBean, setOpenBean] = useState(false);
-  const [valueBean, setValueBean] = useState([]);
+  const [valueBean, setValueBean] = useState<number[]>([]);
   const [itemsBean, setItemsBean] = useState([]);
 
   const [coffeeName, setCoffeeName] = useState("");
@@ -70,7 +70,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   async function getData(id: any) {
     await db.getAllAsync<Coffee>(`
-    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, coffeeBrand.id AS brand_id,GROUP_CONCAT(coffeeBean.name) AS beans
+    SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, coffeeBrand.id AS brand_id,GROUP_CONCAT(coffeeBean.name) AS beans, GROUP_CONCAT(coffeeBean.id) AS beans_id
     FROM coffee
     JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
     LEFT JOIN inclusion ON inclusion.coffee_id = coffee.id
@@ -78,7 +78,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     WHERE coffee.id = ${id}
     GROUP BY coffee.name
     ;`).then((rsp) => {
-      console.log("Details rsp", rsp);
+      // console.log("Details rsp", rsp);
       setCoffee(rsp ? rsp[0] : null);
     }).catch((error) => {
       console.log("reading coffee error!");
@@ -455,9 +455,15 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   function HandleEditPress() {
     if (!coffee) return null;
 
+    let valueBeanArray: number[] = [];
+
+    coffee.beans_id.split(",").map((bean) => {
+      valueBeanArray.push(parseInt(bean));
+    })
+
     setValueBrand(coffee.brand_id);
     setCoffeeName(coffee.name);
-    // setValueBean();
+    setValueBean(valueBeanArray);
     setRoast(coffee.roast);
     setBody(coffee.body);
     setSweetness(coffee.sweetness);
@@ -470,15 +476,15 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   function HandleCloseEditPress() {
     if (!coffee) return null;
 
-    // setValueBrand(coffee.brand_id);
-    setCoffeeName(coffee.name);
-    // setValueBean();
-    setRoast(coffee.roast);
-    setBody(coffee.body);
-    setSweetness(coffee.sweetness);
-    setBitter(coffee.bitter);
-    setAroma(coffee.aroma);
-    setComment(coffee.comment);
+    setValueBrand(0);
+    setCoffeeName("");
+    setValueBean([]);
+    setRoast(1);
+    setBody(1);
+    setSweetness(1);
+    setBitter(1);
+    setAroma(1);
+    setComment("");
     setModalState(null);
   }
 
@@ -528,7 +534,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   const editModal = (
     <Modal animationType='slide'>
       <View style={globalStyles.bigModalView}>
-        <TouchableOpacity onPress={() => setModalState(null)} style={globalStyles.closeModalBtn} >
+        <TouchableOpacity onPress={HandleCloseEditPress} style={globalStyles.closeModalBtn} >
           <AntDesign name="closesquare" size={28} color={Colors.SECONDARY_LIGHT} />
         </TouchableOpacity>
         <Text style={[globalStyles.titleTextLight, { marginBottom: 10 }]}>コーヒー情報の編集</Text>

@@ -31,6 +31,7 @@ export type Coffee = {
   brand: string;
   brand_id: number;
   beans: string;
+  beans_id:string;
   reviews: Review[];
 }
 
