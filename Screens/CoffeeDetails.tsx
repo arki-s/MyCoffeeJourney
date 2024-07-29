@@ -449,15 +449,54 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   //重複コードのためどこかでまとめられるかも　start
 
+  async function checkInclusion(coffee_id: number, bean_id: number) {
+    db.getAllAsync(
+      `SELECT COUNT(*) AS count FROM inclusion WHERE coffee_id = ? AND bean_id = ?;`,
+      [coffee_id, bean_id]
+    ).then((rsp: any) => {
+      console.log("count", rsp[0]);
+      if (rsp[0].count === 0) {
+        return;
+      }
+    }).catch((error) => {
+      console.log("editing inclusion error!")
+      console.log(error.message);
+      return;
+    });
+  }
+
   async function addInclusion(coffee_id: number, bean_id: number) {
+
+    //手順案１
+    //そもそもinclusionいくつあるか検索
+    //編集分のinclusionに一致するものがすでにある数と一致するかどうか
+    //一致しない場合、編集分に含まれていない分を削除
+    //全くの新規情報を保存
+
+    //手順案２
+    //存在するinclusionを全削除
+    //新たに登録し直す
+
+    //コーヒー豆登録があるかどうか確認してあればスキップ -> これだけならできているが機能としては不十分
+    //コーヒー豆登録があっても新しいリストになければ削除も必要（案１か２の実装が必要）
 
     let check: boolean = false;
 
-    db.runAsync(
-      `SELECT COUNT(*) FROM inclusion WHERE coffee_id = ? AND bean_id = ?;`,
+    db.getAllAsync(
+      `SELECT COUNT(*) AS count FROM inclusion WHERE coffee_id = ? AND bean_id = ?;`,
       [coffee_id, bean_id]
-    ).then((rsp) => {
-      console.log("inclusion", rsp);
+    ).then((rsp: any) => {
+      console.log("count", rsp[0]);
+      if (rsp[0].count === 0) {
+        db.runAsync(
+          `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
+          [coffee_id, bean_id]
+        ).catch((error) => {
+          console.log("editing inclusion error!")
+          console.log(error.message);
+          return;
+        });
+      }
     }).catch((error) => {
       console.log("editing inclusion error!")
       console.log(error.message);
@@ -473,15 +512,6 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     //   return;
     // });
 
-
-    // db.runAsync(
-    //   `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
-    //   [coffee_id, bean_id]
-    // ).catch((error) => {
-    //   console.log("editing inclusion error!")
-    //   console.log(error.message);
-    //   return;
-    // });
   }
 
   async function HandleSavePress() {
@@ -491,6 +521,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
     }
 
     try {
+      if (!memorizedId) return null;
       await db.withTransactionAsync(async () => {
         const result = await db.runAsync(
           `UPDATE coffee SET name = ?, roast = ?, body = ?, sweetness = ?, fruity =?, bitter = ?, aroma = ?, comment =?, brand_id = ? WHERE id = ${memorizedId};`,
@@ -502,7 +533,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
         }
 
         for (let i = 0; i < valueBean.length; i++) {
-          addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[i]);
+          addInclusion(memorizedId, valueBean[i]);
         }
 
         await getData(memorizedId);
