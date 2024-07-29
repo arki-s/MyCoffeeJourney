@@ -113,21 +113,6 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       console.log(error.message);
     })
 
-    // await db.getAllAsync(`
-    // SELECT review.rating AS rating, review.comment AS comment, record.endDate AS date
-    // FROM review
-    // JOIN record ON record.id = review.record_id
-    // JOIN coffee ON coffee.id = record.coffee_id
-    // WHERE coffee.id = ${memorizedId}
-    // ORDER BY record.endDate DESC
-    // LIMIT 5;
-    // `).then((rsp: any) => {
-    //   console.log("reviews", rsp);
-    //   setReviews(rsp);
-    // }).catch((error) => {
-    //   console.log("reviews error!");
-    //   console.log(error.message);
-    // })
   }
 
   async function getDataAll() {
@@ -449,17 +434,12 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   //重複コードのためどこかでまとめられるかも　start
 
-  async function checkInclusion(coffee_id: number, bean_id: number) {
-    db.getAllAsync(
-      `SELECT COUNT(*) AS count FROM inclusion WHERE coffee_id = ? AND bean_id = ?;`,
-      [coffee_id, bean_id]
-    ).then((rsp: any) => {
-      console.log("count", rsp[0]);
-      if (rsp[0].count === 0) {
-        return;
-      }
-    }).catch((error) => {
-      console.log("editing inclusion error!")
+  async function deleteInclusion(coffee_id: number) {
+    db.runAsync(
+      `DELETE FROM inclusion WHERE coffee_id = ?;`,
+      [coffee_id]
+    ).catch((error) => {
+      console.log("deleting inclusion error!")
       console.log(error.message);
       return;
     });
@@ -467,50 +447,14 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   async function addInclusion(coffee_id: number, bean_id: number) {
 
-    //手順案１
-    //そもそもinclusionいくつあるか検索
-    //編集分のinclusionに一致するものがすでにある数と一致するかどうか
-    //一致しない場合、編集分に含まれていない分を削除
-    //全くの新規情報を保存
-
-    //手順案２
-    //存在するinclusionを全削除
-    //新たに登録し直す
-
-    //コーヒー豆登録があるかどうか確認してあればスキップ -> これだけならできているが機能としては不十分
-    //コーヒー豆登録があっても新しいリストになければ削除も必要（案１か２の実装が必要）
-
-    let check: boolean = false;
-
-    db.getAllAsync(
-      `SELECT COUNT(*) AS count FROM inclusion WHERE coffee_id = ? AND bean_id = ?;`,
+    db.runAsync(
+      `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
       [coffee_id, bean_id]
-    ).then((rsp: any) => {
-      console.log("count", rsp[0]);
-      if (rsp[0].count === 0) {
-        db.runAsync(
-          `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
-          [coffee_id, bean_id]
-        ).catch((error) => {
-          console.log("editing inclusion error!")
-          console.log(error.message);
-          return;
-        });
-      }
-    }).catch((error) => {
+    ).catch((error) => {
       console.log("editing inclusion error!")
       console.log(error.message);
       return;
     });
-
-    // db.runAsync(
-    //   `INSERT INTO inclusion (coffee_id, bean_id) VALUES (?, ?);`,
-    //   [coffee_id, bean_id]
-    // ).catch((error) => {
-    //   console.log("editing inclusion error!")
-    //   console.log(error.message);
-    //   return;
-    // });
 
   }
 
@@ -530,7 +474,10 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
         if (!result) {
           console.log("editing coffee error!");
+          return;
         }
+
+        deleteInclusion(memorizedId);
 
         for (let i = 0; i < valueBean.length; i++) {
           addInclusion(memorizedId, valueBean[i]);
