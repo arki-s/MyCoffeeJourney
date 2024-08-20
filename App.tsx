@@ -25,7 +25,7 @@ import { CoffeeProvider } from './contexts/CoffeeContext';
 const Tab = createBottomTabNavigator();
 
 // ASSET内のDBファイルを使わずに直接ファイル作成から始める場合は以下
-const db = SQLite.openDatabase('MyCoffeeJourney.db');
+const db = SQLite.openDatabaseAsync('MyCoffeeJourney.db');
 
 // const loadDatabase = async () => {
 //   const dbName = "mySQLiteDB.db";
@@ -64,46 +64,33 @@ export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   // console.log(FileSystem.documentDirectory + 'SQLite/');
 
-  useEffect(() => {
+  useEffect(async () => {
 
-    // loadDatabase()
-    //   .then(() => {
-    //     console.log("successfully loaded DB!");
-    //     setIsLoading(false);
-    //   })
-    //   .catch((error) => console.error(error.message));
-
-    // ASSET内のDBファイルを使わずに直接DB設定する場合は以下を利用
-    db.transactionAsync(async (tx) => {
-      tx.executeSqlAsync(
-        `
+    await (await db).execAsync(
+      `
         CREATE TABLE IF NOT EXISTS coffeeBean (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL
         );
         `
-      );
-    }).catch((error) => {
+    ).catch((error) => {
       console.log("CREATE coffeeBean error!");
       console.log(error.message);
     });
 
-    db.transactionAsync(async (tx) => {
-      tx.executeSqlAsync(
-        `
+    await (await db).execAsync(
+      `
         CREATE TABLE IF NOT EXISTS coffeeBrand (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL);
         `
-      )
-    }).catch((error) => {
+    ).catch((error) => {
       console.log("CREATE coffeeBrand error!");
       console.log(error.message);
     });
 
-    db.transactionAsync(async (tx) => {
-      tx.executeSqlAsync(
-        `
+    await (await db).execAsync(
+      `
         CREATE TABLE IF NOT EXISTS coffee (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           brand_id INTEGER,
@@ -120,15 +107,13 @@ export default function App() {
           aroma REAL DEFAULT 3.0,
           FOREIGN KEY (brand_id) REFERENCES coffeeBrand (id));
         `
-      )
-    }).catch((error) => {
+    ).catch((error) => {
       console.log("CREATE coffee error!");
       console.log(error.message);
     });
 
-    db.transactionAsync(async (tx) => {
-      tx.executeSqlAsync(
-        `
+    await (await db).execAsync(
+      `
         CREATE TABLE IF NOT EXISTS inclusion (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           coffee_id INTEGER,
@@ -136,15 +121,13 @@ export default function App() {
           FOREIGN KEY (coffee_id) REFERENCES coffee (id),
           FOREIGN KEY (bean_id) REFERENCES coffeeBean (id));
         `
-      )
-    }).catch((error) => {
+    ).catch((error) => {
       console.log("CREATE inclusion error!");
       console.log(error.message);
     });
 
-    db.transactionAsync(async (tx) => {
-      tx.executeSqlAsync(
-        `
+    await (await db).execAsync(
+      `
         CREATE TABLE IF NOT EXISTS record (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           coffee_id INTEGER,
@@ -155,15 +138,13 @@ export default function App() {
           grindSize INTEGER DEFAULT 3,
           FOREIGN KEY (coffee_id) REFERENCES coffee (id));
         `
-      )
-    }).catch((error) => {
+    ).catch((error) => {
       console.log("CREATE record error!");
       console.log(error.message);
     });
 
-    db.transactionAsync(async (tx) => {
-      tx.executeSqlAsync(
-        `
+    await (await db).execAsync(
+      `
         CREATE TABLE IF NOT EXISTS review (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           record_id INTEGER,
@@ -171,16 +152,13 @@ export default function App() {
           comment TEXT,
           FOREIGN KEY (record_id) REFERENCES record (id));
         `
-      )
-    }).catch((error) => {
+    ).catch((error) => {
       console.log("CREATE record error!");
       console.log(error.message);
     });
 
     setIsLoading(false);
 
-    // }, []);
-    // ASSET内のDBファイル使わず直接書き込みの場合は以下
   }, [db]);
 
   useEffect(() => {
