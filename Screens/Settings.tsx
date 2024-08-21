@@ -13,9 +13,7 @@ import { CoffeeContext } from '../contexts/CoffeeContext';
 
 
 export default function Settings({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
-  // const [brands, setBrands] = useState<CoffeeBrand[]>([]);
-  // const [beans, setBeans] = useState<CoffeeBean[]>([]);
-  // const { brands, setBrands, beans, setBeans } = useCoffee();
+
   const { brands, setBrands, beans, setBeans } = useContext(CoffeeContext);
   const [brand, setBrand] = useState<string>("");
   const [brandId, setBrandId] = useState<number | null>(null);
@@ -25,14 +23,9 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
   const [editing, setEditing] = useState<"brand" | "bean" | null>(null);
   const [editName, setEditName] = useState("");
   const [modalState, setModalState] = useState<"confirm" | "after" | null>(null);
+  const [malformModal, setMalformModal] = useState(false);
 
   const db = useSQLiteContext();
-
-  // useEffect(() => {
-  //   db.withExclusiveTransactionAsync(async () => {
-  //     await getData();
-  //   })
-  // }, [db])
 
   async function getData() {
     db.getAllAsync<CoffeeBrand>(`
@@ -54,8 +47,32 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     });
   }
 
+  const invalidCharRegex = /[^a-zA-Z0-9ぁ-んーァ-ヶーｱ-ﾝﾞﾟ一-龠\s]/g;
+
+  function malformCheck(word: string) {
+    if (invalidCharRegex.test(word)) {
+      console.log("不正な単語が含まれています");
+
+      setBrandId(null);
+      setEditing(null);
+      setEditName("");
+      setBean("");
+      setBrand("");
+
+      return true;
+    } else {
+      return false;
+    }
+
+  }
+
   async function createBrand() {
     if (!brand) return null;
+
+    if (malformCheck(brand)) {
+      setMalformModal(true);
+      return null;
+    }
 
     db.withTransactionAsync(async () => {
       db.runAsync(
@@ -75,6 +92,11 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
 
   async function editBrand() {
     // if (!editName || !brandId) return null;
+
+    if (malformCheck(editName)) {
+      setMalformModal(true);
+      return null;
+    }
 
     db.withTransactionAsync(async () => {
       db.runAsync(
@@ -123,6 +145,11 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
   async function createBean() {
     if (!bean) return null;
 
+    if (malformCheck(bean)) {
+      setMalformModal(true);
+      return null;
+    };
+
     db.withTransactionAsync(async () => {
       db.runAsync(
         `INSERT INTO coffeeBean (name) VALUES (?);`, [bean]
@@ -140,6 +167,11 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
 
   async function editBean() {
     // if (!beanId || !editName) return null;
+
+    if (malformCheck(editName)) {
+      setMalformModal(true);
+      return null;
+    };
 
     db.withTransactionAsync(async () => {
       db.runAsync(
@@ -250,6 +282,19 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     setModalState("after");
   }
 
+  const malform = (
+    <Modal animationType='slide' transparent={true}>
+      <View style={globalStyles.modalBackdrop}>
+        <View style={globalStyles.modalBasic}>
+          <Text style={globalStyles.titleText}>記号の入力はできません。</Text>
+          <TouchableOpacity onPress={() => setMalformModal(false)} style={[globalStyles.smallCancelBtn, { marginTop: 10 }]}>
+            <Text style={globalStyles.smallCancelBtnText}>閉じる</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
+  )
+
   const editModal = (
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
@@ -281,7 +326,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
           <TouchableOpacity onPress={() => deleteBrand(br.id)}>
             <FontAwesome name="trash" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
-
+          {malformModal && malform}
         </View>
       </View>
     )
@@ -303,7 +348,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
           <TouchableOpacity onPress={() => deleteBean(be.id)}>
             <FontAwesome name="trash" size={24} color={Colors.PRIMARY} />
           </TouchableOpacity>
-
+          {malformModal && malform}
         </View>
       </View>
     )
@@ -376,6 +421,7 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
     </Modal>
   )
 
+
   const deletionAfter = (
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
@@ -411,18 +457,6 @@ export default function Settings({ navigation }: { navigation: NativeStackNaviga
           {modalState == "after" && deletionAfter}
         </View>
 
-
-
-        {/* <TextInput placeholder='new brand name' value={brand} onChangeText={setBrand} style={{ padding: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.PRIMARY }} />
-      <TouchableOpacity style={{ backgroundColor: "red", padding: 20 }} onPress={createBrand}>
-        <Text>Add New Coffee Brand</Text>
-      </TouchableOpacity>
-      {brandList}
-      <TextInput placeholder='new bean name' value={bean} onChangeText={setBean} style={{ padding: 10, borderRadius: 10, borderWidth: 1, borderColor: Colors.PRIMARY }} />
-      <TouchableOpacity style={{ backgroundColor: "pink", padding: 20 }} onPress={createBean}>
-        <Text>Add New Coffee Bean</Text>
-      </TouchableOpacity>
-      {beanList} */}
       </ImageBackground>
     </View>
   )
