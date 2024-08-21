@@ -2,7 +2,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, Modal, Touchable, Text
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { globalStyles } from '../Styles/globalStyles'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { Coffee, RootStackParamList, Review, Record } from '../types'
+import { Coffee, RootStackParamList, Record } from '../types'
 import { RouteProp } from '@react-navigation/native'
 import Header from './Header'
 import { useSQLiteContext } from 'expo-sqlite/next'
@@ -15,8 +15,6 @@ import * as ImageManipulator from 'expo-image-manipulator';
 import { CoffeeContext } from '../contexts/CoffeeContext'
 import DropDownPicker from 'react-native-dropdown-picker'
 import { AntDesign } from '@expo/vector-icons';
-import * as SQLite from 'expo-sqlite/next';
-
 
 type CoffeeDetailsProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'CoffeeDetails'>;
@@ -24,12 +22,12 @@ type CoffeeDetailsProps = {
 }
 
 export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps) {
-  const { setCoffees, brands, setBrands, beans, setBeans, setRecords, reviews, setReviews } = useContext(CoffeeContext);
+  const { setCoffees, brands, beans, setRecords, reviews, setReviews } = useContext(CoffeeContext);
   const [coffee, setCoffee] = useState<Coffee | null>(null);
   const [image, setImage] = useState(false);
   const [count, setCount] = useState(0);
   const [averageRating, setAverageRating] = useState<number | null>(null);
-  // const [reviews, setReviews] = useState<Review[]>([]);
+
   const [modalState, setModalState] = useState<"edit" | "delete" | null>(null);
 
   const [openBrand, setOpenBrand] = useState(false);
@@ -124,7 +122,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
       GROUP BY coffee.name
       ;`).then((rsp) => {
-      console.log(rsp);
+      // console.log(rsp);
       setCoffees(rsp);
 
     }).catch((error) => {
@@ -207,7 +205,6 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   }
 
   const filteredReviews = reviews && reviews.filter(rv => rv.coffee_id === memorizedId);
-  // console.log(filteredReviews);
 
   const pastReviews = filteredReviews && filteredReviews.map((review) => {
     if (!review.date) return null;
@@ -224,8 +221,6 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       </View>
     )
   })
-
-
 
   const coffeeTaste = coffee ? [
     { name: "焙煎度", value: coffee.roast },
@@ -331,7 +326,7 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
           },
         },
       ], {
-      compress: 0.7,
+      compress: 0.9,
       base64: true,
     }
     )
@@ -458,8 +453,10 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
 
   }
 
+  const invalidCharRegex = /[^a-zA-Z0-9ぁ-んーァ-ヶーｱ-ﾝﾞﾟ一-龠\s]/g;
+
   async function HandleSavePress() {
-    if (coffeeName === "" || valueBrand === 0 || valueBean.length == 0) {
+    if (invalidCharRegex.test(coffeeName) || coffeeName === "" || valueBrand === 0 || valueBean.length == 0) {
       setWarningModal(true);
       return;
     }
@@ -491,24 +488,6 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
       console.error("Error saving coffee:", error);
     }
 
-    // db.withTransactionAsync(async () => {
-    //   const result = await db.runAsync(
-    //     `UPDATE coffee SET name = ?, roast = ?, body = ?, sweetness = ?, fruity =?, bitter = ?, aroma = ?, comment =? , brand_id = ?) WHERE id = ${memorizedId};`,
-    //     [coffeeName, roast, body, sweetness, fruity, bitter, aroma, comment, valueBrand])
-
-    //   if (!result) {
-    //     console.log("editing coffee error!");
-    //   }
-
-    //   for (let i = 0; i < valueBean.length; i++) {
-    //     addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[i]);
-    //   }
-
-    //   await getData(memorizedId);
-
-    // })
-
-    // HandleCloseEditPress;
   }
 
   function HandleEditPress() {

@@ -1,29 +1,22 @@
 import { View, Text, TextInput, TouchableOpacity, Modal, ImageBackground, ScrollView } from 'react-native'
-import React, { SetStateAction, useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
-import { Coffee, CoffeeBean, CoffeeBrand, RootStackParamList } from '../types';
+import { Coffee, RootStackParamList } from '../types';
 import { globalStyles } from '../Styles/globalStyles';
 import Header from './Header';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../Styles/Colors';
-import { FontAwesome } from '@expo/vector-icons';
 import { coffeeIndexStyles } from '../Styles/coffeeIndexStyles';
 import * as SQLite from 'expo-sqlite/next';
 import Slider from '@react-native-community/slider';
 import { AntDesign } from '@expo/vector-icons';
 import DropDownPicker from 'react-native-dropdown-picker';
-// import toast from 'react-native-toast-notifications/lib/typescript/toast';
-// import { useToast } from "react-native-toast-notifications";
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { CoffeeContext } from '../contexts/CoffeeContext';
 
 export default function CoffeeIndex({ navigation }: { navigation: NativeStackNavigationProp<RootStackParamList> }) {
-  // const [coffees, setCoffees] = useState<Coffee[]>([]);
-  // const [brands, setBrands] = useState<CoffeeBrand[]>([]);
-  // const [beans, setBeans] = useState<CoffeeBean[]>([]);
-  // const { brands, setBrands, beans, setBeans } = useCoffee();
-  const { coffees, setCoffees, brands, setBrands, beans, setBeans } = useContext(CoffeeContext);
-  // const [newCoffee, setNewCoffee] = useState<Coffee | null>(null);
+
+  const { coffees, setCoffees, brands, beans } = useContext(CoffeeContext);
   const [addModal, setAddModal] = useState(false);
   const [warningModal, setWarningModal] = useState<"warning" | "confirm" | null>(null);
 
@@ -47,7 +40,6 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
   const [searchWord, setSearchWord] = useState("");
 
   const db = useSQLiteContext();
-  // const toast = useToast();
 
   useEffect(() => {
 
@@ -61,9 +53,6 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     beans && beans.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
     setItemsBean(beanDropDown);
 
-    //   db.withExclusiveTransactionAsync(async () => {
-    //     await getData();
-    //   })
   }, [brands, beans])
 
   async function getData() {
@@ -75,7 +64,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
     GROUP BY coffee.name
     ;`).then((rsp) => {
-      console.log("getData works", rsp);
+      // console.log("getData works", rsp);
       setCoffees(rsp);
     }).catch((error) => {
       console.log("reading coffee error!");
@@ -85,7 +74,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     db.getAllAsync<Coffee>(`
       SELECT * FROM coffee
       ;`).then((rsp) => {
-      console.log("coffees", rsp);
+      // console.log("coffees", rsp);
     }).catch((error) => {
       console.log("reading coffee error!");
       console.log(error.message);
@@ -94,55 +83,12 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     db.getAllAsync<Coffee>(`
       SELECT * FROM inclusion
       ;`).then((rsp) => {
-      console.log("inclusion", rsp);
+      // console.log("inclusion", rsp);
     }).catch((error) => {
       console.log("reading coffee error!");
       console.log(error.message);
     });
 
-    // db.getAllAsync<CoffeeBrand>(`
-    // SELECT * FROM coffeeBrand;`).then((rsp) => {
-    //   // console.log("rsp", rsp);
-    //   const brandDropDown: any = [];
-
-    //   rsp.map((br) => { brandDropDown.push({ label: br.name, value: br.id }); })
-
-    //   setItemsBrand(brandDropDown);
-
-    // }).catch((error) => {
-    //   console.log("reading coffee brand error!");
-    //   console.log(error.message);
-    // });
-
-    // const brandDropDown: any = [];
-
-    // brands && brands.map((brand) => {
-    //   brandDropDown.push({ label: brand.name, value: brand.id });
-    // })
-
-    // setItemsBrand(brandDropDown);
-
-    // db.getAllAsync<CoffeeBean>(`
-    // SELECT * FROM coffeeBean;`).then((rsp) => {
-    //   // console.log("rsp", rsp);
-    //   // setBeans(rsp);
-
-    //   const beanDropDown: any = [];
-
-    //   rsp.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
-
-    //   setItemsBean(beanDropDown);
-
-    // }).catch((error) => {
-    //   console.log("reading coffee bean error!");
-    //   console.log(error.message);
-    // });
-
-    // const beanDropDown: any = [];
-
-    // beans && beans.map((be) => { beanDropDown.push({ label: be.name, value: be.id }); })
-
-    // setItemsBean(beanDropDown);
   }
 
   const filteredCoffee = (!coffees) ? [] : coffees.filter((coffee) => {
@@ -177,7 +123,7 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     <Modal animationType='slide' transparent={true}>
       <View style={globalStyles.modalBackdrop}>
         <View style={globalStyles.modalBasic}>
-          <Text style={globalStyles.titleText}>コーヒー名の入力、コーヒーブランドとコーヒー豆の選択は必須項目です。</Text>
+          <Text style={globalStyles.titleText}>コーヒー名(記号不可)の入力、コーヒーブランドとコーヒー豆の選択は必須項目です。</Text>
           <TouchableOpacity style={[globalStyles.smallBtn, { marginTop: 10 }]} onPress={() => setWarningModal(null)}>
             <Text style={globalStyles.smallBtnText}>閉じる</Text>
           </TouchableOpacity>
@@ -210,8 +156,10 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
     });
   }
 
+  const invalidCharRegex = /[^a-zA-Z0-9ぁ-んーァ-ヶーｱ-ﾝﾞﾟ一-龠\s]/g;
+
   async function addNewCoffee() {
-    if (coffeeName === "" || valueBrand === 0 || valueBean.length == 0) {
+    if (invalidCharRegex.test(coffeeName) || coffeeName === "" || valueBrand === 0 || valueBean.length == 0) {
       setWarningModal("warning");
       return;
     }
@@ -221,29 +169,10 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
         `INSERT INTO coffee (name, roast, body, sweetness, fruity, bitter, aroma, comment, brand_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);`,
         [coffeeName, roast, body, sweetness, fruity, bitter, aroma, comment, valueBrand])
 
-      // ).catch((error) => {
-      //   console.log("create coffee error!")
-      //   console.log(error.message);
-      //   return;
-      // });
 
       if (!result) {
         console.log("creating new coffee error!");
       }
-
-      // console.log((result as SQLite.SQLiteRunResult).lastInsertRowId);
-      // console.log(valueBean.length);
-
-      // if (valueBean.length == 1) {
-      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
-      // } else if ((valueBean.length == 2)) {
-      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
-      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
-      // } else if ((valueBean.length == 3)) {
-      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[0]);
-      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[1]);
-      //   addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[2]);
-      // }
 
       for (let i = 0; i < valueBean.length; i++) {
         addInclusion((result as SQLite.SQLiteRunResult).lastInsertRowId, valueBean[i]);
@@ -349,10 +278,6 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
 
         {setTaste}
 
-        {/* <TouchableOpacity style={[globalStyles.smallBtn, { alignSelf: 'center', marginVertical: 10 }]} onPress={() => setAddModal(false)}>
-          <Text style={globalStyles.smallBtnText}>画像アップロード</Text>
-        </TouchableOpacity> */}
-
         <TextInput placeholder='コメントを入力' maxLength={200} numberOfLines={4} multiline={true}
           value={comment} onChangeText={(text) => setComment(text)}
           style={[globalStyles.coffeeNameInput, { height: 100, marginTop: 10 }]} />
@@ -373,7 +298,6 @@ export default function CoffeeIndex({ navigation }: { navigation: NativeStackNav
       <ImageBackground source={require('../assets/texture.jpg')} style={{ width: '100%', height: '100%' }}>
         <Header title={'My図鑑'} />
         <TextInput placeholder='キーワードで検索' style={coffeeIndexStyles.searchInput} value={searchWord} onChangeText={(text) => setSearchWord(text)} />
-        {/* <FontAwesome name="search" size={30} color={Colors.PRIMARY} /> */}
         <ScrollView>
           {filteredCoffee.length != 0 ? list : (
             <Text style={globalStyles.titleText}>データがありません</Text>
