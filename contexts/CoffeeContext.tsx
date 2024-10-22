@@ -1,11 +1,7 @@
-import { View, Text } from 'react-native'
 import React, { Dispatch, SetStateAction, createContext, useEffect, useState } from 'react'
 import { useSQLiteContext } from 'expo-sqlite/next';
 import { Coffee, CoffeeBean, CoffeeBrand, Record, Review } from '../types';
-import * as SQLite from 'expo-sqlite';
 import { useFocusEffect } from '@react-navigation/native';
-
-//comment again
 
 type CoffeeContextValue = {
   coffees: Coffee[] | null;
@@ -43,7 +39,6 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [records, setRecords] = useState<Record[] | null>([]);
   const [reviews, setReviews] = useState<Review[] | null>([]);
 
-  // const db = SQLite.openDatabase('MyCoffeeJourney.db');
   const db = useSQLiteContext();
 
   useFocusEffect(
@@ -76,26 +71,6 @@ export const CoffeeProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       console.log("reading coffee error!");
       console.log(error.message);
     });
-
-    // db.getAllAsync<Coffee>(`
-    //   SELECT * FROM coffee
-    //   ;`).then((rsp) => {
-    //   console.log("all coffee", rsp);
-
-    // }).catch((error) => {
-    //   console.log("reading coffee error!");
-    //   console.log(error.message);
-    // });
-
-    // db.getAllAsync<Coffee>(`
-    //   SELECT * FROM inclusion
-    //   ;`).then((rsp) => {
-    //   console.log("all coffee", rsp);
-
-    // }).catch((error) => {
-    //   console.log("reading coffee error!");
-    //   console.log(error.message);
-    // });
 
     db.getAllAsync<CoffeeBrand>(`
       SELECT * FROM coffeeBrand;`).then((rsp) => {

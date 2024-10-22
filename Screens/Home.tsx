@@ -44,8 +44,6 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     { label: '⭐️⭐️⭐️⭐️⭐️', value: 5 }
   ]);
 
-  // console.log(startDate.getTime());
-
   const db = useSQLiteContext();
 
   useEffect(() => {
@@ -54,58 +52,9 @@ export default function Home({ navigation }: { navigation: NativeStackNavigation
     coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
     setItemsCoffee(coffeeDropDown);
 
-    // db.withExclusiveTransactionAsync(async () => {
-    //   await getData();
-    // })
   }, [coffees])
 
-  // console.log(itemsCoffee);
-
   async function getData() {
-    // db.getAllAsync<Coffee>(`
-    // SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
-    // FROM coffee
-    // JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    // JOIN inclusion ON inclusion.coffee_id = coffee.id
-    // JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
-    // GROUP BY coffee.name
-    // `).then((rsp) => {
-    //   // console.log("rsp", rsp);
-    //   const coffeeDropDown: any = [];
-
-    //   rsp.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
-
-    //   setItemsCoffee(coffeeDropDown);
-
-    // }).catch((error) => {
-    //   console.log("loading coffee error!");
-    //   console.log(error.message);
-    //   return;
-    // });
-
-    // const coffeeDropDown: any = [];
-    // coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
-    // setItemsCoffee(coffeeDropDown);
-
-    // const response = await db.getAllAsync<Record>(`
-    // SELECT record.id, record.startDate, record.gram, record.cost, record.grindSize, coffee.name AS coffeeName, coffeeBrand.name AS brandName, coffee.id AS coffeeId
-    // FROM record
-    // JOIN coffee ON coffee.id = record.coffee_id
-    // JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    // WHERE record.endDate IS NULL;
-    // `);
-
-    // if (!response) {
-    //   console.log("loading record error!");
-    //   return;
-    // }
-
-    // console.log(response);
-
-    // const date = new Date(response[0]["startDate"]);
-    // console.log(date);
-
-    // setRecords(response);
 
     db.getAllAsync<Record>(`
       SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId

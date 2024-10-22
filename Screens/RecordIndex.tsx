@@ -47,53 +47,10 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
     coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
     setItemsCoffee(coffeeDropDown);
 
-    // db.withExclusiveTransactionAsync(async () => {
-    //   await getData();
-    // })
   }, [coffees])
 
   async function getData() {
-    // db.getAllAsync<Record>(`
-    // SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
-    // FROM record
-    // JOIN coffee ON coffee.id = record.coffee_id
-    // JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    // JOIN review ON review.record_id = record.id
-    // ORDER BY record.endDate DESC;
-    // `).then((rsp) => {
-    //   // console.log(rsp);
-    //   setRecords(rsp);
-    // }).catch((error) => {
-    //   console.log("loading error!");
-    //   console.log(error.message);
-    //   return;
-    // })
-
-    // db.getAllAsync<Coffee>(`
-    //   SELECT coffee.id, coffee.name, coffee.photo, coffee.favorite, coffee.drinkCount, coffee.comment, coffee.roast, coffee.body, coffee.sweetness, coffee.fruity, coffee.bitter, coffee.aroma, coffeeBrand.name AS brand, GROUP_CONCAT(coffeeBean.name) AS beans
-    //   FROM coffee
-    //   JOIN coffeeBrand ON coffeeBrand.id = coffee.brand_id
-    //   JOIN inclusion ON inclusion.coffee_id = coffee.id
-    //   JOIN coffeeBean ON coffeeBean.id = inclusion.bean_id
-    //   GROUP BY coffee.name
-    //   `).then((rsp) => {
-    //   // console.log("rsp", rsp);
-    //   const coffeeDropDown: any = [];
-
-    //   rsp.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
-
-    //   setItemsCoffee(coffeeDropDown);
-
-    // }).catch((error) => {
-    //   console.log("loading coffee error!");
-    //   console.log(error.message);
-    //   return;
-    // });
-
-    // const coffeeDropDown: any = [];
-    // coffees && coffees.map((cf) => { coffeeDropDown.push({ label: `${cf.name}(${cf.brand})`, value: cf.id }); })
-    // setItemsCoffee(coffeeDropDown);
-
+    
     db.getAllAsync<Record>(`
       SELECT record.*, coffee.name AS coffeeName, coffeeBrand.name AS brandName, review.rating AS rating, review.comment AS comment, coffee.id AS coffeeId, review.id AS reviewId
       FROM record
@@ -388,8 +345,6 @@ export default function RecordIndex({ navigation }: { navigation: NativeStackNav
   }) : (
     <Text style={globalStyles.titleText}>履歴がありません</Text>
   )
-
-
 
   return (
     <View style={globalStyles.container}>

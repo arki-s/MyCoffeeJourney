@@ -1,7 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import { footerStyles } from '../Styles/footerStyles'
-import { useNavigationState } from '@react-navigation/native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 
 

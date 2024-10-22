@@ -52,9 +52,14 @@ export default function CoffeeDetails({ navigation, route }: CoffeeDetailsProps)
   const memorizedId = useMemo(() => route.params.id, [route.params.id]);
 
   useEffect(() => {
-    db.withExclusiveTransactionAsync(async () => {
-      await getData(memorizedId);
-    })
+
+    const fetchData = async () => {
+      db.withExclusiveTransactionAsync(async () => {
+        await getData(memorizedId);
+      })
+    };
+
+    fetchData();
 
     const brandDropDown: any = [];
     brands && brands.map((brand) => {

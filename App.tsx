@@ -2,7 +2,6 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { useFonts } from 'expo-font';
 import * as Font from 'expo-font';
 import * as SQLite from 'expo-sqlite';
 import { SQLiteProvider } from 'expo-sqlite/next';
@@ -13,8 +12,6 @@ import ReviewIndex from './Screens/ReviewIndex';
 import Analytics from './Screens/Analytics';
 import RecordIndex from './Screens/RecordIndex';
 import DBTest from './Screens/DBTest';
-import { Asset } from 'expo-asset';
-import * as FileSystem from "expo-file-system";
 import Footer from './Screens/Footer';
 import Settings from './Screens/Settings';
 import { ToastProvider } from 'react-native-toast-notifications'
@@ -64,99 +61,104 @@ export default function App() {
   const [fontsLoaded, setFontsLoaded] = useState(false);
   // console.log(FileSystem.documentDirectory + 'SQLite/');
 
-  useEffect(async () => {
+  useEffect(() => {
 
-    await (await db).execAsync(
-      `
-        CREATE TABLE IF NOT EXISTS coffeeBean (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL
-        );
+    const initializeDatabase = async () => {
+
+      await (await db).execAsync(
         `
-    ).catch((error) => {
-      console.log("CREATE coffeeBean error!");
-      console.log(error.message);
-    });
-
-    await (await db).execAsync(
-      `
-        CREATE TABLE IF NOT EXISTS coffeeBrand (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL);
-        `
-    ).catch((error) => {
-      console.log("CREATE coffeeBrand error!");
-      console.log(error.message);
-    });
-
-    await (await db).execAsync(
-      `
-        CREATE TABLE IF NOT EXISTS coffee (
+          CREATE TABLE IF NOT EXISTS coffeeBean (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          brand_id INTEGER,
-          name TEXT NOT NULL,
-          photo BLOB,
-          favorite INTEGER DEFAULT 0,
-          drinkCount INTEGER DEFAULT 0,
-          comment TEXT,
-          roast REAL DEFAULT 1.0,
-          body REAL DEFAULT 1.0,
-          sweetness REAL DEFAULT 1.0,
-          fruity REAL DEFAULT 1.0,
-          bitter REAL DEFAULT 3.0,
-          aroma REAL DEFAULT 3.0,
-          FOREIGN KEY (brand_id) REFERENCES coffeeBrand (id));
+          name TEXT NOT NULL
+          );
+          `
+      ).catch((error) => {
+        console.log("CREATE coffeeBean error!");
+        console.log(error.message);
+      });
+  
+      await (await db).execAsync(
         `
-    ).catch((error) => {
-      console.log("CREATE coffee error!");
-      console.log(error.message);
-    });
-
-    await (await db).execAsync(
-      `
-        CREATE TABLE IF NOT EXISTS inclusion (
+          CREATE TABLE IF NOT EXISTS coffeeBrand (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
-          coffee_id INTEGER,
-          bean_id INTEGER,
-          FOREIGN KEY (coffee_id) REFERENCES coffee (id),
-          FOREIGN KEY (bean_id) REFERENCES coffeeBean (id));
+          name TEXT NOT NULL);
+          `
+      ).catch((error) => {
+        console.log("CREATE coffeeBrand error!");
+        console.log(error.message);
+      });
+  
+      await (await db).execAsync(
         `
-    ).catch((error) => {
-      console.log("CREATE inclusion error!");
-      console.log(error.message);
-    });
-
-    await (await db).execAsync(
-      `
-        CREATE TABLE IF NOT EXISTS record (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          coffee_id INTEGER,
-          startDate INTEGER NOT NULL,
-          endDate INTEGER,
-          gram INTEGER DEFAULT 0,
-          cost INTEGER DEFAULT 0,
-          grindSize INTEGER DEFAULT 3,
-          FOREIGN KEY (coffee_id) REFERENCES coffee (id));
+          CREATE TABLE IF NOT EXISTS coffee (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            brand_id INTEGER,
+            name TEXT NOT NULL,
+            photo BLOB,
+            favorite INTEGER DEFAULT 0,
+            drinkCount INTEGER DEFAULT 0,
+            comment TEXT,
+            roast REAL DEFAULT 1.0,
+            body REAL DEFAULT 1.0,
+            sweetness REAL DEFAULT 1.0,
+            fruity REAL DEFAULT 1.0,
+            bitter REAL DEFAULT 3.0,
+            aroma REAL DEFAULT 3.0,
+            FOREIGN KEY (brand_id) REFERENCES coffeeBrand (id));
+          `
+      ).catch((error) => {
+        console.log("CREATE coffee error!");
+        console.log(error.message);
+      });
+  
+      await (await db).execAsync(
         `
-    ).catch((error) => {
-      console.log("CREATE record error!");
-      console.log(error.message);
-    });
-
-    await (await db).execAsync(
-      `
-        CREATE TABLE IF NOT EXISTS review (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          record_id INTEGER,
-          rating INTEGER DEFAULT 3,
-          comment TEXT,
-          FOREIGN KEY (record_id) REFERENCES record (id));
+          CREATE TABLE IF NOT EXISTS inclusion (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            coffee_id INTEGER,
+            bean_id INTEGER,
+            FOREIGN KEY (coffee_id) REFERENCES coffee (id),
+            FOREIGN KEY (bean_id) REFERENCES coffeeBean (id));
+          `
+      ).catch((error) => {
+        console.log("CREATE inclusion error!");
+        console.log(error.message);
+      });
+  
+      await (await db).execAsync(
         `
-    ).catch((error) => {
-      console.log("CREATE record error!");
-      console.log(error.message);
-    });
+          CREATE TABLE IF NOT EXISTS record (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            coffee_id INTEGER,
+            startDate INTEGER NOT NULL,
+            endDate INTEGER,
+            gram INTEGER DEFAULT 0,
+            cost INTEGER DEFAULT 0,
+            grindSize INTEGER DEFAULT 3,
+            FOREIGN KEY (coffee_id) REFERENCES coffee (id));
+          `
+      ).catch((error) => {
+        console.log("CREATE record error!");
+        console.log(error.message);
+      });
+  
+      await (await db).execAsync(
+        `
+          CREATE TABLE IF NOT EXISTS review (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            record_id INTEGER,
+            rating INTEGER DEFAULT 3,
+            comment TEXT,
+            FOREIGN KEY (record_id) REFERENCES record (id));
+          `
+      ).catch((error) => {
+        console.log("CREATE record error!");
+        console.log(error.message);
+      });
 
+    };
+
+    initializeDatabase();
     setIsLoading(false);
 
   }, [db]);
